@@ -13,6 +13,7 @@ A toy project to study ray tracing and refresh my Vulkan understanding.
 
 ## Building and running
 - `mkdir build`
+- `cd build`
 - `cmake ..`
 - `make`
 - `./VKRT`
