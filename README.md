@@ -1,7 +1,7 @@
-# VRTE 
+# VKRT
 Vulkan Ray Tracing Engine
 
-Personal project to study ray tracing and refresh my Vulkan understanding
+A toy project to study ray tracing and refresh my Vulkan understanding.
 
 ## Goals of this project
 
@@ -10,3 +10,9 @@ Personal project to study ray tracing and refresh my Vulkan understanding
 - Refresh C++ knowledge
 - Learn better clean-code guidelines in C++
 - Learn better project structure
+
+## Building and running
+- `mkdir build`
+- `cmake ..`
+- `make`
+- `./VKRT`
