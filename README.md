@@ -1,28 +1,12 @@
-# VulkanEngine
+# VRTE 
+Vulkan Ray Tracing Engine
 
-This is my try at learning C++ and Vulkan at the same time. Do not expect much from this project.
+Personal project to study ray tracing and refresh my Vulkan understanding
 
-## Todo
-- Refactoring
-- Fix synchronization when command buffers take too long
-- Make sure all pointers are deleted after usage
-- Move implementation specific code out of the rendering logic
-- Implement Vulkan
-  - Use initializers to clean up vulkan code
-  - Load shaders dynamically
-- Build engine on Windows as well
+## Goals of this project
 
-## Installation
-
-Required dependencies
-- `yay -S vulkan-devel boost tinyobjloader glm glfw-x11`
-
-Build:
-1. `mkdir build`
-2. `cd build`
-3. `cmake ..`
-4. `make`
-
-## Running
-
-Launch the `Vulkanengine` application in build/
+- Develop a better thinking-then-doing approach rather than doing-then-thinking
+- Establish a better understanding of Vulkan
+- Refresh C++ knowledge
+- Learn better clean-code guidelines in C++
+- Learn better project structure
