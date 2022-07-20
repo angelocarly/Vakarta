@@ -8,7 +8,7 @@ project(VKRT VERSION 0.1.0)
 set(SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src")
 set(LIB_DIR "${CMAKE_CURRENT_SOURCE_DIR}/lib")
 file(GLOB_RECURSE SOURCE_FILES "src/*" "src/*.cpp")
-set(SOURCES ${SOURCE_FILES})
+set(SOURCES ${SOURCE_FILES} src/vks/vks_device.cpp src/vks/vks_device.h src/engine.cpp src/engine.h)
 
 # Executable definition and properties
 add_executable(${PROJECT_NAME} ${SOURCES})
