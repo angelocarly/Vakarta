@@ -6,6 +6,7 @@
 #define VKRT_ENGINE_H
 
 
+#include <GLFW/glfw3.h>
 #include "vks/vks_device.h"
 
 class Engine
@@ -19,8 +20,16 @@ public:
     void update();
     void render();
 
+    bool shouldClose();
+
 private:
+    void initWindow();
+    void destroyWindow();
+    void printVulkanInfo();
+
+    GLFWwindow* window;
     VksDevice device;
+
 };
 
 

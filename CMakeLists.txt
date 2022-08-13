@@ -100,12 +100,6 @@ include_directories(${GLM_INCLUDE_DIRS})
 link_directories(${GLM_LIBRARY_DIRS})
 add_definitions(${GLM_DEFINITIONS})
 
-# tinyobj
-find_package(tinyobjloader REQUIRED)
-include_directories(${TINYOBJLOADER_INCLUDE_DIRS})
-link_directories(${TINYOBJELOADER_LIBRARY_DIRS})
-add_definitions(${TINYOBJLOADER_DEFINITIONS})
-
 # stb
 set(STB_DIR "${LIB_DIR}/stb")
 #add_library("glad" "${GLAD_DIR}/src/glad.c")

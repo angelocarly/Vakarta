@@ -16,8 +16,11 @@ int main()
     try
     {
         spdlog::info("Started");
-        engine.update();
-        engine.render();
+        while( !engine.shouldClose() )
+        {
+            engine.update();
+            engine.render();
+        }
     } catch (const std::exception &e)
     {
         std::cerr << e.what() << std::endl;

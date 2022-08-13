@@ -4,6 +4,7 @@
 
 #include <vulkan/vulkan.h>
 #include <spdlog/spdlog.h>
+#include <GLFW/glfw3.h>
 #include "vks_device.h"
 
 VksDevice::VksDevice()
@@ -13,7 +14,7 @@ VksDevice::VksDevice()
 
 VksDevice::~VksDevice()
 {
-
+    destroyInstance();
 }
 
 void VksDevice::createInstance()
@@ -33,11 +34,33 @@ void VksDevice::createInstance()
     createInfo.enabledLayerCount = 0;
 //    createInfo.ppEnabledLayerNames = []; // No enabled layers
     createInfo.enabledExtensionCount = 0;
-//    createInfo.ppEnabledExtensionNames = []; // No enabled extensions
-    VkInstance instance {};
+
+    // Setup extensions
+    uint32_t glfwExtensionCount = 0;
+    const char** glfwExtensions;
+    glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
+
+    std::vector<const char*> requiredExtensions;
+    for(uint32_t i = 0; i < glfwExtensionCount; i++) {
+        requiredExtensions.emplace_back(glfwExtensions[i]);
+    }
+
+    // Extension to allow Vulkan on
+    requiredExtensions.emplace_back(VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME);
+
+    createInfo.flags |= VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
+
+    createInfo.enabledExtensionCount = (uint32_t) requiredExtensions.size();
+    createInfo.ppEnabledExtensionNames = requiredExtensions.data();
 
     if( vkCreateInstance(&createInfo, nullptr, &instance) != VK_SUCCESS )
     {
-        spdlog::error("err");
+        spdlog::error("Failed to create a Vulkan instance");
+        throw std::runtime_error("Failed to create a Vulkan instance");
     }
+}
+
+void VksDevice::destroyInstance()
+{
+    vkDestroyInstance(instance, nullptr);
 }
