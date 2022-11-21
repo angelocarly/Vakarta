@@ -1,0 +1,143 @@
+************************************* Invoked: Thu Nov 17 11:44:57 2022
+[0] Arguments: /Volumes/vulkansdk-macos-1.3.231.1/InstallVulkan.app/Contents/MacOS/InstallVulkan
+[4] Operations sanity check succeeded.
+[5] Language: en-BE
+[103] Loaded control script ":/metadata/installer-config/installscript_qs.qs"
+[103] Using control script: ":/metadata/installer-config/installscript_qs.qs"
+[1543] Preparing meta information download...
+[2990] Retrieving meta information from remote repository...
+[3479] Extracting meta information...
+[9881] Component: com.lunarg.vulkan.core
+[10010] Component: com.lunarg.vulkan.usr
+[10042] Component: com.lunarg.vulkan.glm
+[10075] Component: com.lunarg.vulkan.sdl2
+[10113] Component: com.lunarg.vulkan.volk
+[10143] Component: com.lunarg.vulkan.vma
+[12219] Component: com.lunarg.vulkan.core
+[12271] Component: com.lunarg.vulkan.usr
+[12305] Component: com.lunarg.vulkan.glm
+[12336] Component: com.lunarg.vulkan.sdl2
+[12369] Component: com.lunarg.vulkan.volk
+[12399] Component: com.lunarg.vulkan.vma
+[20650] Installation space required: "2.27 GB" Temporary space required: "473.51 MB" Local repository size: "0.00 bytes"
+[20659] Tmp and install directories are on the same volume. Volume mount point: "/" Free space available: "367.13 GB"
+[25210] perform  operation: Mkdir
+[25210] 	- arguments: /Users/angelo/VulkanSDK
+[25210] Done
+[25215] backup  operation: Mkdir
+[25215] 	- arguments: /Users/angelo/VulkanSDK/1.3.231.1
+[25215] Done
+[25215] perform  operation: Mkdir
+[25215] 	- arguments: /Users/angelo/VulkanSDK/1.3.231.1
+[25215] Done
+[25216] Preparing the installation...
+[25216] Install size: 6 components
+[25216] Downloading packages...
+[25216] Downloading archive "1.3.231.1glm.7z.sha1" for component GLM Headers..
+[25723] Downloading archive "1.3.231.1glm.7z" for component GLM Headers..
+[26696] Downloading archive "1.3.231.1sdl2.7z.sha1" for component SDL2 libraries and headers..
+[27260] Downloading archive "1.3.231.1sdl2.7z" for component SDL2 libraries and headers..
+[28430] Downloading archive "1.3.231.1vma.7z.sha1" for component Vulkan Memory Allocator header..
+[28649] Downloading archive "1.3.231.1vma.7z" for component Vulkan Memory Allocator header..
+[29580] Installing component Vulkan SDK
+[29583] backup com.lunarg.vulkan operation: License
+[29583] 	- arguments:
+[29583] Done
+[29583] perform com.lunarg.vulkan operation: License
+[29583] 	- arguments:
+[29584] Done
+[29587] Installing component The Vulkan SDK Core (Always Installed)
+[29588] backup com.lunarg.vulkan.core operation: Extract
+[29588] 	- arguments: installer://com.lunarg.vulkan.core/1.3.231.1Helpers.7z, /Users/angelo/VulkanSDK/1.3.231.1
+[29588] Done
+[29588] perform com.lunarg.vulkan.core operation: Extract
+[29588] 	- arguments: installer://com.lunarg.vulkan.core/1.3.231.1Helpers.7z, /Users/angelo/VulkanSDK/1.3.231.1
+[29662] Done
+[29662] backup com.lunarg.vulkan.core operation: Extract
+[29662] 	- arguments: installer://com.lunarg.vulkan.core/1.3.231.1vulkan.7z, /Users/angelo/VulkanSDK/1.3.231.1
+[29662] Done
+[29662] perform com.lunarg.vulkan.core operation: Extract
+[29662] 	- arguments: installer://com.lunarg.vulkan.core/1.3.231.1vulkan.7z, /Users/angelo/VulkanSDK/1.3.231.1
+[43380] Done
+[43380] backup com.lunarg.vulkan.core operation: License
+[43380] 	- arguments:
+[43380] Done
+[43380] perform com.lunarg.vulkan.core operation: License
+[43380] 	- arguments:
+[43380] Done
+[43382] Installing component System Global Installation
+[43384] "Execute" as admin: true
+[43384] backup com.lunarg.vulkan.usr operation: Execute
+[43384] 	- arguments: python3, /Users/angelo/VulkanSDK/1.3.231.1/install_vulkan.py, --install-json-location, /Users/angelo/VulkanSDK/1.3.231.1, --force-install, UNDOEXECUTE, bash, -c, /Users/angelo/VulkanSDK/1.3.231.1/uninstall.sh
+[43384] Done
+[43386] perform com.lunarg.vulkan.usr operation: Execute
+[43386] 	- arguments: python3, /Users/angelo/VulkanSDK/1.3.231.1/install_vulkan.py, --install-json-location, /Users/angelo/VulkanSDK/1.3.231.1, --force-install, UNDOEXECUTE, bash, -c, /Users/angelo/VulkanSDK/1.3.231.1/uninstall.sh
+[43386] python3" started, arguments: "/Users/angelo/VulkanSDK/1.3.231.1/install_vulkan.py --install-json-location /Users/angelo/VulkanSDK/1.3.231.1 --force-install
+[47923] Done
+[47924] Installing component GLM Headers.
+[47926] backup com.lunarg.vulkan.glm operation: Extract
+[47926] 	- arguments: installer://com.lunarg.vulkan.glm/1.3.231.1glm.7z, /Users/angelo/VulkanSDK/1.3.231.1
+[47926] Done
+[47929] perform com.lunarg.vulkan.glm operation: Extract
+[47929] 	- arguments: installer://com.lunarg.vulkan.glm/1.3.231.1glm.7z, /Users/angelo/VulkanSDK/1.3.231.1
+[48014] Done
+[48016] Installing component SDL2 libraries and headers.
+[48017] backup com.lunarg.vulkan.sdl2 operation: Extract
+[48017] 	- arguments: installer://com.lunarg.vulkan.sdl2/1.3.231.1sdl2.7z, /Users/angelo/VulkanSDK/1.3.231.1
+[48017] Done
+[48018] perform com.lunarg.vulkan.sdl2 operation: Extract
+[48018] 	- arguments: installer://com.lunarg.vulkan.sdl2/1.3.231.1sdl2.7z, /Users/angelo/VulkanSDK/1.3.231.1
+[48186] Done
+[48188] Installing component Vulkan Memory Allocator header.
+[48190] backup com.lunarg.vulkan.vma operation: Extract
+[48190] 	- arguments: installer://com.lunarg.vulkan.vma/1.3.231.1vma.7z, /Users/angelo/VulkanSDK/1.3.231.1
+[48190] Done
+[48191] perform com.lunarg.vulkan.vma operation: Extract
+[48191] 	- arguments: installer://com.lunarg.vulkan.vma/1.3.231.1vma.7z, /Users/angelo/VulkanSDK/1.3.231.1
+[48199] Done
+[48202] backup  operation: Mkdir
+[48202] 	- arguments: /Users/angelo/VulkanSDK/1.3.231.1/MaintenanceTool.app/Contents/MacOS
+[48203] Done
+[48213] perform  operation: Mkdir
+[48213] 	- arguments: /Users/angelo/VulkanSDK/1.3.231.1/MaintenanceTool.app/Contents/MacOS
+[48213] Done
+[48215] backup  operation: Copy
+[48215] 	- arguments: /Volumes/vulkansdk-macos-1.3.231.1/InstallVulkan.app/Contents/MacOS/../PkgInfo, /Users/angelo/VulkanSDK/1.3.231.1/MaintenanceTool.app/Contents/MacOS/../PkgInfo
+[48215] Done
+[48215] perform  operation: Copy
+[48215] 	- arguments: /Volumes/vulkansdk-macos-1.3.231.1/InstallVulkan.app/Contents/MacOS/../PkgInfo, /Users/angelo/VulkanSDK/1.3.231.1/MaintenanceTool.app/Contents/MacOS/../PkgInfo
+[48216] Done
+[48216] backup  operation: Copy
+[48216] 	- arguments: /Volumes/vulkansdk-macos-1.3.231.1/InstallVulkan.app/Contents/MacOS/../Info.plist, /Users/angelo/VulkanSDK/1.3.231.1/MaintenanceTool.app/Contents/MacOS/../Info.plist
+[48216] Done
+[48216] perform  operation: Copy
+[48216] 	- arguments: /Volumes/vulkansdk-macos-1.3.231.1/InstallVulkan.app/Contents/MacOS/../Info.plist, /Users/angelo/VulkanSDK/1.3.231.1/MaintenanceTool.app/Contents/MacOS/../Info.plist
+[48216] Done
+[48216] perform  operation: CopyDirectory
+[48216] 	- arguments: /Volumes/vulkansdk-macos-1.3.231.1/InstallVulkan.app/Contents/MacOS/../Resources/qt_menu.nib, /Users/angelo/VulkanSDK/1.3.231.1/MaintenanceTool.app/Contents/MacOS/../Resources/qt_menu.nib
+[48216] Done
+[48217] backup  operation: Mkdir
+[48217] 	- arguments: /Users/angelo/VulkanSDK/1.3.231.1/MaintenanceTool.app/Contents/Resources
+[48217] Done
+[48217] perform  operation: Mkdir
+[48217] 	- arguments: /Users/angelo/VulkanSDK/1.3.231.1/MaintenanceTool.app/Contents/Resources
+[48217] Done
+[48217] backup  operation: Copy
+[48217] 	- arguments: /Volumes/vulkansdk-macos-1.3.231.1/InstallVulkan.app/Contents/MacOS/../Resources/InstallVulkan.icns, /Users/angelo/VulkanSDK/1.3.231.1/MaintenanceTool.app/Contents/MacOS/../Resources/InstallVulkan.icns
+[48217] Done
+[48217] perform  operation: Copy
+[48217] 	- arguments: /Volumes/vulkansdk-macos-1.3.231.1/InstallVulkan.app/Contents/MacOS/../Resources/InstallVulkan.icns, /Users/angelo/VulkanSDK/1.3.231.1/MaintenanceTool.app/Contents/MacOS/../Resources/InstallVulkan.icns
+[48222] Done
+[48222] perform  operation: CopyDirectory
+[48222] 	- arguments: /Volumes/vulkansdk-macos-1.3.231.1/InstallVulkan.app/Contents/MacOS/../Frameworks, /Users/angelo/VulkanSDK/1.3.231.1/MaintenanceTool.app/Contents/MacOS/../Frameworks
+[48222] Done
+[48223] perform  operation: CopyDirectory
+[48223] 	- arguments: /Volumes/vulkansdk-macos-1.3.231.1/InstallVulkan.app/Contents/MacOS/../plugins, /Users/angelo/VulkanSDK/1.3.231.1/MaintenanceTool.app/Contents/MacOS/../plugins
+[48223] Done
+[48225] Writing maintenance tool: "/Users/angelo/VulkanSDK/1.3.231.1/MaintenanceTool.app/Contents/MacOS/MaintenanceTool.new"
+[48225] Writing maintenance tool.
+[48253] Wrote permissions for maintenance tool.
+[48259] Maintenance tool restart: false.
+[48260] Installation finished!
+[65612] Warning: QString::arg: Argument missing: Launch the Vulkan Configurator and Vulkan Hardware Capabilities Viewer, Vulkan SDK
+[66201] done.warning : NOTICE : NOTICE: As of the 1.3.216 SDK release,  the Vulkan Portability Enumeration extension is being enforced by the Vulkan loader.  Failure to 'opt in' for non-conformant Vulkan implementations will cause applications to fail to find the MoltenVK ICD.  See the macOS release notes for more information.
