@@ -2,6 +2,7 @@
 #include <cstdlib>
 #include <spdlog/spdlog.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
+#include "engine.h"
 
 void setup_logging();
 
@@ -10,9 +11,16 @@ int main()
 
     setup_logging();
 
+    Engine engine;
+
     try
     {
-        spdlog::info("Hello world!");
+        spdlog::info("Started");
+        while( !engine.shouldClose() )
+        {
+            engine.update();
+            engine.render();
+        }
     } catch (const std::exception &e)
     {
         std::cerr << e.what() << std::endl;

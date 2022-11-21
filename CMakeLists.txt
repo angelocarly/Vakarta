@@ -2,16 +2,27 @@
 
 # Project definition
 cmake_minimum_required(VERSION 3.1)
-project(VRTE VERSION 0.1.0)
+project(VKRT VERSION 0.1.0)
 
 # Source files
 set(SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src")
 set(LIB_DIR "${CMAKE_CURRENT_SOURCE_DIR}/lib")
 file(GLOB_RECURSE SOURCE_FILES "src/*" "src/*.cpp")
-set(SOURCES ${SOURCE_FILES})
+set(SOURCES ${SOURCE_FILES}
+        src/vks/Source/VksInstance.cpp
+        src/vks/Source/VksPhysicalDevice.cpp
+        src/vks/Source/VksLogicalDevice.cpp
+    src/engine.cpp
+)
+set(HEADERS
+        src/vks/VksInstance.h
+        src/vks/VksPhysicalDevice.h
+        src/vks/VksDevice.h
+    src/engine.h
+)
 
 # Executable definition and properties
-add_executable(${PROJECT_NAME} ${SOURCES})
+add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS})
 target_include_directories(${PROJECT_NAME} PUBLIC "${SRC_DIR}")
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 17)
 
@@ -48,44 +59,26 @@ add_custom_target(
 
 add_dependencies(${PROJECT_NAME} Shaders)
 
-add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_FILE_DIR:VRTE>/shaders/"
+add_custom_command(
+        TARGET ${PROJECT_NAME} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_FILE_DIR:VKRT>/shaders/"
         COMMAND ${CMAKE_COMMAND} -E copy_directory
         "${PROJECT_BINARY_DIR}/shaders"
-        "$<TARGET_FILE_DIR:VRTE>/shaders"
-        )
+        "$<TARGET_FILE_DIR:VKRT>/shaders"
+)
 
 ### External dependencies
 
-# Catch
-#find_package(Catch2 REQUIRED)
-#file(GLOB_RECURSE TEST_FILES "test/*.cpp" "src/vks/*.cp" "src/core/*.cpp" )
-#add_executable(tests ${TEST_FILES} ${SOURCES})
-#set_property(TARGET tests PROPERTY CXX_STANDARD 17)
-#target_link_libraries(tests PUBLIC Catch2::Catch2 )
-#include(CTest)
-#enable_testing()
-#include(Catch)
-#catch_discover_tests(${PROJECT_NAME})
-
 # Vulkan
 find_package(Vulkan REQUIRED)
-target_link_libraries(VRTE PUBLIC Vulkan::Vulkan)
+target_link_libraries(VKRT PUBLIC Vulkan::Vulkan)
 #target_link_libraries(tests PUBLIC Vulkan::Vulkan)
+set(ENV{VK_ICD_FILENAMES} "${SRC_DIR}/../lib/VulkanSDK/macOS/etc/vulkan/icd.d/MoltenVK_icd.json")
+set(ENV{VULKAN_SDK} "${SRC_DIR}/../lib/VulkanSDK/macOS/")
 
 # GLFW
 find_package(glfw3 3.3 REQUIRED)
 target_link_libraries(${PROJECT_NAME} PUBLIC glfw)
-#target_link_libraries(tests PUBLIC glfw)
-#set(GLFW_DIR "${LIB_DIR}/glfw")
-#set(GLFW_BUILD_EXAMPLES OFF CACHE INTERNAL "Build the GLFW example programs") # Disable GLFW standard programs from being built
-#set(GLFW_BUILD_TESTS OFF CACHE INTERNAL "Build the GLFW test programs")
-#set(GLFW_BUILD_DOCS OFF CACHE INTERNAL "Build the GLFW documentation")
-#set(GLFW_INSTALL OFF CACHE INTERNAL "Generate installation target")
-#add_subdirectory("${GLFW_DIR}")
-#target_link_libraries(${PROJECT_NAME} "glfw" "${GLFW_LIBRARIES}")
-#target_include_directories(${PROJECT_NAME} PRIVATE "${GLFW_DIR}/include")
-#target_compile_definitions(${PROJECT_NAME} PRIVATE "GLFW_INCLUDE_NONE")
 
 # glad
 set(GLAD_DIR "${LIB_DIR}/glad")
@@ -100,23 +93,13 @@ include_directories(${GLM_INCLUDE_DIRS})
 link_directories(${GLM_LIBRARY_DIRS})
 add_definitions(${GLM_DEFINITIONS})
 
-# tinyobj
-find_package(tinyobjloader REQUIRED)
-include_directories(${TINYOBJLOADER_INCLUDE_DIRS})
-link_directories(${TINYOBJELOADER_LIBRARY_DIRS})
-add_definitions(${TINYOBJLOADER_DEFINITIONS})
-
 # stb
 set(STB_DIR "${LIB_DIR}/stb")
-#add_library("glad" "${GLAD_DIR}/src/glad.c")
 include_directories(${STB_DIR})
-#link_directories(${STB_LIBRARY_DIRS})
-#add_definitions(${STB_DEFINITIONS})
 
 # spdlog
 find_package(spdlog REQUIRED)
 target_link_libraries(${PROJECT_NAME} PUBLIC spdlog::spdlog)
-#target_link_libraries(tests PUBLIC spdlog::spdlog)
 
 # lodepng
 set(LODEPNG_DIR "${LIB_DIR}/lodepng")
