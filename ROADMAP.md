@@ -1,11 +1,11 @@
 # Roadmap
 List of planned features in chronological order
 
-1. Get a basic Vulkan window up and running
+1. Get a basic Vulkan mWindow up and running
 2. Design an abstraction around Imgui windows
 3. Shader abstractions + Writing raytracing shaders
 
-## Get a basic Vulkan window up and running
+## Get a basic Vulkan mWindow up and running
 Build a small abstraction around Vulkan. Also Experiment with the calls, get a better feeling for them.
 
 - Implement a rendering system, possibly abstracted from application logic

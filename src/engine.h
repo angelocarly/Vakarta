@@ -7,28 +7,30 @@
 
 
 #include <GLFW/glfw3.h>
-#include "vks/vks_device.h"
+#include "vks/VksInstance.h"
+#include "vks/VksPhysicalDevice.h"
 
 class Engine
 {
 
-public:
+    public:
 
-    Engine();
-    ~Engine();
+        Engine();
+        ~Engine();
 
-    void update();
-    void render();
+        void update();
+        void render();
 
-    bool shouldClose();
+        bool shouldClose();
 
-private:
-    void initWindow();
-    void destroyWindow();
-    void printVulkanInfo();
+    private:
+        void initWindow();
+        void destroyWindow();
+        void printVulkanInfo();
 
-    GLFWwindow* window;
-    VksDevice device;
+        GLFWwindow* mWindow;
+        vks::Instance mVulkanInstance;
+        vks::PhysicalDevice mVulkanPhysicalDevice;
 
 };
 

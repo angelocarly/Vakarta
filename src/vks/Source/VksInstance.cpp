@@ -5,19 +5,19 @@
 #include <vulkan/vulkan.h>
 #include <spdlog/spdlog.h>
 #include <GLFW/glfw3.h>
-#include "vks_device.h"
+#include "vks/VksInstance.h"
 
-VksDevice::VksDevice()
+vks::Instance::Instance()
 {
-    createInstance();
+    CreateInstance();
 }
 
-VksDevice::~VksDevice()
+vks::Instance::~Instance()
 {
-    destroyInstance();
+    vkDestroyInstance(mInstance, nullptr);
 }
 
-void VksDevice::createInstance()
+void vks::Instance::CreateInstance()
 {
     VkApplicationInfo applicationInfo{};
     applicationInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
@@ -32,10 +32,9 @@ void VksDevice::createInstance()
     createInfo.pNext = nullptr;
     createInfo.pApplicationInfo = &applicationInfo;
     createInfo.enabledLayerCount = 0;
-//    createInfo.ppEnabledLayerNames = []; // No enabled layers
+    createInfo.ppEnabledLayerNames = {};
     createInfo.enabledExtensionCount = 0;
 
-    // Setup extensions
     uint32_t glfwExtensionCount = 0;
     const char** glfwExtensions;
     glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
@@ -45,22 +44,15 @@ void VksDevice::createInstance()
         requiredExtensions.emplace_back(glfwExtensions[i]);
     }
 
-    // Extension to allow Vulkan on
     requiredExtensions.emplace_back(VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME);
-
-    createInfo.flags |= VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
-
     createInfo.enabledExtensionCount = (uint32_t) requiredExtensions.size();
     createInfo.ppEnabledExtensionNames = requiredExtensions.data();
 
-    if( vkCreateInstance(&createInfo, nullptr, &instance) != VK_SUCCESS )
+    createInfo.flags |= VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
+
+    if( vkCreateInstance(&createInfo, nullptr, &mInstance) != VK_SUCCESS )
     {
         spdlog::error("Failed to create a Vulkan instance");
         throw std::runtime_error("Failed to create a Vulkan instance");
     }
-}
-
-void VksDevice::destroyInstance()
-{
-    vkDestroyInstance(instance, nullptr);
 }
