@@ -12,7 +12,7 @@ int main()
 
     setup_logging();
 
-    Engine engine;
+    Engine engine = Engine();
 
     try
     {

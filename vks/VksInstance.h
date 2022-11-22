@@ -17,8 +17,10 @@ namespace vks
 
         private:
             void CreateInstance();
+            std::vector< const char * > GetRequiredExtensions();
 
-            VkInstance mInstance;
+            vk::Instance mInstance;
+
     };
 }
 
