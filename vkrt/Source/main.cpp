@@ -2,7 +2,8 @@
 #include <cstdlib>
 #include <spdlog/spdlog.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
-#include "engine.h"
+
+#include "vkrt/engine.h"
 
 void setup_logging();
 
