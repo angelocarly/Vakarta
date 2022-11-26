@@ -1,15 +1,16 @@
 set(
     SOURCE_FILES
-        Source/VksInstance.cpp
-        Source/VksLogicalDevice.cpp
-        Source/VksPhysicalDevice.cpp
+        Source/Instance.cpp
+        Source/LogicalDevice.cpp
+        Source/PhysicalDevice.cpp
 )
 
 set(
     HEADER_FILES
-        VksInstance.h
-        VksDevice.h
-        VksPhysicalDevice.h
+        ForwardDecl.h
+        Instance.h
+        LogicalDevice.h
+        PhysicalDevice.h
 )
 
 set (CMAKE_CXX_STANDARD 11)

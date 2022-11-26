@@ -2,12 +2,14 @@
 set(
     SOURCE_FILES
         Source/main.cpp
-        Source/engine.cpp
+        Source/Engine.cpp
+        Source/Renderer.cpp
 )
 
 set(
     HEADER_FILES
-        engine.h
+        Engine.h
+        Renderer.h
 )
 
 set (CMAKE_CXX_STANDARD 11)
@@ -59,20 +61,19 @@ add_custom_target(
 add_dependencies(${PROJECT_NAME} Shaders)
 
 
-add_custom_command(
-        TARGET ${PROJECT_NAME} POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_FILE_DIR:VKRT>/shaders/"
-        COMMAND ${CMAKE_COMMAND} -E copy_directory
-        "${PROJECT_BINARY_DIR}/shaders"
-        "$<TARGET_FILE_DIR:VKRT>/shaders"
-)
+#add_custom_command(
+#        TARGET ${PROJECT_NAME} POST_BUILD
+#        COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_FILE_DIR:VKRT>/shaders/"
+#        COMMAND ${CMAKE_COMMAND} -E copy_directory
+#        "${PROJECT_BINARY_DIR}/shaders"
+#        "$<TARGET_FILE_DIR:VKRT>/shaders"
+#)
 
 ### External dependencies
 
 # Vulkan
 find_package(Vulkan REQUIRED)
 target_link_libraries(VKRT PUBLIC Vulkan::Vulkan)
-#target_link_libraries(tests PUBLIC Vulkan::Vulkan)
 set(ENV{VK_ICD_FILENAMES} "${SRC_DIR}/../lib/VulkanSDK/macOS/etc/vulkan/icd.d/MoltenVK_icd.json")
 set(ENV{VULKAN_SDK} "${SRC_DIR}/../lib/VulkanSDK/macOS/")
 

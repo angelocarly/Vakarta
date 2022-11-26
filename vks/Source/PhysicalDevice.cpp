@@ -3,7 +3,7 @@
 //
 
 
-#include "vks/VksPhysicalDevice.h"
+#include "vks/PhysicalDevice.h"
 
 vks::PhysicalDevice::PhysicalDevice()
 {

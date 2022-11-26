@@ -2,8 +2,8 @@
 // Created by Angelo Carly on 21/11/2022.
 //
 
-#ifndef VKRT_VKSPHYSICALDEVICE_H
-#define VKRT_VKSPHYSICALDEVICE_H
+#ifndef VKRT_PHYSICALDEVICE_H
+#define VKRT_PHYSICALDEVICE_H
 
 #include <vulkan/vulkan.hpp>
 
@@ -20,4 +20,4 @@ namespace vks
     };
 }
 
-#endif //VKRT_VKSPHYSICALDEVICE_H
+#endif //VKRT_PHYSICALDEVICE_H

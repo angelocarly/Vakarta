@@ -1,4 +1,4 @@
-#include "vkrt/engine.h"
+#include "vkrt/Engine.h"
 
 #include <spdlog/spdlog.h>
 #include <vulkan/vulkan.h>
@@ -9,9 +9,12 @@
 #define TITLE "VKRT"
 
 Engine::Engine()
+:
+    mRenderer()
 {
     initWindow();
     printVulkanInfo();
+    mRenderer.SetupVulkan();
 }
 
 Engine::~Engine()
@@ -24,7 +27,6 @@ Engine::~Engine()
 void Engine::update()
 {
     glfwPollEvents();
-
 }
 
 void Engine::render()
@@ -36,14 +38,12 @@ void Engine::render()
 
 void Engine::initWindow()
 {
-
     glfwInit();
 
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
     glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
     mWindow = glfwCreateWindow( WIDTH, HEIGHT, TITLE, nullptr, nullptr);
-
 }
 
 void Engine::destroyWindow()
@@ -51,8 +51,6 @@ void Engine::destroyWindow()
     glfwDestroyWindow( mWindow);
     glfwTerminate();
 }
-
-// -------------------------------------------------------------------------------------------------------------------
 
 bool Engine::shouldClose()
 {

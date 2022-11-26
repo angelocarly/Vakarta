@@ -6,8 +6,11 @@
 #define VKRT_ENGINE_H
 
 #include <GLFW/glfw3.h>
-#include "vks/VksInstance.h"
-#include "vks/VksPhysicalDevice.h"
+
+#include "vks/Instance.h"
+#include "vks/PhysicalDevice.h"
+
+#include "vkrt/Renderer.h"
 
 class Engine
 {
@@ -28,8 +31,7 @@ class Engine
         void printVulkanInfo();
 
         GLFWwindow* mWindow;
-        vks::Instance* mVulkanInstance;
-        vks::PhysicalDevice* mVulkanPhysicalDevice;
+        vkrt::Renderer mRenderer;
 
 };
 
