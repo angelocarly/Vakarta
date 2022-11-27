@@ -5,6 +5,9 @@
 #ifndef VKRT_RENDERER_H
 #define VKRT_RENDERER_H
 
+#include "vks/LogicalDevice.h"
+#include "vks/PhysicalDevice.h"
+
 namespace vkrt
 {
     class Renderer
@@ -14,6 +17,10 @@ namespace vkrt
             ~Renderer();
 
             void SetupVulkan();
+
+        private:
+            vks::PhysicalDevice mPhysicalDevice;
+            vks::LogicalDevice mLogicalDevice;
     };
 }
 

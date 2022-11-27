@@ -7,6 +7,9 @@
 #include "vks/Instance.h"
 
 vkrt::Renderer::Renderer()
+:
+    mPhysicalDevice( vks::Instance::GetInstance() ),
+    mLogicalDevice( vks::LogicalDevice( mPhysicalDevice ) )
 {
 }
 

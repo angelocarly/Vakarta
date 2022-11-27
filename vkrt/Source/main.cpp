@@ -11,9 +11,6 @@ void setup_logging();
 int main()
 {
 
-    vks::Instance& a = vks::Instance::GetInstance();//.GetVulkanInstance();
-    a.GetVulkanInstance();
-
     Engine engine = Engine();
 
     try

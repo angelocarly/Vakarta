@@ -7,16 +7,27 @@
 
 #include <vulkan/vulkan.hpp>
 
+#include "vks/Instance.h"
+
 namespace vks
 {
+    struct QueueFamilyIndices
+    {
+        uint32_t graphicsFamilyIndex;
+    };
+
     class PhysicalDevice
     {
         public:
-            PhysicalDevice();
+            explicit PhysicalDevice( vks::Instance & inInstance );
             ~PhysicalDevice();
 
+            vk::PhysicalDevice GetVulkanPhysicalDevice();
+            QueueFamilyIndices GetQueueFamilyIndices();
+
         private:
-            vk::PhysicalDevice mPhysicalDevice;
+            class Impl;
+            std::unique_ptr< Impl > mImpl;
     };
 }
 

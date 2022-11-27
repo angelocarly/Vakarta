@@ -7,16 +7,20 @@
 
 #include <vulkan/vulkan.hpp>
 
+#include "Instance.h"
+#include "PhysicalDevice.h"
+
 namespace vks
 {
     class LogicalDevice
     {
         public:
-            LogicalDevice();
+            explicit LogicalDevice( vks::PhysicalDevice & inDevice );
             ~LogicalDevice();
 
         private:
             class Impl;
+
             std::unique_ptr< Impl > mImpl;
     };
 }

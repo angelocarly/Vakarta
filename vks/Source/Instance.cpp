@@ -38,16 +38,16 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL DebugCallback
     switch( messageSeverity )
     {
         case VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT:
-            spdlog::get( "vulkan" )->debug( "validation layer: {}", pCallbackData->pMessage );
+            spdlog::get( "vulkan" )->debug( "Validation layer: {}", pCallbackData->pMessage );
             break;
         case VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT:
-            spdlog::get( "vulkan" )->info( "validation layer: {}", pCallbackData->pMessage );
+            spdlog::get( "vulkan" )->info( "Validation layer: {}", pCallbackData->pMessage );
             break;
         case VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT:
-            spdlog::get( "vulkan" )->warn( "validation layer: {}", pCallbackData->pMessage );
+            spdlog::get( "vulkan" )->warn( "Validation layer: {}", pCallbackData->pMessage );
             break;
         case VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT:
-            spdlog::get( "vulkan" )->error( "validation layer: {}", pCallbackData->pMessage );
+            spdlog::get( "vulkan" )->error( "Validation layer: {}", pCallbackData->pMessage );
             break;
     }
     return VK_FALSE;
