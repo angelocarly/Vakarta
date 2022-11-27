@@ -4,12 +4,14 @@ set(
         Source/main.cpp
         Source/Engine.cpp
         Source/Renderer.cpp
+        Source/Window.cpp
 )
 
 set(
     HEADER_FILES
         Engine.h
         Renderer.h
+        Window.h
 )
 
 set (CMAKE_CXX_STANDARD 11)

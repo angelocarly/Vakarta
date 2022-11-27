@@ -11,26 +11,22 @@
 #include "vks/PhysicalDevice.h"
 
 #include "vkrt/Renderer.h"
+#include "Window.h"
 
 class Engine
 {
 
     public:
-
         Engine();
         ~Engine();
 
-        void update();
-        void render();
-
-        bool shouldClose();
+        void Update();
+        void Render();
+        bool ShouldClose();
+        vk::SurfaceKHR GetSurface();
 
     private:
-        void initWindow();
-        void destroyWindow();
-        void printVulkanInfo();
-
-        GLFWwindow* mWindow;
+        vkrt::Window mWindow;
         vkrt::Renderer mRenderer;
 
 };

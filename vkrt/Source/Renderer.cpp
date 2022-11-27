@@ -4,22 +4,19 @@
 
 #include "vkrt/Renderer.h"
 
-#include "vks/Instance.h"
-
-vkrt::Renderer::Renderer()
+vkrt::Renderer::Renderer( vk::SurfaceKHR inSurface )
 :
-    mPhysicalDevice( vks::Instance::GetInstance() ),
+    mInstance( vks::Instance::GetInstance() ),
+    mSurface( inSurface ),
+    mPhysicalDevice( mInstance ),
     mLogicalDevice( vks::LogicalDevice( mPhysicalDevice ) )
 {
+
 }
 
 vkrt::Renderer::~Renderer()
 {
-
+    mInstance.GetVulkanInstance().destroy( mSurface );
 }
 
-void vkrt::Renderer::SetupVulkan()
-{
-//    vks::Instance::GetInstance();
-//    instance.GetVulkanInstance();
-}
+// =====================================================================================================================

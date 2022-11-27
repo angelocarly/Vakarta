@@ -62,8 +62,8 @@ void vks::LogicalDevice::Impl::InitializeLogicalDevice()
         vk::DeviceCreateFlags(),
         theDeviceQueueCreateInfos.size(),
         theDeviceQueueCreateInfos.data(),
-        0,                  // Deprecated?
-        nullptr,            // Deprecated?
+        0,
+        nullptr,
         kEnabledExtensions.size(),
         kEnabledExtensions.data(),
         & theDeviceFeatures

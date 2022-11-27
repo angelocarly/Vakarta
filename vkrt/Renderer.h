@@ -13,14 +13,18 @@ namespace vkrt
     class Renderer
     {
         public:
-            Renderer();
+            Renderer( vk::SurfaceKHR inSurface );
             ~Renderer();
 
-            void SetupVulkan();
+        private:
 
         private:
+            vks::Instance & mInstance;
             vks::PhysicalDevice mPhysicalDevice;
             vks::LogicalDevice mLogicalDevice;
+
+            vk::SurfaceKHR mSurface;
+
     };
 }
 
