@@ -18,9 +18,11 @@ namespace vks
             explicit LogicalDevice( vks::PhysicalDevice & inDevice );
             ~LogicalDevice();
 
+            vk::Device GetVulkanDevice();
+            vk::Queue GetQueue();
+
         private:
             class Impl;
-
             std::unique_ptr< Impl > mImpl;
     };
 }

@@ -17,13 +17,15 @@ namespace vkrt
             ~Renderer();
 
         private:
+            void InitializeQueue();
 
         private:
             vks::Instance & mInstance;
             vks::PhysicalDevice mPhysicalDevice;
             vks::LogicalDevice mLogicalDevice;
-
             vk::SurfaceKHR mSurface;
+
+            vk::Queue mQueue;
 
     };
 }

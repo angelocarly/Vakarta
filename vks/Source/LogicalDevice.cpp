@@ -22,6 +22,7 @@ class vks::LogicalDevice::Impl
         vks::PhysicalDevice & mPhysicalDevice;
 
         vk::Device mDevice;
+        vk::Queue mQueue;
 
     public:
         void InitializeLogicalDevice();
@@ -69,10 +70,8 @@ void vks::LogicalDevice::Impl::InitializeLogicalDevice()
         & theDeviceFeatures
     );
 
-    mDevice = mPhysicalDevice.GetVulkanPhysicalDevice().createDevice
-    (
-        theDeviceCreateInfo
-    );
+    mDevice = mPhysicalDevice.GetVulkanPhysicalDevice().createDevice( theDeviceCreateInfo );
+    mQueue = mDevice.getQueue( mPhysicalDevice.GetQueueFamilyIndices().graphicsFamilyIndex, 0 );
 }
 
 // =====================================================================================================================
@@ -85,3 +84,15 @@ vks::LogicalDevice::LogicalDevice( vks::PhysicalDevice & inPhysicalDevice )
 
 vks::LogicalDevice::~LogicalDevice()
 {}
+
+// =====================================================================================================================
+
+vk::Device vks::LogicalDevice::GetVulkanDevice()
+{
+    return mImpl->mDevice;
+}
+
+vk::Queue vks::LogicalDevice::GetQueue()
+{
+    return mImpl->mQueue;
+}
