@@ -91,7 +91,6 @@ vks::LogicalDevice::LogicalDevice( const vks::PhysicalDevicePtr inPhysicalDevice
 
 vks::LogicalDevice::~LogicalDevice()
 {
-    // Logical device is implicitly destroyed when destroying the instance
     mImpl->mDevice.waitIdle();
     mImpl->mDevice.destroy();
 }

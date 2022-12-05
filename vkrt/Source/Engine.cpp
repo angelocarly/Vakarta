@@ -28,7 +28,7 @@ void Engine::Update()
 
 void Engine::Render()
 {
-
+    mRenderer.Render();
 }
 
 bool Engine::ShouldClose()

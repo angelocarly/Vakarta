@@ -17,8 +17,11 @@ namespace vkrt
             Renderer( vk::SurfaceKHR inSurface );
             ~Renderer();
 
+            void Render();
+
         private:
-            void InitializeQueue();
+            void CreateSwapChainImageViews();
+            void InitializeRenderPass();
 
         private:
             vks::Instance & mInstance;
@@ -28,11 +31,16 @@ namespace vkrt
             // Display
             vk::SurfaceKHR mSurface;
             vks::SwapChain mSwapChain;
+            std::vector< vk::ImageView > mSwapChainImageViews;
+
+            // Pipeline
+//            vk::AttachmentReference mColorAttachmentReference;
+//            vk::AttachmentDescription mColorAttachmentDescription;
+//            vk::SubpassDescription mSubPass;
+            vk::RenderPass mRenderPass;
 
             // Commands
             vk::Queue mQueue;
-
-            void InitializeSwapChain();
     };
 }
 
