@@ -67,8 +67,9 @@ class vks::Instance::Impl
         void DestroyDebugMessenger();
         void DestroyVulkanInstance();
 
-    private:
         std::vector< const char * > GetRequiredExtensions();
+
+    private:
         void GetDebugUtilsMessengerCreateInfo( vk::DebugUtilsMessengerCreateInfoEXT & inCreateInfo );
 
     public:
@@ -124,8 +125,8 @@ void vks::Instance::Impl::CreateVulkanInstance()
     (
         vk::InstanceCreateFlags( vk::InstanceCreateFlagBits::eEnumeratePortabilityKHR ),
         &applicationInfo,
-        0,
-        nullptr,
+        mValidationLayers.size(),
+        mValidationLayers.data(),
         requiredExtensions.size(),
         requiredExtensions.data(),
         &theDebugUtilsMessengerCreateInfo
@@ -213,6 +214,7 @@ vks::Instance::Instance()
 
 vks::Instance::~Instance()
 {
+    spdlog::get( "vulkan" )->debug( "Destroying instance" );
     mImpl->DestroyDebugMessenger();
     mImpl->DestroyVulkanInstance();
 }

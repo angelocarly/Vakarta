@@ -7,6 +7,7 @@
 
 #include "vks/LogicalDevice.h"
 #include "vks/PhysicalDevice.h"
+#include "vks/SwapChain.h"
 
 namespace vkrt
 {
@@ -21,12 +22,17 @@ namespace vkrt
 
         private:
             vks::Instance & mInstance;
-            vks::PhysicalDevice mPhysicalDevice;
-            vks::LogicalDevice mLogicalDevice;
-            vk::SurfaceKHR mSurface;
+            vks::PhysicalDevicePtr mPhysicalDevice;
+            vks::LogicalDevicePtr mLogicalDevice;
 
+            // Display
+            vk::SurfaceKHR mSurface;
+            vks::SwapChain mSwapChain;
+
+            // Commands
             vk::Queue mQueue;
 
+            void InitializeSwapChain();
     };
 }
 

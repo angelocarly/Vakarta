@@ -8,16 +8,17 @@
 #include <vulkan/vulkan.hpp>
 
 #include "Instance.h"
-#include "PhysicalDevice.h"
+#include "ForwardDecl.h"
 
 namespace vks
 {
     class LogicalDevice
     {
         public:
-            explicit LogicalDevice( vks::PhysicalDevice & inDevice );
+            explicit LogicalDevice( vks::PhysicalDevicePtr inDevice );
             ~LogicalDevice();
 
+            vks::PhysicalDevicePtr GetPhysicalDevice();
             vk::Device GetVulkanDevice();
             vk::Queue GetQueue();
 

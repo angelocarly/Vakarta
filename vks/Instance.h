@@ -7,13 +7,14 @@
 
 #include <vulkan/vulkan.hpp>
 #include <boost/noncopyable.hpp>
+#include "ForwardDecl.h"
 
 namespace vks
 {
     class Instance : boost::noncopyable
     {
         public:
-            static vks::Instance & GetInstance();
+            static vks::Instance& GetInstance();
 
         private:
             Instance();

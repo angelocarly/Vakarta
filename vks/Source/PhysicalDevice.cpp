@@ -4,21 +4,65 @@
 
 
 #include <spdlog/spdlog.h>
+#include "vks/ForwardDecl.h"
 #include "vks/PhysicalDevice.h"
+
+// =====================================================================================================================
+
+namespace
+{
+    bool CheckExtensionSupport( vk::PhysicalDevice inDevice, std::vector< const char * > inRequiredExtensions )
+    {
+        std::vector< vk::ExtensionProperties > theExtensions = inDevice.enumerateDeviceExtensionProperties();
+        for( const char * theRequiredExtension : inRequiredExtensions )
+        {
+            bool hasExtension = false;
+            for( vk::ExtensionProperties theExtension : theExtensions )
+            {
+                if( strcmp( theExtension.extensionName, theRequiredExtension ) == 0 )
+                {
+                    hasExtension = true;
+                    break;
+                }
+            }
+
+            if( !hasExtension ) return false;
+        }
+
+        return true;
+    }
+
+    vks::QueueFamilyIndices FindQueueFamilyIndices( vk::PhysicalDevice inDevice )
+    {
+        vks::QueueFamilyIndices theQueueFamilyIndices {};
+
+        int index = 0;
+        for( vk::QueueFamilyProperties theQueueFamilyProperty: inDevice.getQueueFamilyProperties() )
+        {
+            if( theQueueFamilyProperty.queueFlags & vk::QueueFlagBits::eGraphics )
+            {
+                theQueueFamilyIndices.graphicsFamilyIndex = index;
+            }
+
+            index++;
+        }
+
+        return theQueueFamilyIndices;
+    }
+}
+
+// =====================================================================================================================
 
 class vks::PhysicalDevice::Impl
 {
     public:
         Impl( vks::Instance & inInstance );
-
         ~Impl();
 
-    public:
         void InitializeVulkanDevice();
 
     public:
         vks::Instance & mInstance;
-
         vk::PhysicalDevice mPhysicalDevice;
 };
 
@@ -33,12 +77,9 @@ vks::PhysicalDevice::Impl::~Impl()
 {
 }
 
-/**
- * Pick the most applicable Vulkan device
- */
 void vks::PhysicalDevice::Impl::InitializeVulkanDevice()
 {
-    spdlog::get( "vulkan" )->debug( "Initializing physical device.." );
+    spdlog::get( "vulkan" )->debug( "Initializing physical device:" );
 
     std::vector< vk::PhysicalDevice > thePotentialDevices = mInstance.GetVulkanInstance().enumeratePhysicalDevices();
     for( vk::PhysicalDevice thePotentialDevice: thePotentialDevices )
@@ -50,14 +91,12 @@ void vks::PhysicalDevice::Impl::InitializeVulkanDevice()
         spdlog::get( "vulkan" )->debug( "- API version: {}", theDeviceProperties.apiVersion );
         spdlog::get( "vulkan" )->debug( "- Driver version: {}", theDeviceProperties.driverVersion );
 
-        std::vector< vk::QueueFamilyProperties > theQueueFamilyProperties = thePotentialDevice.getQueueFamilyProperties();
-        for( vk::QueueFamilyProperties theQueueFamilyProperty: theQueueFamilyProperties )
+        if(
+            CheckExtensionSupport( thePotentialDevice, vks::kEnabledExtensions )
+            && ::FindQueueFamilyIndices( thePotentialDevice ).IsComplete() )
         {
-            if( theQueueFamilyProperty.queueFlags & vk::QueueFlagBits::eGraphics )
-            {
-                mPhysicalDevice = thePotentialDevice;
-                return;
-            }
+            mPhysicalDevice = thePotentialDevice;
+            return;
         }
     }
 
@@ -71,12 +110,11 @@ vks::PhysicalDevice::PhysicalDevice( vks::Instance & inInstance )
 :
 mImpl( new Impl( inInstance ) )
 {
-
 }
 
 vks::PhysicalDevice::~PhysicalDevice()
 {
-
+    // Physical device is implicitly destroyed when destroying the instance
 }
 
 vk::PhysicalDevice vks::PhysicalDevice::GetVulkanPhysicalDevice()
@@ -84,20 +122,7 @@ vk::PhysicalDevice vks::PhysicalDevice::GetVulkanPhysicalDevice()
     return mImpl->mPhysicalDevice;
 }
 
-vks::QueueFamilyIndices vks::PhysicalDevice::GetQueueFamilyIndices()
+vks::QueueFamilyIndices vks::PhysicalDevice::FindQueueFamilyIndices()
 {
-    QueueFamilyIndices theQueueFamilyIndices{};
-
-    int index = 0;
-    for( vk::QueueFamilyProperties theQueueFamilyProperty : mImpl->mPhysicalDevice.getQueueFamilyProperties() )
-    {
-        if( theQueueFamilyProperty.queueFlags & vk::QueueFlagBits::eGraphics )
-        {
-            theQueueFamilyIndices.graphicsFamilyIndex = index;
-        }
-
-        index++;
-    }
-
-    return theQueueFamilyIndices;
+    return ::FindQueueFamilyIndices( mImpl->mPhysicalDevice );
 }

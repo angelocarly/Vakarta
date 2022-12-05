@@ -2,24 +2,26 @@
 // Created by Angelo Carly on 21/11/2022.
 //
 
-#include <spdlog/spdlog.h>
 #include "vks/LogicalDevice.h"
+
+#include "vks/PhysicalDevice.h"
+
+#include <spdlog/spdlog.h>
+#include <vulkan/vulkan.hpp>
+#include <optional>
 
 // =====================================================================================================================
 
 class vks::LogicalDevice::Impl
 {
     public:
-        const std::vector< const char * > kEnabledExtensions = {
-
-        };
 
     public:
-        explicit Impl( vks::PhysicalDevice & inPhysicalDevice );
+        explicit Impl( const vks::PhysicalDevicePtr inPhysicalDevice );
         ~Impl();
 
     public:
-        vks::PhysicalDevice & mPhysicalDevice;
+        vks::PhysicalDevicePtr mPhysicalDevice;
 
         vk::Device mDevice;
         vk::Queue mQueue;
@@ -30,7 +32,7 @@ class vks::LogicalDevice::Impl
 
 // ---------------------------------------------------------------------------------------------------------------------
 
-vks::LogicalDevice::Impl::Impl( vks::PhysicalDevice & inPhysicalDevice )
+vks::LogicalDevice::Impl::Impl( const vks::PhysicalDevicePtr inPhysicalDevice )
 :
     mPhysicalDevice( inPhysicalDevice )
 {
@@ -44,7 +46,7 @@ vks::LogicalDevice::Impl::~Impl()
 
 void vks::LogicalDevice::Impl::InitializeLogicalDevice()
 {
-    spdlog::get( "vulkan" )->debug( "Initializing logical device.." );
+    spdlog::get( "vulkan" )->debug( "Initializing logical device." );
 
     vk::PhysicalDeviceFeatures theDeviceFeatures = vk::PhysicalDeviceFeatures();
 
@@ -53,7 +55,7 @@ void vks::LogicalDevice::Impl::InitializeLogicalDevice()
     theDeviceQueueCreateInfos[ 0 ] = vk::DeviceQueueCreateInfo
     (
         vk::DeviceQueueCreateFlags(),
-        mPhysicalDevice.GetQueueFamilyIndices().graphicsFamilyIndex,
+        mPhysicalDevice->FindQueueFamilyIndices().graphicsFamilyIndex.value(),
         1,
         & theQueuePriority
     );
@@ -70,22 +72,36 @@ void vks::LogicalDevice::Impl::InitializeLogicalDevice()
         & theDeviceFeatures
     );
 
-    mDevice = mPhysicalDevice.GetVulkanPhysicalDevice().createDevice( theDeviceCreateInfo );
-    mQueue = mDevice.getQueue( mPhysicalDevice.GetQueueFamilyIndices().graphicsFamilyIndex, 0 );
+    for( const char * theExtensionName : kEnabledExtensions )
+    {
+        spdlog::get( "vulkan" )->debug( "- {}", theExtensionName );
+    }
+
+    mDevice = mPhysicalDevice->GetVulkanPhysicalDevice().createDevice( theDeviceCreateInfo );
+    mQueue = mDevice.getQueue( mPhysicalDevice->FindQueueFamilyIndices().graphicsFamilyIndex.value(), 0 );
 }
 
 // =====================================================================================================================
 
-vks::LogicalDevice::LogicalDevice( vks::PhysicalDevice & inPhysicalDevice )
+vks::LogicalDevice::LogicalDevice( const vks::PhysicalDevicePtr inPhysicalDevice )
 :
     mImpl( new Impl( inPhysicalDevice ) )
 {
 }
 
 vks::LogicalDevice::~LogicalDevice()
-{}
+{
+    // Logical device is implicitly destroyed when destroying the instance
+    mImpl->mDevice.waitIdle();
+    mImpl->mDevice.destroy();
+}
 
 // =====================================================================================================================
+
+vks::PhysicalDevicePtr vks::LogicalDevice::GetPhysicalDevice()
+{
+    return mImpl->mPhysicalDevice;
+}
 
 vk::Device vks::LogicalDevice::GetVulkanDevice()
 {

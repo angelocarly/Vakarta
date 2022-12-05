@@ -20,6 +20,7 @@ class vkrt::Window::Impl
         ~Impl();
 
         void CreateWindow( int widht, int height, const char * title );
+        void InitializeSurface();
 
         struct DestroyWindow
         {
@@ -32,6 +33,7 @@ class vkrt::Window::Impl
 
     public:
         std::unique_ptr< GLFWwindow, DestroyWindow > mWindow;
+        vk::SurfaceKHR mSurface;
 };
 
 vkrt::Window::Impl::Impl()
@@ -44,7 +46,8 @@ vkrt::Window::Impl::~Impl()
 
 }
 
-void vkrt::Window::Impl::CreateWindow( int width, int height, const char * title)
+void
+vkrt::Window::Impl::CreateWindow( int width, int height, const char * title)
 {
     glfwInit();
 
@@ -55,6 +58,21 @@ void vkrt::Window::Impl::CreateWindow( int width, int height, const char * title
 
 }
 
+void
+vkrt::Window::Impl::InitializeSurface()
+{
+    VkSurfaceKHR theVkSurface;
+    glfwCreateWindowSurface
+    (
+        vks::Instance::GetInstance().GetVulkanInstance(),
+        mWindow.get(),
+        nullptr,
+        & theVkSurface
+    );
+    mSurface = theVkSurface;
+}
+
+
 // =====================================================================================================================
 
 vkrt::Window::Window( int width, int height, const char * title )
@@ -62,10 +80,13 @@ vkrt::Window::Window( int width, int height, const char * title )
     mImpl( new Impl() )
 {
     mImpl->CreateWindow( width, height, title );
+    mImpl->InitializeSurface();
 }
 
 vkrt::Window::~Window()
-{}
+{
+    vks::Instance::GetInstance().GetVulkanInstance().destroy( mImpl->mSurface );
+}
 
 // ---------------------------------------------------------------------------------------------------------------------
 
@@ -79,16 +100,8 @@ void vkrt::Window::Poll()
     glfwPollEvents();
 }
 
-vk::SurfaceKHR vkrt::Window::CreateSurface()
+vk::SurfaceKHR vkrt::Window::GetSurface()
 {
-    VkSurfaceKHR theVkSurface;
-    glfwCreateWindowSurface
-    (
-        vks::Instance::GetInstance().GetVulkanInstance(),
-        mImpl->mWindow.get(),
-        nullptr,
-        & theVkSurface
-    );
-    return vk::SurfaceKHR( theVkSurface );
+    return mImpl->mSurface;
 }
 

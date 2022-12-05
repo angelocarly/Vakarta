@@ -3,6 +3,7 @@ set(
         Source/Instance.cpp
         Source/LogicalDevice.cpp
         Source/PhysicalDevice.cpp
+        Source/SwapChain.cpp
 )
 
 set(
@@ -11,9 +12,10 @@ set(
         Instance.h
         LogicalDevice.h
         PhysicalDevice.h
+        SwapChain.h
 )
 
-set (CMAKE_CXX_STANDARD 11)
+set( CMAKE_CXX_STANDARD 11)
 add_library(
     vks SHARED
     ${SOURCE_FILES}
@@ -21,12 +23,11 @@ add_library(
 )
 target_include_directories( vks PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/.. )
 
-set_property(TARGET vks PROPERTY CXX_STANDARD 17)
+set_property( TARGET vks PROPERTY CXX_STANDARD 17 )
 
 # Vulkan
 find_package(Vulkan REQUIRED)
 target_link_libraries(vks PUBLIC Vulkan::Vulkan)
-#target_link_libraries(tests PUBLIC Vulkan::Vulkan)
 set(ENV{VK_ICD_FILENAMES} "${SRC_DIR}/../lib/VulkanSDK/macOS/etc/vulkan/icd.d/MoltenVK_icd.json")
 set(ENV{VULKAN_SDK} "${SRC_DIR}/../lib/VulkanSDK/macOS/")
 

@@ -6,14 +6,21 @@
 #define VKRT_PHYSICALDEVICE_H
 
 #include <vulkan/vulkan.hpp>
+#include <optional>
 
 #include "vks/Instance.h"
+#include "ForwardDecl.h"
 
 namespace vks
 {
     struct QueueFamilyIndices
     {
-        uint32_t graphicsFamilyIndex;
+        std::optional< uint32_t > graphicsFamilyIndex;
+
+        bool IsComplete()
+        {
+            return graphicsFamilyIndex.has_value();
+        }
     };
 
     class PhysicalDevice
@@ -23,7 +30,7 @@ namespace vks
             ~PhysicalDevice();
 
             vk::PhysicalDevice GetVulkanPhysicalDevice();
-            QueueFamilyIndices GetQueueFamilyIndices();
+            QueueFamilyIndices FindQueueFamilyIndices();
 
         private:
             class Impl;

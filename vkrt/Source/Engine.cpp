@@ -10,8 +10,9 @@
 Engine::Engine()
 :
     mWindow( WIDTH, HEIGHT, TITLE ),
-    mRenderer( mWindow.CreateSurface() )
+    mRenderer( mWindow.GetSurface() )
 {
+
 }
 
 Engine::~Engine()
@@ -35,7 +36,3 @@ bool Engine::ShouldClose()
     return mWindow.ShouldClose();
 }
 
-vk::SurfaceKHR Engine::GetSurface()
-{
-    return vk::SurfaceKHR();
-}
