@@ -3,6 +3,8 @@
 //
 
 #include <spdlog/spdlog.h>
+
+#include <memory>
 #include "vkrt/Renderer.h"
 
 vkrt::Renderer::Renderer( vk::SurfaceKHR inSurface )
@@ -10,21 +12,28 @@ vkrt::Renderer::Renderer( vk::SurfaceKHR inSurface )
     mInstance( vks::Instance::GetInstance() ),
     mSurface( inSurface ),
     mPhysicalDevice( std::make_shared< vks::PhysicalDevice >( mInstance ) ),
-    mLogicalDevice( std::make_shared< vks::LogicalDevice >( mPhysicalDevice ) ),
-    mSwapChain( mLogicalDevice, mSurface )
+    mDevice( std::make_shared< vks::Device >( mPhysicalDevice ) ),
+    mSwapChain( mDevice, mSurface )
 {
     CreateSwapChainImageViews();
     InitializeRenderPass();
+    InitializeFrameBuffers();
+    InitializeSynchronizationObject();
+    mPipeline = std::make_unique<vks::Pipeline>( mDevice, mRenderPass );
 }
 
 vkrt::Renderer::~Renderer()
 {
+    mDevice->GetVkDevice().waitIdle();
 
-    mLogicalDevice->GetVulkanDevice().destroy( mRenderPass );
+    mDevice->GetVkDevice().destroy( mPresentSemaphore );
+
+    mDevice->GetVkDevice().destroy( mRenderPass );
 
     for( int i = 0; i < mSwapChainImageViews.size(); i++ )
     {
-        mLogicalDevice->GetVulkanDevice().destroy( mSwapChainImageViews[ i ] );
+        mDevice->GetVkDevice().destroy( mSwapChainImageViews[ i ] );
+        mDevice->GetVkDevice().destroy( mFrameBuffers[ i ] );
     }
 }
 
@@ -36,7 +45,8 @@ vkrt::Renderer::CreateSwapChainImageViews()
     auto swapChainImages = mSwapChain.GetSwapChainImages();
     mSwapChainImageViews.resize( swapChainImages.size() );
 
-    for (size_t i = 0; i < swapChainImages.size(); i++) {
+    for (size_t i = 0; i < swapChainImages.size(); i++)
+    {
         auto imageViewCreateInfo = vk::ImageViewCreateInfo
         (
             vk::ImageViewCreateFlags(),
@@ -60,7 +70,7 @@ vkrt::Renderer::CreateSwapChainImageViews()
             )
         );
 
-        mSwapChainImageViews[ i ] = mLogicalDevice->GetVulkanDevice().createImageView( imageViewCreateInfo );
+        mSwapChainImageViews[ i ] = mDevice->GetVkDevice().createImageView( imageViewCreateInfo );
     }
 }
 
@@ -77,7 +87,7 @@ vkrt::Renderer::InitializeRenderPass()
         vk::AttachmentLoadOp::eDontCare,
         vk::AttachmentStoreOp::eDontCare,
         vk::ImageLayout::eUndefined,
-        vk::ImageLayout::eTransferDstOptimal
+        vk::ImageLayout::ePresentSrcKHR
     );
 
     auto theColorAttachmentRef = vk::AttachmentReference
@@ -107,14 +117,97 @@ vkrt::Renderer::InitializeRenderPass()
         nullptr
     );
 
-    mRenderPass = mLogicalDevice->GetVulkanDevice().createRenderPass( theRenderPassCreateInfo );
+    mRenderPass = mDevice->GetVkDevice().createRenderPass( theRenderPassCreateInfo );
+
+}
+
+void
+vkrt::Renderer::InitializeFrameBuffers()
+{
+    auto swapChainImages = mSwapChain.GetSwapChainImages();
+    mFrameBuffers.resize( swapChainImages.size() );
+
+    for (size_t i = 0; i < swapChainImages.size(); i++)
+    {
+        auto theSurfaceCapabilities = mPhysicalDevice->GetVulkanPhysicalDevice().getSurfaceCapabilitiesKHR( mSurface );
+
+        auto theFrameBufferCreateInfo = vk::FramebufferCreateInfo
+        (
+            vk::FramebufferCreateFlags(),
+            mRenderPass,
+            1,
+            & mSwapChainImageViews[i],
+            theSurfaceCapabilities.currentExtent.width,
+            theSurfaceCapabilities.currentExtent.height,
+            1
+        );
+        mFrameBuffers[i] = mDevice->GetVkDevice().createFramebuffer( theFrameBufferCreateInfo );
+    }
+}
+
+void vkrt::Renderer::InitializeSynchronizationObject()
+{
+    mPresentSemaphore = mDevice->GetVkDevice().createSemaphore
+    (
+        vk::SemaphoreCreateInfo
+        (
+            vk::SemaphoreCreateFlags()
+        )
+    );
 
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
 
-void
-vkrt::Renderer::Render()
+void vkrt::Renderer::Render()
 {
-    mSwapChain.AcquireNextImage();
+    uint32_t theImageIndex = mSwapChain.AcquireNextImage();
+
+    auto theSurfaceCapabilities = mPhysicalDevice->GetVulkanPhysicalDevice().getSurfaceCapabilitiesKHR( mSurface );
+
+    auto theCommandBuffer = mDevice->BeginSingleTimeCommands();
+    {
+        auto theClearValue = vk::ClearValue
+        (
+            vk::ClearColorValue( std::array< float, 4 >( { 1, 0, 0, 0 } ) )
+        );
+        auto theRenderPassBeginInfo = vk::RenderPassBeginInfo
+        (
+            mRenderPass,
+            mFrameBuffers[ theImageIndex ],
+            vk::Rect2D( vk::Offset2D(), theSurfaceCapabilities.currentExtent ),
+            1,
+            & theClearValue
+        );
+        theCommandBuffer.beginRenderPass( theRenderPassBeginInfo, vk::SubpassContents::eInline );
+        {
+
+            mPipeline->Bind( theCommandBuffer );
+
+        }
+        theCommandBuffer.endRenderPass();
+    }
+    theCommandBuffer.end();
+
+    // Submit command buffer and wait until completion
+    vk::Fence theFence = mDevice->GetVkDevice().createFence( vk::FenceCreateInfo() );
+    mDevice->GetVkQueue().submit
+    ( vk::SubmitInfo
+        (
+            0,
+            nullptr,
+            nullptr,
+            1,
+            &theCommandBuffer,
+            1,
+            & mPresentSemaphore
+        ),
+        theFence
+    );
+    while( vk::Result::eTimeout == mDevice->GetVkDevice().waitForFences( theFence, VK_TRUE, UINT64_MAX ));
+    mDevice->GetVkDevice().destroyFence( theFence );
+    mDevice->GetVkDevice().freeCommandBuffers( mDevice->GetVkCommandPool(), theCommandBuffer );
+
+    // Display the swapchain image
+    mSwapChain.PresentSwapChain( theImageIndex, mPresentSemaphore );
 }

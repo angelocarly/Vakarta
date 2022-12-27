@@ -8,6 +8,7 @@
 #include "vks/LogicalDevice.h"
 #include "vks/PhysicalDevice.h"
 #include "vks/SwapChain.h"
+#include "vks/Pipeline.h"
 
 namespace vkrt
 {
@@ -22,25 +23,29 @@ namespace vkrt
         private:
             void CreateSwapChainImageViews();
             void InitializeRenderPass();
+            void InitializeFrameBuffers();
+            void RecordCommandBuffers();
 
         private:
             vks::Instance & mInstance;
             vks::PhysicalDevicePtr mPhysicalDevice;
-            vks::LogicalDevicePtr mLogicalDevice;
+            vks::DevicePtr mDevice;
+            vk::Semaphore mPresentSemaphore;
 
             // Display
             vk::SurfaceKHR mSurface;
             vks::SwapChain mSwapChain;
             std::vector< vk::ImageView > mSwapChainImageViews;
+            std::vector< vk::Framebuffer > mFrameBuffers;
 
             // Pipeline
 //            vk::AttachmentReference mColorAttachmentReference;
 //            vk::AttachmentDescription mColorAttachmentDescription;
 //            vk::SubpassDescription mSubPass;
             vk::RenderPass mRenderPass;
+            std::unique_ptr< vks::Pipeline > mPipeline;
 
-            // Commands
-            vk::Queue mQueue;
+            void InitializeSynchronizationObject();
     };
 }
 

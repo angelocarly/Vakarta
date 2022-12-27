@@ -3,7 +3,10 @@ set(
         Source/Instance.cpp
         Source/LogicalDevice.cpp
         Source/PhysicalDevice.cpp
+        Source/Pipeline.cpp
         Source/SwapChain.cpp
+        Source/Utils.cpp
+        Source/Vertex.cpp
 )
 
 set(
@@ -12,7 +15,10 @@ set(
         Instance.h
         LogicalDevice.h
         PhysicalDevice.h
+        Pipeline.h
         SwapChain.h
+        Utils.h
+        Vertex.h
 )
 
 set( CMAKE_CXX_STANDARD 11)

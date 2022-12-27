@@ -20,8 +20,8 @@ namespace vks
 
     class PhysicalDevice;
     typedef std::shared_ptr< vks::PhysicalDevice > PhysicalDevicePtr;
-    class LogicalDevice;
-    typedef std::shared_ptr< vks::LogicalDevice > LogicalDevicePtr;
+    class Device;
+    typedef std::shared_ptr< vks::Device > DevicePtr;
 
 }
 

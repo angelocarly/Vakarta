@@ -10,15 +10,15 @@
 
 #include <spdlog/spdlog.h>
 
-vks::SwapChain::SwapChain( const vks::LogicalDevicePtr inLogicalDevice, vk::SurfaceKHR inSurface )
+vks::SwapChain::SwapChain( const vks::DevicePtr inLogicalDevice, vk::SurfaceKHR inSurface )
 :
-    mLogicalDevice( inLogicalDevice ),
+    mDevice( inLogicalDevice ),
     mSurface( inSurface )
 {
     spdlog::get( "vulkan" )->debug( "Initializing swapchain." );
 
     // Supported options for the created OS window
-    auto physicalDevice = mLogicalDevice->GetPhysicalDevice();
+    auto physicalDevice = mDevice->GetPhysicalDevice();
     auto surfaceCapabilities = physicalDevice->GetVulkanPhysicalDevice().getSurfaceCapabilitiesKHR( mSurface );
     auto surfaceFormats = physicalDevice->GetVulkanPhysicalDevice().getSurfaceFormatsKHR( mSurface );
     auto presentModes = physicalDevice->GetVulkanPhysicalDevice().getSurfacePresentModesKHR( mSurface );
@@ -68,31 +68,33 @@ vks::SwapChain::SwapChain( const vks::LogicalDevicePtr inLogicalDevice, vk::Surf
         true,
         nullptr
     );
-    mSwapchain = mLogicalDevice->GetVulkanDevice().createSwapchainKHR( swapchainCreateInfoKhr );
+    mSwapchain = mDevice->GetVkDevice().createSwapchainKHR( swapchainCreateInfoKhr );
 
     auto semaphoreCreateInfo = vk::SemaphoreCreateInfo();
-    mImageAvailableForPresentingSemophore = mLogicalDevice->GetVulkanDevice().createSemaphore( semaphoreCreateInfo );
-    mImageAvailableForRenderingSemophore = mLogicalDevice->GetVulkanDevice().createSemaphore( semaphoreCreateInfo );
+    mImageAvailableForPresentingSemophore = mDevice->GetVkDevice().createSemaphore( semaphoreCreateInfo );
+    mImageAvailableForRenderingSemophore = mDevice->GetVkDevice().createSemaphore( semaphoreCreateInfo );
 
     auto fenceCreateInfo = vk::FenceCreateInfo
     (
         vk::FenceCreateFlagBits::eSignaled // Mark the first image as signaled
     );
-    mImageInFlightFence = mLogicalDevice->GetVulkanDevice().createFence( fenceCreateInfo );
+    mImageInFlightFence = mDevice->GetVkDevice().createFence( fenceCreateInfo );
 }
 
 vks::SwapChain::~SwapChain()
 {
-    mLogicalDevice->GetVulkanDevice().destroy( mImageAvailableForRenderingSemophore );
-    mLogicalDevice->GetVulkanDevice().destroy( mImageAvailableForPresentingSemophore );
-    mLogicalDevice->GetVulkanDevice().destroy( mImageInFlightFence );
-    mLogicalDevice->GetVulkanDevice().destroy( mSwapchain );
+    mDevice->GetVkDevice().waitForFences( mImageInFlightFence, true, UINT64_MAX );
+    mDevice->GetVkDevice().waitIdle();
+    mDevice->GetVkDevice().destroy( mImageAvailableForRenderingSemophore );
+    mDevice->GetVkDevice().destroy( mImageAvailableForPresentingSemophore );
+    mDevice->GetVkDevice().destroy( mImageInFlightFence );
+    mDevice->GetVkDevice().destroy( mSwapchain );
 }
 
 std::vector< vk::Image >
 vks::SwapChain::GetSwapChainImages()
 {
-    return mLogicalDevice->GetVulkanDevice().getSwapchainImagesKHR( mSwapchain );
+    return mDevice->GetVkDevice().getSwapchainImagesKHR( mSwapchain );
 }
 
 vk::Format
@@ -101,21 +103,38 @@ vks::SwapChain::GetImageFormat()
     return vk::Format::eB8G8R8A8Unorm;
 }
 
-void
+vk::SwapchainKHR vks::SwapChain::GetSwapChain()
+{
+    return mSwapchain;
+}
+
+int
 vks::SwapChain::AcquireNextImage()
 {
-//    mLogicalDevice->GetVulkanDevice().waitForFences( mImageInFlightFence, true, UINT64_MAX );
-//    mLogicalDevice->GetVulkanDevice().resetFences( mImageInFlightFence );
+    mDevice->GetVkDevice().waitForFences( mImageInFlightFence, true, UINT64_MAX );
+    mDevice->GetVkDevice().resetFences( mImageInFlightFence );
 
-//    uint32_t imageIndex = 0;
-//    mLogicalDevice->GetVulkanDevice().acquireNextImageKHR
-//    (
-//        mSwapchain,
-//        UINT64_MAX,
-//        nullptr,
-//        mImageInFlightFence,
-//        &imageIndex
-//    );
+    uint32_t imageIndex = 0;
+    mDevice->GetVkDevice().acquireNextImageKHR
+    (
+        mSwapchain,
+        UINT64_MAX,
+        nullptr,
+        mImageInFlightFence,
+        &imageIndex
+    );
 
-//    mLogicalDevice->GetVulkanDevice().getSwapchainImagesKHR( mSwapchain );
+    return imageIndex;
+}
+
+void
+vks::SwapChain::PresentSwapChain( uint32_t inImageIndex, vk::Semaphore & inWaitSemaphore )
+{
+    auto thePresentInfo = vk::PresentInfoKHR
+    (
+        inWaitSemaphore,
+        mSwapchain,
+        inImageIndex
+    );
+    mDevice->GetVkQueue().presentKHR( thePresentInfo );
 }

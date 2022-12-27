@@ -12,7 +12,7 @@
 
 // =====================================================================================================================
 
-class vks::LogicalDevice::Impl
+class vks::Device::Impl
 {
     public:
 
@@ -25,26 +25,32 @@ class vks::LogicalDevice::Impl
 
         vk::Device mDevice;
         vk::Queue mQueue;
+        vk::CommandPool mCommandPool;
 
     public:
         void InitializeLogicalDevice();
+        void InitializeCommandPool();
 };
 
 // ---------------------------------------------------------------------------------------------------------------------
 
-vks::LogicalDevice::Impl::Impl( const vks::PhysicalDevicePtr inPhysicalDevice )
+vks::Device::Impl::Impl( const vks::PhysicalDevicePtr inPhysicalDevice )
 :
     mPhysicalDevice( inPhysicalDevice )
 {
     InitializeLogicalDevice();
+    InitializeCommandPool();
 }
 
-vks::LogicalDevice::Impl::~Impl()
+vks::Device::Impl::~Impl()
 {
-
+    mDevice.waitIdle();
+    mDevice.destroyCommandPool( mCommandPool );
+    mDevice.destroy();
 }
 
-void vks::LogicalDevice::Impl::InitializeLogicalDevice()
+void
+vks::Device::Impl::InitializeLogicalDevice()
 {
     spdlog::get( "vulkan" )->debug( "Initializing logical device." );
 
@@ -81,33 +87,75 @@ void vks::LogicalDevice::Impl::InitializeLogicalDevice()
     mQueue = mDevice.getQueue( mPhysicalDevice->FindQueueFamilyIndices().graphicsFamilyIndex.value(), 0 );
 }
 
+void
+vks::Device::Impl::InitializeCommandPool()
+{
+    mCommandPool = mDevice.createCommandPool
+    (
+        vk::CommandPoolCreateInfo
+        (
+            vk::CommandPoolCreateFlags(),
+            mPhysicalDevice->FindQueueFamilyIndices().graphicsFamilyIndex.value()
+        )
+    );
+}
+
 // =====================================================================================================================
 
-vks::LogicalDevice::LogicalDevice( const vks::PhysicalDevicePtr inPhysicalDevice )
+vks::Device::Device( const vks::PhysicalDevicePtr inPhysicalDevice )
 :
     mImpl( new Impl( inPhysicalDevice ) )
 {
 }
 
-vks::LogicalDevice::~LogicalDevice()
+vks::Device::~Device()
 {
-    mImpl->mDevice.waitIdle();
-    mImpl->mDevice.destroy();
 }
 
 // =====================================================================================================================
 
-vks::PhysicalDevicePtr vks::LogicalDevice::GetPhysicalDevice()
+vks::PhysicalDevicePtr vks::Device::GetPhysicalDevice()
 {
     return mImpl->mPhysicalDevice;
 }
 
-vk::Device vks::LogicalDevice::GetVulkanDevice()
+vk::Device vks::Device::GetVkDevice()
 {
     return mImpl->mDevice;
 }
 
-vk::Queue vks::LogicalDevice::GetQueue()
+vk::Queue vks::Device::GetVkQueue()
 {
     return mImpl->mQueue;
 }
+
+vk::CommandBuffer
+vks::Device::BeginSingleTimeCommands()
+{
+    auto theCommandBuffer =  mImpl->mDevice.allocateCommandBuffers
+    (
+        vk::CommandBufferAllocateInfo( mImpl->mCommandPool, vk::CommandBufferLevel::ePrimary, 1 )
+    ).front();
+    theCommandBuffer.begin( vk::CommandBufferBeginInfo( vk::CommandBufferUsageFlags() ) );
+    return theCommandBuffer;
+}
+
+vk::CommandPool vks::Device::GetVkCommandPool()
+{
+    return mImpl->mCommandPool;
+}
+
+void
+vks::Device::EndSingleTimeCommands( vk::CommandBuffer & inCommandBuffer )
+{
+    inCommandBuffer.end();
+
+    // Submit command buffer and wait until completion
+    vk::Fence theFence = mImpl->mDevice.createFence( vk::FenceCreateInfo() );
+    mImpl->mQueue.submit( vk::SubmitInfo( 0, nullptr, nullptr, 1, &inCommandBuffer ), theFence );
+    while( vk::Result::eTimeout == mImpl->mDevice.waitForFences( theFence, VK_TRUE, UINT64_MAX ));
+    mImpl->mDevice.destroyFence( theFence );
+
+    mImpl->mDevice.freeCommandBuffers( mImpl->mCommandPool, inCommandBuffer );
+}
+

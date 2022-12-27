@@ -12,15 +12,18 @@
 
 namespace vks
 {
-    class LogicalDevice
+    class Device
     {
         public:
-            explicit LogicalDevice( vks::PhysicalDevicePtr inDevice );
-            ~LogicalDevice();
+            explicit Device( vks::PhysicalDevicePtr inDevice );
+            ~Device();
 
             vks::PhysicalDevicePtr GetPhysicalDevice();
-            vk::Device GetVulkanDevice();
-            vk::Queue GetQueue();
+            vk::Device GetVkDevice();
+            vk::CommandPool GetVkCommandPool();
+            vk::Queue GetVkQueue();
+            vk::CommandBuffer BeginSingleTimeCommands();
+            void EndSingleTimeCommands( vk::CommandBuffer & inCommandBuffer );
 
         private:
             class Impl;

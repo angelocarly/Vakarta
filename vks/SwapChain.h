@@ -15,17 +15,19 @@ namespace vks
     class SwapChain
     {
         public:
-            SwapChain( vks::LogicalDevicePtr inLogicalDevice, vk::SurfaceKHR inSurface );
+            SwapChain( vks::DevicePtr inLogicalDevice, vk::SurfaceKHR inSurface );
             ~SwapChain();
 
-            void AcquireNextImage();
+            int AcquireNextImage();
             vk::Format GetImageFormat();
             std::vector< vk::Image > GetSwapChainImages();
+            vk::SwapchainKHR GetSwapChain();
+            void PresentSwapChain( uint32_t inImageIndex, vk::Semaphore & inWaitSemaphore );
 //            vk::Semaphore GetImageAvailableForPresentingSemaphore();
 //            vk::Semaphore GetImageAvailableForRenderingSemaphore();
 
         private:
-            vks::LogicalDevicePtr mLogicalDevice;
+            vks::DevicePtr mDevice;
             vk::SurfaceKHR mSurface;
             vk::SwapchainKHR mSwapchain;
 
