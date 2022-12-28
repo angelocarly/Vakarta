@@ -23,7 +23,7 @@ vks::Vertex::GetVkVertexInputAttributeDescription()
     (
         0,
         0,
-        vk::Format::eR8G8B8A8Unorm,
+        vk::Format::eR32G32B32Sfloat,
         0
     );
 }

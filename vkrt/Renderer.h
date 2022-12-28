@@ -36,7 +36,6 @@ namespace vkrt
             // Display
             vk::SurfaceKHR mSurface;
             vks::SwapChain mSwapChain;
-            std::vector< vk::ImageView > mSwapChainImageViews;
             std::vector< vk::Framebuffer > mFrameBuffers;
 
             // Pipeline

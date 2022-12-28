@@ -21,10 +21,9 @@ namespace vks
             int AcquireNextImage();
             vk::Format GetImageFormat();
             std::vector< vk::Image > GetSwapChainImages();
-            vk::SwapchainKHR GetSwapChain();
+            std::vector< vk::ImageView > GetSwapChainImageViews();
+            vk::SwapchainKHR GetVkSwapchain();
             void PresentSwapChain( uint32_t inImageIndex, vk::Semaphore & inWaitSemaphore );
-//            vk::Semaphore GetImageAvailableForPresentingSemaphore();
-//            vk::Semaphore GetImageAvailableForRenderingSemaphore();
 
         private:
             vks::DevicePtr mDevice;
@@ -32,9 +31,12 @@ namespace vks
             vk::SwapchainKHR mSwapchain;
 
         private:
+            void CreateSwapChainImages();
             vk::Semaphore mImageAvailableForRenderingSemophore;
             vk::Semaphore mImageAvailableForPresentingSemophore;
             vk::Fence mImageInFlightFence;
+            std::vector< vk::Image > mSwapChainImages;
+            std::vector< vk::ImageView > mSwapChainImageViews;
 
     };
 }

@@ -10,6 +10,7 @@
 
 #include <spdlog/spdlog.h>
 
+// TODO: put all in Impl class
 vks::SwapChain::SwapChain( const vks::DevicePtr inLogicalDevice, vk::SurfaceKHR inSurface )
 :
     mDevice( inLogicalDevice ),
@@ -64,7 +65,7 @@ vks::SwapChain::SwapChain( const vks::DevicePtr inLogicalDevice, vk::SurfaceKHR 
         &graphicsFamilyIndex,
         vk::SurfaceTransformFlagBitsKHR::eIdentity,
         vk::CompositeAlphaFlagBitsKHR::eOpaque,
-        vk::PresentModeKHR::eFifo,
+        vk::PresentModeKHR::eImmediate,
         true,
         nullptr
     );
@@ -79,22 +80,71 @@ vks::SwapChain::SwapChain( const vks::DevicePtr inLogicalDevice, vk::SurfaceKHR 
         vk::FenceCreateFlagBits::eSignaled // Mark the first image as signaled
     );
     mImageInFlightFence = mDevice->GetVkDevice().createFence( fenceCreateInfo );
+
+    CreateSwapChainImages();
 }
 
 vks::SwapChain::~SwapChain()
 {
     mDevice->GetVkDevice().waitForFences( mImageInFlightFence, true, UINT64_MAX );
     mDevice->GetVkDevice().waitIdle();
+
+    for( int i = 0; i < mSwapChainImageViews.size(); i++ )
+    {
+        mDevice->GetVkDevice().destroy( mSwapChainImageViews[ i ] );
+    }
+
     mDevice->GetVkDevice().destroy( mImageAvailableForRenderingSemophore );
     mDevice->GetVkDevice().destroy( mImageAvailableForPresentingSemophore );
     mDevice->GetVkDevice().destroy( mImageInFlightFence );
     mDevice->GetVkDevice().destroy( mSwapchain );
 }
 
+void
+vks::SwapChain::CreateSwapChainImages()
+{
+    mSwapChainImages = mDevice->GetVkDevice().getSwapchainImagesKHR( mSwapchain );
+
+    mSwapChainImageViews.resize( mSwapChainImages.size() );
+
+    for (size_t i = 0; i < mSwapChainImages.size(); i++)
+    {
+        auto imageViewCreateInfo = vk::ImageViewCreateInfo
+        (
+            vk::ImageViewCreateFlags(),
+            mSwapChainImages[ i ],
+            vk::ImageViewType::e2D,
+            vk::Format::eB8G8R8A8Unorm,
+            vk::ComponentMapping
+            (
+                vk::ComponentSwizzle::eIdentity,
+                vk::ComponentSwizzle::eIdentity,
+                vk::ComponentSwizzle::eIdentity,
+                vk::ComponentSwizzle::eIdentity
+            ),
+            vk::ImageSubresourceRange
+            (
+                vk::ImageAspectFlagBits::eColor,
+                0,
+                1,
+                0,
+                1
+            )
+        );
+
+        mSwapChainImageViews[ i ] = mDevice->GetVkDevice().createImageView( imageViewCreateInfo );
+    }
+}
+
 std::vector< vk::Image >
 vks::SwapChain::GetSwapChainImages()
 {
-    return mDevice->GetVkDevice().getSwapchainImagesKHR( mSwapchain );
+    return mSwapChainImages;
+}
+
+std::vector< vk::ImageView > vks::SwapChain::GetSwapChainImageViews()
+{
+    return mSwapChainImageViews;
 }
 
 vk::Format
@@ -103,7 +153,7 @@ vks::SwapChain::GetImageFormat()
     return vk::Format::eB8G8R8A8Unorm;
 }
 
-vk::SwapchainKHR vks::SwapChain::GetSwapChain()
+vk::SwapchainKHR vks::SwapChain::GetVkSwapchain()
 {
     return mSwapchain;
 }
@@ -136,5 +186,9 @@ vks::SwapChain::PresentSwapChain( uint32_t inImageIndex, vk::Semaphore & inWaitS
         mSwapchain,
         inImageIndex
     );
-    mDevice->GetVkQueue().presentKHR( thePresentInfo );
+    auto result = mDevice->GetVkQueue().presentKHR( thePresentInfo );
+    if( result != vk::Result::eSuccess )
+    {
+        throw std::runtime_error( "Error presenting swapchain" );
+    }
 }

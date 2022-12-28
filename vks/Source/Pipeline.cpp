@@ -350,14 +350,14 @@ vks::Pipeline::UpdatePipelineUniforms( int inWidth, int inHeight )
 {
     glm::mat4 theView = glm::lookAt
     (
-        glm::vec3(0,0,-10),
+        glm::vec3(0,0,-20),
         glm::vec3(0,0,0),
         glm::vec3(0,1,0)
     );
-    auto theProjection = glm::perspective(glm::radians(180.0f ), (float) inWidth / (float) inHeight, 0.1f, 100.0f );
+    auto theProjection = glm::perspective(glm::radians(90.0f ), (float) inWidth / (float) inHeight, 0.1f, 100.0f );
 
     UniformBufferObject theUniform;
-    theUniform.mView = theProjection = theProjection * theView;
+    theUniform.mView = theProjection * theView;
 
     void * theData = mImpl->mDevice->MapMemory( mImpl->mUniformBuffer );
     std::memcpy( theData, & theUniform, sizeof( UniformBufferObject ) );

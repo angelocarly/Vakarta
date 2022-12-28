@@ -17,7 +17,6 @@ vkrt::Renderer::Renderer( vk::SurfaceKHR inSurface )
     mDevice( std::make_shared< vks::Device >( mPhysicalDevice ) ),
     mSwapChain( mDevice, mSurface )
 {
-    CreateSwapChainImageViews();
     InitializeRenderPass();
     InitializeFrameBuffers();
     InitializeSynchronizationObject();
@@ -31,49 +30,13 @@ vkrt::Renderer::~Renderer()
     mDevice->GetVkDevice().destroy( mPresentSemaphore );
     mDevice->GetVkDevice().destroy( mRenderPass );
 
-    for( int i = 0; i < mSwapChainImageViews.size(); i++ )
+    for( int i = 0; i < mFrameBuffers.size(); i++ )
     {
-        mDevice->GetVkDevice().destroy( mSwapChainImageViews[ i ] );
         mDevice->GetVkDevice().destroy( mFrameBuffers[ i ] );
     }
 }
 
 // =====================================================================================================================
-
-void
-vkrt::Renderer::CreateSwapChainImageViews()
-{
-    auto swapChainImages = mSwapChain.GetSwapChainImages();
-    mSwapChainImageViews.resize( swapChainImages.size() );
-
-    for (size_t i = 0; i < swapChainImages.size(); i++)
-    {
-        auto imageViewCreateInfo = vk::ImageViewCreateInfo
-        (
-            vk::ImageViewCreateFlags(),
-            swapChainImages[ i ],
-            vk::ImageViewType::e2D,
-            vk::Format::eB8G8R8A8Unorm,
-            vk::ComponentMapping
-            (
-                vk::ComponentSwizzle::eIdentity,
-                vk::ComponentSwizzle::eIdentity,
-                vk::ComponentSwizzle::eIdentity,
-                vk::ComponentSwizzle::eIdentity
-            ),
-            vk::ImageSubresourceRange
-            (
-                vk::ImageAspectFlagBits::eColor,
-                0,
-                1,
-                0,
-                1
-            )
-        );
-
-        mSwapChainImageViews[ i ] = mDevice->GetVkDevice().createImageView( imageViewCreateInfo );
-    }
-}
 
 void
 vkrt::Renderer::InitializeRenderPass()
@@ -125,10 +88,10 @@ vkrt::Renderer::InitializeRenderPass()
 void
 vkrt::Renderer::InitializeFrameBuffers()
 {
-    auto swapChainImages = mSwapChain.GetSwapChainImages();
-    mFrameBuffers.resize( swapChainImages.size() );
+    auto theSwapChainImageViews = mSwapChain.GetSwapChainImageViews();
+    mFrameBuffers.resize( theSwapChainImageViews.size() );
 
-    for (size_t i = 0; i < swapChainImages.size(); i++)
+    for ( size_t i = 0; i < theSwapChainImageViews.size(); i++)
     {
         auto theSurfaceCapabilities = mPhysicalDevice->GetVkPhysicalDevice().getSurfaceCapabilitiesKHR( mSurface );
 
@@ -137,7 +100,7 @@ vkrt::Renderer::InitializeFrameBuffers()
             vk::FramebufferCreateFlags(),
             mRenderPass,
             1,
-            & mSwapChainImageViews[i],
+            & theSwapChainImageViews[ i ],
             theSurfaceCapabilities.currentExtent.width,
             theSurfaceCapabilities.currentExtent.height,
             1
@@ -165,7 +128,7 @@ void vkrt::Renderer::InitializeRenderObject()
         vks::Vertex( glm::vec3( -1000, -1000, 0 ) ),
         vks::Vertex( glm::vec3( -1000, 1000, 0 ) ),
         vks::Vertex( glm::vec3( 1000, 1000, 0 ) ),
-        vks::Vertex( glm::vec3( -1000, -1000, 0 ) )
+        vks::Vertex( glm::vec3( 1000, -1000, 0 ) )
     };
     std::vector< uint32_t > theIndices =
     {
