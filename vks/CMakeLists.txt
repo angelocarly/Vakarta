@@ -1,9 +1,13 @@
 set(
     SOURCE_FILES
+        Source/Buffer.cpp
+        Source/Image.cpp
         Source/Instance.cpp
-        Source/LogicalDevice.cpp
+        Source/Device.cpp
+        Source/Mesh.cpp
         Source/PhysicalDevice.cpp
         Source/Pipeline.cpp
+        Source/RenderTarget.cpp
         Source/SwapChain.cpp
         Source/Utils.cpp
         Source/Vertex.cpp
@@ -11,11 +15,15 @@ set(
 
 set(
     HEADER_FILES
+        Buffer.h
+        Image.h
         ForwardDecl.h
         Instance.h
-        LogicalDevice.h
+        Device.h
+        Mesh.h
         PhysicalDevice.h
         Pipeline.h
+        RenderTarget.h
         SwapChain.h
         Utils.h
         Vertex.h
@@ -36,6 +44,9 @@ find_package(Vulkan REQUIRED)
 target_link_libraries(vks PUBLIC Vulkan::Vulkan)
 set(ENV{VK_ICD_FILENAMES} "${SRC_DIR}/../lib/VulkanSDK/macOS/etc/vulkan/icd.d/MoltenVK_icd.json")
 set(ENV{VULKAN_SDK} "${SRC_DIR}/../lib/VulkanSDK/macOS/")
+
+# VMA
+target_include_directories( vks PUBLIC ${LIB_DIR}/VulkanMemoryAllocator/include )
 
 # GLFW
 find_package(glfw3 3.3 REQUIRED)

@@ -81,7 +81,7 @@ void vks::PhysicalDevice::Impl::InitializeVulkanDevice()
 {
     spdlog::get( "vulkan" )->debug( "Initializing physical device:" );
 
-    std::vector< vk::PhysicalDevice > thePotentialDevices = mInstance.GetVulkanInstance().enumeratePhysicalDevices();
+    std::vector< vk::PhysicalDevice > thePotentialDevices = mInstance.GetVkInstance().enumeratePhysicalDevices();
     for( vk::PhysicalDevice thePotentialDevice: thePotentialDevices )
     {
         auto theDeviceProperties = thePotentialDevice.getProperties();
@@ -117,7 +117,7 @@ vks::PhysicalDevice::~PhysicalDevice()
     // Physical device is implicitly destroyed when destroying the instance
 }
 
-vk::PhysicalDevice vks::PhysicalDevice::GetVulkanPhysicalDevice()
+vk::PhysicalDevice vks::PhysicalDevice::GetVkPhysicalDevice()
 {
     return mImpl->mPhysicalDevice;
 }

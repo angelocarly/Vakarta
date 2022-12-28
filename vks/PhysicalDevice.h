@@ -29,7 +29,7 @@ namespace vks
             explicit PhysicalDevice( vks::Instance & inInstance );
             ~PhysicalDevice();
 
-            vk::PhysicalDevice GetVulkanPhysicalDevice();
+            vk::PhysicalDevice GetVkPhysicalDevice();
             QueueFamilyIndices FindQueueFamilyIndices();
 
         private:

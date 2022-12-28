@@ -9,6 +9,9 @@
 #include "vks/Instance.h"
 #include "vks/ForwardDecl.h"
 
+#define VMA_IMPLEMENTATION
+#include <vk_mem_alloc.hpp>
+
 // ============================================ Debug Callback =========================================================
 
  VkResult vkCreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkDebugUtilsMessengerEXT* pDebugMessenger) {
@@ -228,7 +231,7 @@ vks::Instance::GetInstance()
     return vksInstance;
 }
 
-vk::Instance vks::Instance::GetVulkanInstance()
+vk::Instance vks::Instance::GetVkInstance()
 {
     return mImpl->mInstance;
 }

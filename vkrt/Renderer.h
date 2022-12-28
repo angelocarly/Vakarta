@@ -5,10 +5,11 @@
 #ifndef VKRT_RENDERER_H
 #define VKRT_RENDERER_H
 
-#include "vks/LogicalDevice.h"
+#include "vks/Device.h"
 #include "vks/PhysicalDevice.h"
 #include "vks/SwapChain.h"
 #include "vks/Pipeline.h"
+#include "vks/Mesh.h"
 
 namespace vkrt
 {
@@ -45,7 +46,12 @@ namespace vkrt
             vk::RenderPass mRenderPass;
             std::unique_ptr< vks::Pipeline > mPipeline;
 
+            // Render data
+            std::unique_ptr< vks::Mesh > mMesh;
+
             void InitializeSynchronizationObject();
+
+            void InitializeRenderObject();
     };
 }
 

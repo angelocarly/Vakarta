@@ -19,6 +19,7 @@ namespace vks
             Pipeline( vks::DevicePtr inDevice, vk::RenderPass inRenderPass );
             ~Pipeline();
 
+            void UpdatePipelineUniforms( int inWidth, int inHeight );
             void Bind( vk::CommandBuffer inCommandBuffer );
 
         private:

@@ -5,11 +5,17 @@
 #include "vks/Pipeline.h"
 
 #include "vks/ForwardDecl.h"
-#include "vks/LogicalDevice.h"
+#include "vks/Device.h"
 #include "vks/Vertex.h"
 #include "vks/Utils.h"
 
+#include <glm/gtc/matrix_transform.hpp>
 #include <vulkan/vulkan.hpp>
+
+struct UniformBufferObject
+{
+    glm::mat4 mView;
+};
 
 class vks::Pipeline::Impl
 {
@@ -18,6 +24,7 @@ class vks::Pipeline::Impl
         ~Impl();
 
     private:
+        void CreateBuffers();
         void InitializeDescriptors();
         void InitializePipeline();
 
@@ -25,21 +32,23 @@ class vks::Pipeline::Impl
         vks::DevicePtr mDevice;
         vk::RenderPass mRenderPass;
 
-        uint32_t mWidth;
-        uint32_t mHeigth;
-
         vk::PipelineLayout mPipelineLayout;
         vk::Pipeline mPipeline;
+
+        vk::DescriptorPool mDescriptorPool;
         std::vector< vk::DescriptorSetLayout > mDescriptorSetLayouts;
+        vk::DescriptorSet mDescriptorSet;
+        vks::Buffer mUniformBuffer;
 };
+
+void UpdatePipelineUniforms();
 
 vks::Pipeline::Impl::Impl( vks::DevicePtr inDevice, vk::RenderPass inRenderPass )
 :
     mDevice( inDevice ),
-    mRenderPass( inRenderPass ),
-    mWidth( 1000 ),
-    mHeigth( 1000 )
+    mRenderPass( inRenderPass )
 {
+    CreateBuffers();
 	InitializeDescriptors();
 	InitializePipeline();
 }
@@ -56,15 +65,35 @@ vks::Pipeline::Impl::~Impl()
 }
 
 void
+vks::Pipeline::Impl::CreateBuffers()
+{
+    // Pipeline uniform buffer
+    vma::AllocationCreateInfo theUniformBufferAllocationInfo;
+    theUniformBufferAllocationInfo.usage = vma::MemoryUsage::eAuto;
+    theUniformBufferAllocationInfo.flags = vma::AllocationCreateFlagBits::eHostAccessSequentialWrite;
+    mUniformBuffer = mDevice->CreateBuffer
+    (
+        vk::BufferCreateInfo
+        (
+            vk::BufferCreateFlags(),
+            sizeof( UniformBufferObject ),
+            vk::BufferUsageFlagBits::eUniformBuffer
+        ),
+        theUniformBufferAllocationInfo
+    );
+}
+
+void
 vks::Pipeline::Impl::InitializeDescriptors()
 {
+    // Layout
     std::vector< vk::DescriptorSetLayoutBinding > theDescriptorSetLayoutBindings =
     {
         vk::DescriptorSetLayoutBinding
         (
             std::uint32_t( 0 ),
             vk::DescriptorType::eUniformBuffer,
-            0,
+            1,
             vk::ShaderStageFlagBits::eVertex,
             nullptr
         )
@@ -82,6 +111,50 @@ vks::Pipeline::Impl::InitializeDescriptors()
         theDescriptorSetLayoutCreateInfo
     );
     mDescriptorSetLayouts = { theDescriptorSetLayout };
+
+    // Pool
+    std::array< vk::DescriptorPoolSize, 1 > thePoolSizes = {};
+    thePoolSizes[ 0 ].setType( vk::DescriptorType::eUniformBuffer );
+    thePoolSizes[ 0 ].setDescriptorCount( 1 );
+
+    vk::DescriptorPoolCreateInfo const theDescriptorPoolCreateInfo
+        (
+            vk::DescriptorPoolCreateFlags(),
+            1,
+            thePoolSizes.size(),
+            thePoolSizes.data()
+        );
+
+    mDescriptorPool = mDevice->GetVkDevice().createDescriptorPool( theDescriptorPoolCreateInfo );
+
+    // Allocate a descriptor set from the pool
+    vk::DescriptorSetAllocateInfo const theDescriptorSetAllocateInfo
+    (
+        mDescriptorPool,
+        std::uint32_t( mDescriptorSetLayouts.size() ),
+        mDescriptorSetLayouts.data()
+    );
+
+    mDescriptorSet = mDevice->GetVkDevice().allocateDescriptorSets( theDescriptorSetAllocateInfo ).front();
+
+    // Configure the descriptors
+    std::array< vk::WriteDescriptorSet, 1 > theWriteDescriptorSet;
+
+    // Uniform buffer
+    vk::DescriptorBufferInfo const theDescriptorBufferInfo
+    (
+        mUniformBuffer.GetVkBuffer(),
+        0,
+        sizeof( UniformBufferObject )
+    );
+    theWriteDescriptorSet[ 0 ].setDstSet( mDescriptorSet );
+    theWriteDescriptorSet[ 0 ].setDstBinding( 0 );
+    theWriteDescriptorSet[ 0 ].setDstArrayElement( 0 );
+    theWriteDescriptorSet[ 0 ].setDescriptorType( vk::DescriptorType::eUniformBuffer );
+    theWriteDescriptorSet[ 0 ].setDescriptorCount( 1 );
+    theWriteDescriptorSet[ 0 ].setPBufferInfo( &theDescriptorBufferInfo );
+
+    mDevice->GetVkDevice().updateDescriptorSets( theWriteDescriptorSet, {} );
 
 }
 
@@ -137,15 +210,13 @@ vks::Pipeline::Impl::InitializePipeline()
     );
 
     // Viewport
-    vk::Viewport theViewport = vk::Viewport( 0, 0, mWidth, mHeigth );
-    vk::Rect2D theScissors = vk::Rect2D( vk::Offset2D( 0, 0 ), vk::Extent2D( mWidth, mHeigth ) );
     vk::PipelineViewportStateCreateInfo const theViewportStateCreateInfo = vk::PipelineViewportStateCreateInfo
     (
         vk::PipelineViewportStateCreateFlags(),
-        1,
-        & theViewport,
-        1,
-        & theScissors
+        0,
+        nullptr,
+        0,
+        nullptr
     );
 
     // Rasterization
@@ -272,7 +343,27 @@ vks::Pipeline::~Pipeline()
 }
 
 void
+vks::Pipeline::UpdatePipelineUniforms( int inWidth, int inHeight )
+{
+    glm::mat4 theView = glm::lookAt
+    (
+        glm::vec3(0,0,-10), // Camera is at (4,3,3), in World Space
+        glm::vec3(0,0,0), // and looks at the origin
+        glm::vec3(0,1,0)  // Head is up (set to 0,-1,0 to look upside-down)
+    );
+    auto theProjection = glm::perspective(glm::radians(90.0f ), (float) inWidth / (float) inHeight, 0.1f, 100.0f );
+
+    UniformBufferObject theUniform;
+    theUniform.mView = theProjection = theProjection * theView;
+
+    void * theData = mImpl->mDevice->MapMemory( mImpl->mUniformBuffer );
+    std::memcpy( theData, & theUniform, sizeof( UniformBufferObject ) );
+    mImpl->mDevice->UnmapMemory( mImpl->mUniformBuffer );
+}
+
+void
 vks::Pipeline::Bind( vk::CommandBuffer inCommandBuffer )
 {
+    inCommandBuffer.bindDescriptorSets( vk::PipelineBindPoint::eGraphics, mImpl->mPipelineLayout, 0, mImpl->mDescriptorSet, nullptr );
     inCommandBuffer.bindPipeline( vk::PipelineBindPoint::eGraphics, mImpl->mPipeline );
 }

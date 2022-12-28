@@ -4,6 +4,18 @@
 
 #include "vks/Vertex.h"
 
+vks::Vertex::Vertex( glm::vec3 inPosition )
+:
+    mPosition( inPosition )
+{
+
+}
+
+glm::vec3 vks::Vertex::GetPosition()
+{
+    return mPosition;
+}
+
 vk::VertexInputAttributeDescription
 vks::Vertex::GetVkVertexInputAttributeDescription()
 {

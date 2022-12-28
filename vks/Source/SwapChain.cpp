@@ -5,7 +5,7 @@
 #include "vks/SwapChain.h"
 
 #include "vks/PhysicalDevice.h"
-#include "vks/LogicalDevice.h"
+#include "vks/Device.h"
 #include "vks/ForwardDecl.h"
 
 #include <spdlog/spdlog.h>
@@ -19,9 +19,9 @@ vks::SwapChain::SwapChain( const vks::DevicePtr inLogicalDevice, vk::SurfaceKHR 
 
     // Supported options for the created OS window
     auto physicalDevice = mDevice->GetPhysicalDevice();
-    auto surfaceCapabilities = physicalDevice->GetVulkanPhysicalDevice().getSurfaceCapabilitiesKHR( mSurface );
-    auto surfaceFormats = physicalDevice->GetVulkanPhysicalDevice().getSurfaceFormatsKHR( mSurface );
-    auto presentModes = physicalDevice->GetVulkanPhysicalDevice().getSurfacePresentModesKHR( mSurface );
+    auto surfaceCapabilities = physicalDevice->GetVkPhysicalDevice().getSurfaceCapabilitiesKHR( mSurface );
+    auto surfaceFormats = physicalDevice->GetVkPhysicalDevice().getSurfaceFormatsKHR( mSurface );
+    auto presentModes = physicalDevice->GetVkPhysicalDevice().getSurfacePresentModesKHR( mSurface );
 
     const uint32_t graphicsFamilyIndex = inLogicalDevice->GetPhysicalDevice()->FindQueueFamilyIndices().graphicsFamilyIndex.value();
 

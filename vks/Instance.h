@@ -21,7 +21,7 @@ namespace vks
             ~Instance();
 
         public:
-            vk::Instance GetVulkanInstance();
+            vk::Instance GetVkInstance();
 
         private:
 

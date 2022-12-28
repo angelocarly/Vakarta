@@ -64,7 +64,7 @@ vkrt::Window::Impl::InitializeSurface()
     VkSurfaceKHR theVkSurface;
     glfwCreateWindowSurface
     (
-        vks::Instance::GetInstance().GetVulkanInstance(),
+        vks::Instance::GetInstance().GetVkInstance(),
         mWindow.get(),
         nullptr,
         & theVkSurface
@@ -85,7 +85,7 @@ vkrt::Window::Window( int width, int height, const char * title )
 
 vkrt::Window::~Window()
 {
-    vks::Instance::GetInstance().GetVulkanInstance().destroy( mImpl->mSurface );
+    vks::Instance::GetInstance().GetVkInstance().destroy( mImpl->mSurface );
 }
 
 // ---------------------------------------------------------------------------------------------------------------------

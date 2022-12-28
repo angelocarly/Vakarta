@@ -4,7 +4,7 @@
 
 #include "vks/Utils.h"
 #include "vks/ForwardDecl.h"
-#include "vks/LogicalDevice.h"
+#include "vks/Device.h"
 
 #include <vulkan/vulkan.hpp>
 

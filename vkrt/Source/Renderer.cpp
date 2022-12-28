@@ -1,11 +1,13 @@
 //
 // Created by Angelo Carly on 23/11/2022.
 //
+#include "vkrt/Renderer.h"
+
+#include "vks/Vertex.h"
 
 #include <spdlog/spdlog.h>
 
 #include <memory>
-#include "vkrt/Renderer.h"
 
 vkrt::Renderer::Renderer( vk::SurfaceKHR inSurface )
 :
@@ -19,15 +21,14 @@ vkrt::Renderer::Renderer( vk::SurfaceKHR inSurface )
     InitializeRenderPass();
     InitializeFrameBuffers();
     InitializeSynchronizationObject();
+    InitializeRenderObject();
     mPipeline = std::make_unique<vks::Pipeline>( mDevice, mRenderPass );
 }
 
 vkrt::Renderer::~Renderer()
 {
     mDevice->GetVkDevice().waitIdle();
-
     mDevice->GetVkDevice().destroy( mPresentSemaphore );
-
     mDevice->GetVkDevice().destroy( mRenderPass );
 
     for( int i = 0; i < mSwapChainImageViews.size(); i++ )
@@ -129,7 +130,7 @@ vkrt::Renderer::InitializeFrameBuffers()
 
     for (size_t i = 0; i < swapChainImages.size(); i++)
     {
-        auto theSurfaceCapabilities = mPhysicalDevice->GetVulkanPhysicalDevice().getSurfaceCapabilitiesKHR( mSurface );
+        auto theSurfaceCapabilities = mPhysicalDevice->GetVkPhysicalDevice().getSurfaceCapabilitiesKHR( mSurface );
 
         auto theFrameBufferCreateInfo = vk::FramebufferCreateInfo
         (
@@ -157,19 +158,38 @@ void vkrt::Renderer::InitializeSynchronizationObject()
 
 }
 
+void vkrt::Renderer::InitializeRenderObject()
+{
+    std::vector< vks::Vertex > theVertices =
+    {
+        vks::Vertex( glm::vec3( -100, 0, -10 ) ),
+        vks::Vertex( glm::vec3( 190, 0, -10 ) ),
+        vks::Vertex( glm::vec3( 100, 190, -10 ) ),
+        vks::Vertex( glm::vec3( -100, 190, -10 ) )
+    };
+    std::vector< uint32_t > theIndices =
+    {
+        0, 1, 2,
+        1, 2, 3,
+        2, 3, 1
+    };
+
+    mMesh = std::make_unique< vks::Mesh >( mDevice, theVertices, theIndices );
+}
+
 // ---------------------------------------------------------------------------------------------------------------------
 
 void vkrt::Renderer::Render()
 {
     uint32_t theImageIndex = mSwapChain.AcquireNextImage();
 
-    auto theSurfaceCapabilities = mPhysicalDevice->GetVulkanPhysicalDevice().getSurfaceCapabilitiesKHR( mSurface );
+    auto theSurfaceCapabilities = mPhysicalDevice->GetVkPhysicalDevice().getSurfaceCapabilitiesKHR( mSurface );
 
     auto theCommandBuffer = mDevice->BeginSingleTimeCommands();
     {
         auto theClearValue = vk::ClearValue
         (
-            vk::ClearColorValue( std::array< float, 4 >( { 1, 0, 0, 0 } ) )
+            vk::ClearColorValue( std::array< float, 4 >( { 0, 0, 0, 0 } ) )
         );
         auto theRenderPassBeginInfo = vk::RenderPassBeginInfo
         (
@@ -181,9 +201,12 @@ void vkrt::Renderer::Render()
         );
         theCommandBuffer.beginRenderPass( theRenderPassBeginInfo, vk::SubpassContents::eInline );
         {
+            auto theViewport = vk::Viewport( 0, 0, theSurfaceCapabilities.currentExtent.width, theSurfaceCapabilities.currentExtent.height );
+            theCommandBuffer.setViewport( 0, 1, & theViewport );
 
+            mPipeline->UpdatePipelineUniforms( theSurfaceCapabilities.currentExtent.width, theSurfaceCapabilities.currentExtent.height );
             mPipeline->Bind( theCommandBuffer );
-
+            mMesh->Draw( theCommandBuffer );
         }
         theCommandBuffer.endRenderPass();
     }
