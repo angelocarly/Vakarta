@@ -162,10 +162,10 @@ void vkrt::Renderer::InitializeRenderObject()
 {
     std::vector< vks::Vertex > theVertices =
     {
-        vks::Vertex( glm::vec3( -100, 0, -10 ) ),
-        vks::Vertex( glm::vec3( 190, 0, -10 ) ),
-        vks::Vertex( glm::vec3( 100, 190, -10 ) ),
-        vks::Vertex( glm::vec3( -100, 190, -10 ) )
+        vks::Vertex( glm::vec3( -1000, -1000, 0 ) ),
+        vks::Vertex( glm::vec3( -1000, 1000, 0 ) ),
+        vks::Vertex( glm::vec3( 1000, 1000, 0 ) ),
+        vks::Vertex( glm::vec3( -1000, -1000, 0 ) )
     };
     std::vector< uint32_t > theIndices =
     {

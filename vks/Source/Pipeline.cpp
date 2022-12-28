@@ -55,10 +55,13 @@ vks::Pipeline::Impl::Impl( vks::DevicePtr inDevice, vk::RenderPass inRenderPass 
 
 vks::Pipeline::Impl::~Impl()
 {
+    mDevice->DestroyBuffer( mUniformBuffer );
+
     for( auto theDescriptorSetLayout : mDescriptorSetLayouts )
     {
         mDevice->GetVkDevice().destroy( theDescriptorSetLayout );
     }
+    mDevice->GetVkDevice().destroy( mDescriptorPool );
 
     mDevice->GetVkDevice().destroy( mPipelineLayout );
     mDevice->GetVkDevice().destroy( mPipeline );
@@ -347,11 +350,11 @@ vks::Pipeline::UpdatePipelineUniforms( int inWidth, int inHeight )
 {
     glm::mat4 theView = glm::lookAt
     (
-        glm::vec3(0,0,-10), // Camera is at (4,3,3), in World Space
-        glm::vec3(0,0,0), // and looks at the origin
-        glm::vec3(0,1,0)  // Head is up (set to 0,-1,0 to look upside-down)
+        glm::vec3(0,0,-10),
+        glm::vec3(0,0,0),
+        glm::vec3(0,1,0)
     );
-    auto theProjection = glm::perspective(glm::radians(90.0f ), (float) inWidth / (float) inHeight, 0.1f, 100.0f );
+    auto theProjection = glm::perspective(glm::radians(180.0f ), (float) inWidth / (float) inHeight, 0.1f, 100.0f );
 
     UniformBufferObject theUniform;
     theUniform.mView = theProjection = theProjection * theView;

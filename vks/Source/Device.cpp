@@ -57,6 +57,7 @@ vks::Device::Impl::Impl( const vks::PhysicalDevicePtr inPhysicalDevice )
 vks::Device::Impl::~Impl()
 {
     mDevice.waitIdle();
+    mAllocator.destroy();
     mDevice.destroyCommandPool( mCommandPool );
     mDevice.destroy();
 }
