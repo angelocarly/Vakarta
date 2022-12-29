@@ -4,18 +4,19 @@
 #include "vkrt/Renderer.h"
 
 #include "vks/Vertex.h"
+#include "vkrt/Window.h"
 
 #include <spdlog/spdlog.h>
 
 #include <memory>
 
-vkrt::Renderer::Renderer( vk::SurfaceKHR inSurface )
+vkrt::Renderer::Renderer( vkrt::WindowPtr inWindow )
 :
     mInstance( vks::Instance::GetInstance() ),
-    mSurface( inSurface ),
+    mWindow( inWindow ),
     mPhysicalDevice( std::make_shared< vks::PhysicalDevice >( mInstance ) ),
     mDevice( std::make_shared< vks::Device >( mPhysicalDevice ) ),
-    mSwapChain( mDevice, mSurface )
+    mSwapChain( mDevice, mWindow->GetVkSurface() )
 {
     InitializeRenderPass();
     InitializeFrameBuffers();
@@ -88,28 +89,11 @@ vkrt::Renderer::InitializeRenderPass()
 void
 vkrt::Renderer::InitializeFrameBuffers()
 {
-    auto theSwapChainImageViews = mSwapChain.GetSwapChainImageViews();
-    mFrameBuffers.resize( theSwapChainImageViews.size() );
-
-    for ( size_t i = 0; i < theSwapChainImageViews.size(); i++)
-    {
-        auto theSurfaceCapabilities = mPhysicalDevice->GetVkPhysicalDevice().getSurfaceCapabilitiesKHR( mSurface );
-
-        auto theFrameBufferCreateInfo = vk::FramebufferCreateInfo
-        (
-            vk::FramebufferCreateFlags(),
-            mRenderPass,
-            1,
-            & theSwapChainImageViews[ i ],
-            theSurfaceCapabilities.currentExtent.width,
-            theSurfaceCapabilities.currentExtent.height,
-            1
-        );
-        mFrameBuffers[i] = mDevice->GetVkDevice().createFramebuffer( theFrameBufferCreateInfo );
-    }
+    mFrameBuffers = mSwapChain.CreateFrameBuffers( mRenderPass );
 }
 
-void vkrt::Renderer::InitializeSynchronizationObject()
+void
+vkrt::Renderer::InitializeSynchronizationObject()
 {
     mPresentSemaphore = mDevice->GetVkDevice().createSemaphore
     (
@@ -121,7 +105,8 @@ void vkrt::Renderer::InitializeSynchronizationObject()
 
 }
 
-void vkrt::Renderer::InitializeRenderObject()
+void
+vkrt::Renderer::InitializeRenderObject()
 {
     std::vector< vks::Vertex > theVertices =
     {
@@ -134,7 +119,6 @@ void vkrt::Renderer::InitializeRenderObject()
     {
         0, 1, 2,
         1, 2, 3,
-        2, 3, 1
     };
 
     mMesh = std::make_unique< vks::Mesh >( mDevice, theVertices, theIndices );
@@ -144,9 +128,9 @@ void vkrt::Renderer::InitializeRenderObject()
 
 void vkrt::Renderer::Render()
 {
-    uint32_t theImageIndex = mSwapChain.AcquireNextImage();
+    uint32_t theImageIndex = mSwapChain.RetrieveNextImage();
 
-    auto theSurfaceCapabilities = mPhysicalDevice->GetVkPhysicalDevice().getSurfaceCapabilitiesKHR( mSurface );
+    auto theSurfaceCapabilities = mPhysicalDevice->GetVkPhysicalDevice().getSurfaceCapabilitiesKHR( mWindow->GetVkSurface() );
 
     auto theCommandBuffer = mDevice->BeginSingleTimeCommands();
     {
@@ -195,5 +179,5 @@ void vkrt::Renderer::Render()
     mDevice->GetVkDevice().freeCommandBuffers( mDevice->GetVkCommandPool(), theCommandBuffer );
 
     // Display the swapchain image
-    mSwapChain.PresentSwapChain( theImageIndex, mPresentSemaphore );
+    mSwapChain.PresentImage( theImageIndex, mPresentSemaphore );
 }

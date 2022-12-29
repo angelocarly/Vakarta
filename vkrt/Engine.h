@@ -10,8 +10,8 @@
 #include "vks/Instance.h"
 #include "vks/PhysicalDevice.h"
 
+#include "vkrt/ForwardDecl.h"
 #include "vkrt/Renderer.h"
-#include "Window.h"
 
 class Engine
 {
@@ -23,10 +23,9 @@ class Engine
         void Update();
         void Render();
         bool ShouldClose();
-        vk::SurfaceKHR GetSurface();
 
     private:
-        vkrt::Window mWindow;
+        vkrt::WindowPtr mWindow;
         vkrt::Renderer mRenderer;
 
 };

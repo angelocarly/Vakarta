@@ -18,7 +18,7 @@ namespace vkrt
 
             bool ShouldClose();
             void Poll();
-            vk::SurfaceKHR GetSurface();
+            vk::SurfaceKHR GetVkSurface();
 
         private:
             class Impl;

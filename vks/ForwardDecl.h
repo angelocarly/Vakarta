@@ -2,8 +2,8 @@
 // Created by Angelo Carly on 26/11/2022.
 //
 
-#ifndef VKRT_FORWARDDECL_H
-#define VKRT_FORWARDDECL_H
+#ifndef VKS_FORWARDDECL_H
+#define VKS_FORWARDDECL_H
 
 #include <memory>
 #include <vulkan/vulkan.hpp>

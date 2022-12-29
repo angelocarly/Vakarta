@@ -1,6 +1,7 @@
-//
-// Created by Angelo Carly on 27/11/2022.
-//
+/*
+ * Window abstraction
+ * Manages the native window and it's images
+ */
 
 #include "vkrt/Window.h"
 
@@ -16,10 +17,10 @@
 class vkrt::Window::Impl
 {
     public:
-        Impl();
+        Impl( int width, int height, const char * title );
         ~Impl();
 
-        void CreateWindow( int widht, int height, const char * title );
+        void CreateWindow( int width, int height, const char * title );
         void InitializeSurface();
 
         struct DestroyWindow
@@ -36,14 +37,15 @@ class vkrt::Window::Impl
         vk::SurfaceKHR mSurface;
 };
 
-vkrt::Window::Impl::Impl()
+vkrt::Window::Impl::Impl(int inWidth, int inHeight, const char * inTitle )
 {
-
+    CreateWindow( inWidth, inHeight, inTitle );
+    InitializeSurface();
 }
 
 vkrt::Window::Impl::~Impl()
 {
-
+    vks::Instance::GetInstance().GetVkInstance().destroy( mSurface );
 }
 
 void
@@ -77,15 +79,12 @@ vkrt::Window::Impl::InitializeSurface()
 
 vkrt::Window::Window( int width, int height, const char * title )
 :
-    mImpl( new Impl() )
+    mImpl( new Impl( width, height, title ) )
 {
-    mImpl->CreateWindow( width, height, title );
-    mImpl->InitializeSurface();
 }
 
 vkrt::Window::~Window()
 {
-    vks::Instance::GetInstance().GetVkInstance().destroy( mImpl->mSurface );
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -100,8 +99,7 @@ void vkrt::Window::Poll()
     glfwPollEvents();
 }
 
-vk::SurfaceKHR vkrt::Window::GetSurface()
+vk::SurfaceKHR vkrt::Window::GetVkSurface()
 {
     return mImpl->mSurface;
 }
-

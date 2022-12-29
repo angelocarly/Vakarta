@@ -9,6 +9,7 @@ set(
 set(
     HEADER_FILES
         Engine.h
+        ForwardDecl.h
         Renderer.h
         Window.h
 )

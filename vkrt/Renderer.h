@@ -10,22 +10,22 @@
 #include "vks/SwapChain.h"
 #include "vks/Pipeline.h"
 #include "vks/Mesh.h"
+#include "Window.h"
+#include "ForwardDecl.h"
 
 namespace vkrt
 {
     class Renderer
     {
         public:
-            Renderer( vk::SurfaceKHR inSurface );
+            Renderer( vkrt::WindowPtr inWindow );
             ~Renderer();
 
             void Render();
 
         private:
-            void CreateSwapChainImageViews();
             void InitializeRenderPass();
             void InitializeFrameBuffers();
-            void RecordCommandBuffers();
 
         private:
             vks::Instance & mInstance;
@@ -34,7 +34,7 @@ namespace vkrt
             vk::Semaphore mPresentSemaphore;
 
             // Display
-            vk::SurfaceKHR mSurface;
+            vkrt::WindowPtr mWindow;
             vks::SwapChain mSwapChain;
             std::vector< vk::Framebuffer > mFrameBuffers;
 

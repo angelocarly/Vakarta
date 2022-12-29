@@ -9,8 +9,8 @@
 
 Engine::Engine()
 :
-    mWindow( WIDTH, HEIGHT, TITLE ),
-    mRenderer( mWindow.GetSurface() )
+    mWindow( std::make_shared< vkrt::Window >( WIDTH, HEIGHT, TITLE ) ),
+    mRenderer( mWindow )
 {
 
 }
@@ -23,7 +23,7 @@ Engine::~Engine()
 
 void Engine::Update()
 {
-    mWindow.Poll();
+    mWindow->Poll();
 }
 
 void Engine::Render()
@@ -33,6 +33,6 @@ void Engine::Render()
 
 bool Engine::ShouldClose()
 {
-    return mWindow.ShouldClose();
+    return mWindow->ShouldClose();
 }
 

@@ -18,26 +18,15 @@ namespace vks
             SwapChain( vks::DevicePtr inLogicalDevice, vk::SurfaceKHR inSurface );
             ~SwapChain();
 
-            int AcquireNextImage();
-            vk::Format GetImageFormat();
-            std::vector< vk::Image > GetSwapChainImages();
-            std::vector< vk::ImageView > GetSwapChainImageViews();
+            int RetrieveNextImage();
             vk::SwapchainKHR GetVkSwapchain();
-            void PresentSwapChain( uint32_t inImageIndex, vk::Semaphore & inWaitSemaphore );
+            void PresentImage( uint32_t inImageIndex, vk::Semaphore & inWaitSemaphore );
+            std::vector< vk::Framebuffer > CreateFrameBuffers( vk::RenderPass inRenderPass );
+            vk::Format GetImageFormat();
 
         private:
-            vks::DevicePtr mDevice;
-            vk::SurfaceKHR mSurface;
-            vk::SwapchainKHR mSwapchain;
-
-        private:
-            void CreateSwapChainImages();
-            vk::Semaphore mImageAvailableForRenderingSemophore;
-            vk::Semaphore mImageAvailableForPresentingSemophore;
-            vk::Fence mImageInFlightFence;
-            std::vector< vk::Image > mSwapChainImages;
-            std::vector< vk::ImageView > mSwapChainImageViews;
-
+            class Impl;
+            std::unique_ptr< Impl > mImpl;
     };
 }
 

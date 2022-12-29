@@ -10,11 +10,65 @@
 
 #include <spdlog/spdlog.h>
 
-// TODO: put all in Impl class
-vks::SwapChain::SwapChain( const vks::DevicePtr inLogicalDevice, vk::SurfaceKHR inSurface )
+// ---------------------------------------------------------------------------------------------------------------------
+
+class vks::SwapChain::Impl
+{
+    public:
+        Impl( const vks::DevicePtr inDevice, vk::SurfaceKHR inSurface );
+        ~Impl();
+
+        vk::Format GetImageFormat();
+
+    public:
+        vks::DevicePtr mDevice;
+        vk::SurfaceKHR mSurface;
+        vk::SwapchainKHR mSwapchain;
+    public:
+        vk::Semaphore mImageAvailableForRenderingSemaphore;
+        vk::Semaphore mImageAvailableForPresentingSemaphore;
+        vk::Fence mImageInFlightFence;
+        std::vector< vk::Image > mSwapChainImages;
+        std::vector< vk::ImageView > mSwapChainImageViews;
+
+    private:
+        void InitializeSwapChain();
+        void InitializeSwapChainImages();
+};
+
+vks::SwapChain::Impl::Impl( const vks::DevicePtr inDevice, vk::SurfaceKHR inSurface )
 :
-    mDevice( inLogicalDevice ),
+    mDevice( inDevice ),
     mSurface( inSurface )
+{
+    InitializeSwapChain();
+    InitializeSwapChainImages();
+}
+
+vks::SwapChain::Impl::~Impl()
+{
+    mDevice->GetVkDevice().waitForFences( mImageInFlightFence, true, UINT64_MAX );
+    mDevice->GetVkDevice().waitIdle();
+
+    for( int i = 0; i < mSwapChainImageViews.size(); i++ )
+    {
+        mDevice->GetVkDevice().destroy( mSwapChainImageViews[ i ] );
+    }
+
+    mDevice->GetVkDevice().destroy( mImageAvailableForRenderingSemaphore );
+    mDevice->GetVkDevice().destroy( mImageAvailableForPresentingSemaphore );
+    mDevice->GetVkDevice().destroy( mImageInFlightFence );
+    mDevice->GetVkDevice().destroy( mSwapchain );
+}
+
+vk::Format
+vks::SwapChain::Impl::GetImageFormat()
+{
+    return vk::Format::eB8G8R8A8Unorm;
+}
+
+void
+vks::SwapChain::Impl::InitializeSwapChain()
 {
     spdlog::get( "vulkan" )->debug( "Initializing swapchain." );
 
@@ -24,7 +78,7 @@ vks::SwapChain::SwapChain( const vks::DevicePtr inLogicalDevice, vk::SurfaceKHR 
     auto surfaceFormats = physicalDevice->GetVkPhysicalDevice().getSurfaceFormatsKHR( mSurface );
     auto presentModes = physicalDevice->GetVkPhysicalDevice().getSurfacePresentModesKHR( mSurface );
 
-    const uint32_t graphicsFamilyIndex = inLogicalDevice->GetPhysicalDevice()->FindQueueFamilyIndices().graphicsFamilyIndex.value();
+    const uint32_t graphicsFamilyIndex = mDevice->GetPhysicalDevice()->FindQueueFamilyIndices().graphicsFamilyIndex.value();
 
     auto theFormat = vk::Format::eB8G8R8A8Unorm;
     auto theColorSpace = vk::ColorSpaceKHR::eSrgbNonlinear;
@@ -53,7 +107,7 @@ vks::SwapChain::SwapChain( const vks::DevicePtr inLogicalDevice, vk::SurfaceKHR 
     vk::SwapchainCreateInfoKHR swapchainCreateInfoKhr
     (
         vk::SwapchainCreateFlagsKHR(),
-        inSurface,
+        mSurface,
         3,
         GetImageFormat(),
         vk::ColorSpaceKHR::eSrgbNonlinear,
@@ -65,49 +119,30 @@ vks::SwapChain::SwapChain( const vks::DevicePtr inLogicalDevice, vk::SurfaceKHR 
         &graphicsFamilyIndex,
         vk::SurfaceTransformFlagBitsKHR::eIdentity,
         vk::CompositeAlphaFlagBitsKHR::eOpaque,
-        vk::PresentModeKHR::eImmediate,
+        vk::PresentModeKHR::eFifo,
         true,
         nullptr
     );
     mSwapchain = mDevice->GetVkDevice().createSwapchainKHR( swapchainCreateInfoKhr );
 
     auto semaphoreCreateInfo = vk::SemaphoreCreateInfo();
-    mImageAvailableForPresentingSemophore = mDevice->GetVkDevice().createSemaphore( semaphoreCreateInfo );
-    mImageAvailableForRenderingSemophore = mDevice->GetVkDevice().createSemaphore( semaphoreCreateInfo );
+    mImageAvailableForPresentingSemaphore = mDevice->GetVkDevice().createSemaphore( semaphoreCreateInfo );
+    mImageAvailableForRenderingSemaphore = mDevice->GetVkDevice().createSemaphore( semaphoreCreateInfo );
 
     auto fenceCreateInfo = vk::FenceCreateInfo
     (
         vk::FenceCreateFlagBits::eSignaled // Mark the first image as signaled
     );
     mImageInFlightFence = mDevice->GetVkDevice().createFence( fenceCreateInfo );
-
-    CreateSwapChainImages();
-}
-
-vks::SwapChain::~SwapChain()
-{
-    mDevice->GetVkDevice().waitForFences( mImageInFlightFence, true, UINT64_MAX );
-    mDevice->GetVkDevice().waitIdle();
-
-    for( int i = 0; i < mSwapChainImageViews.size(); i++ )
-    {
-        mDevice->GetVkDevice().destroy( mSwapChainImageViews[ i ] );
-    }
-
-    mDevice->GetVkDevice().destroy( mImageAvailableForRenderingSemophore );
-    mDevice->GetVkDevice().destroy( mImageAvailableForPresentingSemophore );
-    mDevice->GetVkDevice().destroy( mImageInFlightFence );
-    mDevice->GetVkDevice().destroy( mSwapchain );
 }
 
 void
-vks::SwapChain::CreateSwapChainImages()
+vks::SwapChain::Impl::InitializeSwapChainImages()
 {
     mSwapChainImages = mDevice->GetVkDevice().getSwapchainImagesKHR( mSwapchain );
-
     mSwapChainImageViews.resize( mSwapChainImages.size() );
 
-    for (size_t i = 0; i < mSwapChainImages.size(); i++)
+    for (size_t i = 0; i < mSwapChainImageViews.size(); i++)
     {
         auto imageViewCreateInfo = vk::ImageViewCreateInfo
         (
@@ -136,59 +171,101 @@ vks::SwapChain::CreateSwapChainImages()
     }
 }
 
-std::vector< vk::Image >
-vks::SwapChain::GetSwapChainImages()
+// ---------------------------------------------------------------------------------------------------------------------
+
+vks::SwapChain::SwapChain( const vks::DevicePtr inLogicalDevice, vk::SurfaceKHR inSurface )
+:
+    mImpl( new Impl( inLogicalDevice, inSurface ) )
 {
-    return mSwapChainImages;
 }
 
-std::vector< vk::ImageView > vks::SwapChain::GetSwapChainImageViews()
+vks::SwapChain::~SwapChain()
 {
-    return mSwapChainImageViews;
 }
 
-vk::Format
-vks::SwapChain::GetImageFormat()
+vk::SwapchainKHR
+vks::SwapChain::GetVkSwapchain()
 {
-    return vk::Format::eB8G8R8A8Unorm;
+    return mImpl->mSwapchain;
 }
 
-vk::SwapchainKHR vks::SwapChain::GetVkSwapchain()
+vk::Format vks::SwapChain::GetImageFormat()
 {
-    return mSwapchain;
+    return mImpl->GetImageFormat();
 }
 
+/**
+ * Wait for the next presentable image index.
+ * @return
+ */
 int
-vks::SwapChain::AcquireNextImage()
+vks::SwapChain::RetrieveNextImage()
 {
-    mDevice->GetVkDevice().waitForFences( mImageInFlightFence, true, UINT64_MAX );
-    mDevice->GetVkDevice().resetFences( mImageInFlightFence );
+    mImpl->mDevice->GetVkDevice().resetFences( mImpl->mImageInFlightFence );
 
+    // Block until a new image is acquired
     uint32_t imageIndex = 0;
-    mDevice->GetVkDevice().acquireNextImageKHR
+    mImpl->mDevice->GetVkDevice().acquireNextImageKHR
     (
-        mSwapchain,
+        mImpl->mSwapchain,
         UINT64_MAX,
         nullptr,
-        mImageInFlightFence,
+        mImpl->mImageInFlightFence,
         &imageIndex
     );
+
+    // Wait until the image is no longer being read from by the window
+    mImpl->mDevice->GetVkDevice().waitForFences( mImpl->mImageInFlightFence, true, UINT64_MAX );
 
     return imageIndex;
 }
 
+/**
+ * Present a swapchain image
+ * @param inImageIndex the image to render
+ * @param inWaitSemaphore semaphore to trigger before submission
+ */
 void
-vks::SwapChain::PresentSwapChain( uint32_t inImageIndex, vk::Semaphore & inWaitSemaphore )
+vks::SwapChain::PresentImage( uint32_t inImageIndex, vk::Semaphore & inWaitSemaphore )
 {
+    // Submit an image for presentation
     auto thePresentInfo = vk::PresentInfoKHR
     (
         inWaitSemaphore,
-        mSwapchain,
+        mImpl->mSwapchain,
         inImageIndex
     );
-    auto result = mDevice->GetVkQueue().presentKHR( thePresentInfo );
+
+    auto result = mImpl->mDevice->GetVkQueue().presentKHR( thePresentInfo );
     if( result != vk::Result::eSuccess )
     {
         throw std::runtime_error( "Error presenting swapchain" );
     }
 }
+
+std::vector< vk::Framebuffer >
+vks::SwapChain::CreateFrameBuffers( vk::RenderPass inRenderPass )
+{
+    std::vector< vk::Framebuffer > theFrameBuffers;
+    theFrameBuffers.resize( mImpl->mSwapChainImageViews.size() );
+
+    for ( size_t i = 0; i < theFrameBuffers.size(); i++)
+    {
+        auto theSurfaceCapabilities = mImpl->mDevice->GetPhysicalDevice()->GetVkPhysicalDevice().getSurfaceCapabilitiesKHR( mImpl->mSurface );
+
+        auto theFrameBufferCreateInfo = vk::FramebufferCreateInfo
+        (
+            vk::FramebufferCreateFlags(),
+            inRenderPass,
+            1,
+            & mImpl->mSwapChainImageViews[ i ],
+            theSurfaceCapabilities.currentExtent.width,
+            theSurfaceCapabilities.currentExtent.height,
+            1
+        );
+        theFrameBuffers[i] = mImpl->mDevice->GetVkDevice().createFramebuffer( theFrameBufferCreateInfo );
+    }
+
+    return theFrameBuffers;
+}
+
