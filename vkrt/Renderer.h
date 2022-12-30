@@ -26,6 +26,9 @@ namespace vkrt
         private:
             void InitializeRenderPass();
             void InitializeFrameBuffers();
+            void InitializeCommandBuffers();
+            void InitializeSynchronizationObject();
+            void InitializeRenderObject();
 
         private:
             vks::Instance & mInstance;
@@ -37,6 +40,7 @@ namespace vkrt
             vkrt::WindowPtr mWindow;
             vks::SwapChain mSwapChain;
             std::vector< vk::Framebuffer > mFrameBuffers;
+            std::vector< vk::CommandBuffer > mCommandBuffers;
 
             // Pipeline
 //            vk::AttachmentReference mColorAttachmentReference;
@@ -47,10 +51,6 @@ namespace vkrt
 
             // Render data
             std::unique_ptr< vks::Mesh > mMesh;
-
-            void InitializeSynchronizationObject();
-
-            void InitializeRenderObject();
     };
 }
 

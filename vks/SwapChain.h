@@ -22,6 +22,7 @@ namespace vks
             vk::SwapchainKHR GetVkSwapchain();
             void PresentImage( uint32_t inImageIndex, vk::Semaphore & inWaitSemaphore );
             std::vector< vk::Framebuffer > CreateFrameBuffers( vk::RenderPass inRenderPass );
+            void SubmitCommandBuffer( uint32_t inImageIndex, vk::CommandBuffer inCommandBuffer );
             vk::Format GetImageFormat();
 
         private:

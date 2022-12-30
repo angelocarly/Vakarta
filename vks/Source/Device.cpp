@@ -107,7 +107,7 @@ vks::Device::Impl::InitializeCommandPool()
     (
         vk::CommandPoolCreateInfo
         (
-            vk::CommandPoolCreateFlags(),
+            vk::CommandPoolCreateFlagBits::eResetCommandBuffer,
             mPhysicalDevice->FindQueueFamilyIndices().graphicsFamilyIndex.value()
         )
     );
@@ -167,7 +167,8 @@ vks::Device::BeginSingleTimeCommands()
     return theCommandBuffer;
 }
 
-vk::CommandPool vks::Device::GetVkCommandPool()
+vk::CommandPool
+vks::Device::GetVkCommandPool()
 {
     return mImpl->mCommandPool;
 }

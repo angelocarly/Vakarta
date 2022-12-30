@@ -3,6 +3,8 @@
  * Manages the native window and it's images
  */
 
+#define GLFW_INCLUDE_VULKAN
+
 #include "vkrt/Window.h"
 
 #include <GLFW/glfw3.h>

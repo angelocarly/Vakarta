@@ -20,6 +20,7 @@ vkrt::Renderer::Renderer( vkrt::WindowPtr inWindow )
 {
     InitializeRenderPass();
     InitializeFrameBuffers();
+    InitializeCommandBuffers();
     InitializeSynchronizationObject();
     InitializeRenderObject();
     mPipeline = std::make_unique<vks::Pipeline>( mDevice, mRenderPass );
@@ -42,6 +43,38 @@ vkrt::Renderer::~Renderer()
 void
 vkrt::Renderer::InitializeRenderPass()
 {
+
+    auto theDepthStencilAttachment = vk::AttachmentReference
+    (
+        1,
+        vk::ImageLayout::eDepthAttachmentOptimal
+    );
+
+    vk::AttachmentReference const theColorAttachmentReference( 0, vk::ImageLayout::eColorAttachmentOptimal );
+
+    auto theSubpassDescription = vk::SubpassDescription
+    (
+        vk::SubpassDescriptionFlags(),
+        vk::PipelineBindPoint::eGraphics,
+        0,
+        nullptr,
+        1,
+        &theColorAttachmentReference,
+        nullptr,
+        nullptr, //TODO: add depth attachment
+        0,
+        nullptr
+    );
+
+    // Why?
+    std::array< vk::SubpassDependency, 1 > theSubPassDependencies;
+    theSubPassDependencies[ 0 ].setSrcSubpass( VK_SUBPASS_EXTERNAL );
+    theSubPassDependencies[ 0 ].setDstSubpass( 0 );
+    theSubPassDependencies[ 0 ].setSrcStageMask( vk::PipelineStageFlagBits::eColorAttachmentOutput );
+    theSubPassDependencies[ 0 ].setSrcAccessMask( vk::AccessFlagBits::eNone );
+    theSubPassDependencies[ 0 ].setDstStageMask( vk::PipelineStageFlagBits::eColorAttachmentOutput );
+    theSubPassDependencies[ 0 ].setDstAccessMask( vk::AccessFlagBits::eColorAttachmentWrite );
+
     auto theColorAttachmentDescription = vk::AttachmentDescription
     (
         vk::AttachmentDescriptionFlags(),
@@ -55,31 +88,33 @@ vkrt::Renderer::InitializeRenderPass()
         vk::ImageLayout::ePresentSrcKHR
     );
 
-    auto theColorAttachmentRef = vk::AttachmentReference
+    // TODO: Add depth attachment
+    auto theDepthAttachmentDescription = vk::AttachmentDescription
     (
-        0,
-        vk::ImageLayout::eColorAttachmentOptimal
+        vk::AttachmentDescriptionFlags(),
+        mSwapChain.GetImageFormat(),
+        vk::SampleCountFlagBits::e1,
+        vk::AttachmentLoadOp::eClear,
+        vk::AttachmentStoreOp::eStore,
+        vk::AttachmentLoadOp::eDontCare,
+        vk::AttachmentStoreOp::eDontCare,
+        vk::ImageLayout::eUndefined,
+        vk::ImageLayout::eDepthStencilAttachmentOptimal
     );
 
-    auto theSubpassDescription = vk::SubpassDescription
-    (
-        vk::SubpassDescriptionFlags(),
-        vk::PipelineBindPoint::eGraphics,
-        0,
-        nullptr,
-        1,
-        &theColorAttachmentRef
-    );
-
+    std::vector< vk::AttachmentDescription > theAttachmentDescriptions =
+    {
+        theColorAttachmentDescription
+    };
     auto theRenderPassCreateInfo = vk::RenderPassCreateInfo
     (
         vk::RenderPassCreateFlags(),
-        1,
-        &theColorAttachmentDescription,
+        theAttachmentDescriptions.size(),
+        theAttachmentDescriptions.data(),
         1,
         &theSubpassDescription,
-        0,
-        nullptr
+        theSubPassDependencies.size(),
+        theSubPassDependencies.data()
     );
 
     mRenderPass = mDevice->GetVkDevice().createRenderPass( theRenderPassCreateInfo );
@@ -93,6 +128,19 @@ vkrt::Renderer::InitializeFrameBuffers()
 }
 
 void
+vkrt::Renderer::InitializeCommandBuffers()
+{
+    mCommandBuffers.resize( mFrameBuffers.size() );
+    for( int i = 0; i < mCommandBuffers.size(); ++i )
+    {
+        mCommandBuffers[ i ] = mDevice->GetVkDevice().allocateCommandBuffers
+        (
+            vk::CommandBufferAllocateInfo( mDevice->GetVkCommandPool(), vk::CommandBufferLevel::ePrimary, 1 )
+        ).front();
+    }
+}
+
+void
 vkrt::Renderer::InitializeSynchronizationObject()
 {
     mPresentSemaphore = mDevice->GetVkDevice().createSemaphore
@@ -102,7 +150,6 @@ vkrt::Renderer::InitializeSynchronizationObject()
             vk::SemaphoreCreateFlags()
         )
     );
-
 }
 
 void
@@ -110,15 +157,15 @@ vkrt::Renderer::InitializeRenderObject()
 {
     std::vector< vks::Vertex > theVertices =
     {
-        vks::Vertex( glm::vec3( -1000, -1000, 0 ) ),
-        vks::Vertex( glm::vec3( -1000, 1000, 0 ) ),
-        vks::Vertex( glm::vec3( 1000, 1000, 0 ) ),
-        vks::Vertex( glm::vec3( 1000, -1000, 0 ) )
+        vks::Vertex( glm::vec3( 100, 100, 0 ) ),
+        vks::Vertex( glm::vec3( 100, 600, 0 ) ),
+        vks::Vertex( glm::vec3( 600, 600, 0 ) ),
+        vks::Vertex( glm::vec3( 600, 100, 0 ) )
     };
     std::vector< uint32_t > theIndices =
     {
         0, 1, 2,
-        1, 2, 3,
+        0, 2, 3,
     };
 
     mMesh = std::make_unique< vks::Mesh >( mDevice, theVertices, theIndices );
@@ -132,7 +179,8 @@ void vkrt::Renderer::Render()
 
     auto theSurfaceCapabilities = mPhysicalDevice->GetVkPhysicalDevice().getSurfaceCapabilitiesKHR( mWindow->GetVkSurface() );
 
-    auto theCommandBuffer = mDevice->BeginSingleTimeCommands();
+    auto theCommandBuffer = mCommandBuffers[ theImageIndex ];
+    theCommandBuffer.begin( vk::CommandBufferBeginInfo( vk::CommandBufferUsageFlags() ) );
     {
         auto theClearValue = vk::ClearValue
         (
@@ -142,14 +190,24 @@ void vkrt::Renderer::Render()
         (
             mRenderPass,
             mFrameBuffers[ theImageIndex ],
-            vk::Rect2D( vk::Offset2D(), theSurfaceCapabilities.currentExtent ),
+            vk::Rect2D( vk::Offset2D( 0, 0 ), theSurfaceCapabilities.currentExtent ),
             1,
             & theClearValue
         );
         theCommandBuffer.beginRenderPass( theRenderPassBeginInfo, vk::SubpassContents::eInline );
         {
-            auto theViewport = vk::Viewport( 0, 0, theSurfaceCapabilities.currentExtent.width, theSurfaceCapabilities.currentExtent.height );
+            auto theViewport = vk::Viewport
+            (
+                0,
+                0,
+                theSurfaceCapabilities.currentExtent.width,
+                theSurfaceCapabilities.currentExtent.height,
+                0.0f,
+                1.0f
+            );
             theCommandBuffer.setViewport( 0, 1, & theViewport );
+            const auto theScissors = vk::Rect2D( { 0, 0 }, theSurfaceCapabilities.currentExtent );
+            theCommandBuffer.setScissor( 0, 1, & theScissors );
 
             mPipeline->UpdatePipelineUniforms( theSurfaceCapabilities.currentExtent.width, theSurfaceCapabilities.currentExtent.height );
             mPipeline->Bind( theCommandBuffer );
@@ -159,25 +217,5 @@ void vkrt::Renderer::Render()
     }
     theCommandBuffer.end();
 
-    // Submit command buffer and wait until completion
-    vk::Fence theFence = mDevice->GetVkDevice().createFence( vk::FenceCreateInfo() );
-    mDevice->GetVkQueue().submit
-    ( vk::SubmitInfo
-        (
-            0,
-            nullptr,
-            nullptr,
-            1,
-            &theCommandBuffer,
-            1,
-            & mPresentSemaphore
-        ),
-        theFence
-    );
-    while( vk::Result::eTimeout == mDevice->GetVkDevice().waitForFences( theFence, VK_TRUE, UINT64_MAX ));
-    mDevice->GetVkDevice().destroyFence( theFence );
-    mDevice->GetVkDevice().freeCommandBuffers( mDevice->GetVkCommandPool(), theCommandBuffer );
-
-    // Display the swapchain image
-    mSwapChain.PresentImage( theImageIndex, mPresentSemaphore );
+    mSwapChain.SubmitCommandBuffer( theImageIndex, theCommandBuffer );
 }

@@ -25,15 +25,20 @@ class vks::SwapChain::Impl
         vk::SurfaceKHR mSurface;
         vk::SwapchainKHR mSwapchain;
     public:
-        vk::Semaphore mImageAvailableForRenderingSemaphore;
-        vk::Semaphore mImageAvailableForPresentingSemaphore;
-        vk::Fence mImageInFlightFence;
         std::vector< vk::Image > mSwapChainImages;
         std::vector< vk::ImageView > mSwapChainImageViews;
+
+        int mCurrentFrame = 0;
+        std::vector< vk::Fence > mCommandBufferExecutedFence;
+        std::vector< vk::Semaphore > mImageAcquiredSemaphores;
+        std::vector< vk::Semaphore > mBufferPresentedSemaphores;
 
     private:
         void InitializeSwapChain();
         void InitializeSwapChainImages();
+        void InitializeSynchronizationObjects();
+
+        vk::ColorSpaceKHR GetColorSpace();
 };
 
 vks::SwapChain::Impl::Impl( const vks::DevicePtr inDevice, vk::SurfaceKHR inSurface )
@@ -43,11 +48,12 @@ vks::SwapChain::Impl::Impl( const vks::DevicePtr inDevice, vk::SurfaceKHR inSurf
 {
     InitializeSwapChain();
     InitializeSwapChainImages();
+    InitializeSynchronizationObjects();
 }
 
 vks::SwapChain::Impl::~Impl()
 {
-    mDevice->GetVkDevice().waitForFences( mImageInFlightFence, true, UINT64_MAX );
+    mDevice->GetVkDevice().waitForFences( mCommandBufferExecutedFence, true, UINT64_MAX );
     mDevice->GetVkDevice().waitIdle();
 
     for( int i = 0; i < mSwapChainImageViews.size(); i++ )
@@ -55,16 +61,32 @@ vks::SwapChain::Impl::~Impl()
         mDevice->GetVkDevice().destroy( mSwapChainImageViews[ i ] );
     }
 
-    mDevice->GetVkDevice().destroy( mImageAvailableForRenderingSemaphore );
-    mDevice->GetVkDevice().destroy( mImageAvailableForPresentingSemaphore );
-    mDevice->GetVkDevice().destroy( mImageInFlightFence );
+    for( auto theFence : mCommandBufferExecutedFence )
+    {
+        mDevice->GetVkDevice().destroy( theFence );
+    }
+    for( auto theSemaphore : mImageAcquiredSemaphores )
+    {
+        mDevice->GetVkDevice().destroy( theSemaphore );
+    }
+    for( auto theSemaphore : mBufferPresentedSemaphores )
+    {
+        mDevice->GetVkDevice().destroy( theSemaphore );
+    }
+
     mDevice->GetVkDevice().destroy( mSwapchain );
 }
 
 vk::Format
 vks::SwapChain::Impl::GetImageFormat()
 {
-    return vk::Format::eB8G8R8A8Unorm;
+    return vk::Format::eB8G8R8A8Srgb;
+}
+
+vk::ColorSpaceKHR
+vks::SwapChain::Impl::GetColorSpace()
+{
+    return vk::ColorSpaceKHR::eSrgbNonlinear;
 }
 
 void
@@ -80,10 +102,10 @@ vks::SwapChain::Impl::InitializeSwapChain()
 
     const uint32_t graphicsFamilyIndex = mDevice->GetPhysicalDevice()->FindQueueFamilyIndices().graphicsFamilyIndex.value();
 
-    auto theFormat = vk::Format::eB8G8R8A8Unorm;
-    auto theColorSpace = vk::ColorSpaceKHR::eSrgbNonlinear;
+    auto theFormat = GetImageFormat();
+    auto theColorSpace = GetColorSpace();
 
-    // Verify whether the surface support the colorspace
+    // Verify whether the surface supports the colorformat/colorspace
     bool hasFormat = false;
     for( auto surfaceFormat : surfaceFormats )
     {
@@ -110,7 +132,7 @@ vks::SwapChain::Impl::InitializeSwapChain()
         mSurface,
         3,
         GetImageFormat(),
-        vk::ColorSpaceKHR::eSrgbNonlinear,
+        GetColorSpace(),
         surfaceCapabilities.currentExtent, // Initialize swapchain images with the current extent
         1,
         vk::ImageUsageFlagBits::eColorAttachment,
@@ -125,15 +147,6 @@ vks::SwapChain::Impl::InitializeSwapChain()
     );
     mSwapchain = mDevice->GetVkDevice().createSwapchainKHR( swapchainCreateInfoKhr );
 
-    auto semaphoreCreateInfo = vk::SemaphoreCreateInfo();
-    mImageAvailableForPresentingSemaphore = mDevice->GetVkDevice().createSemaphore( semaphoreCreateInfo );
-    mImageAvailableForRenderingSemaphore = mDevice->GetVkDevice().createSemaphore( semaphoreCreateInfo );
-
-    auto fenceCreateInfo = vk::FenceCreateInfo
-    (
-        vk::FenceCreateFlagBits::eSignaled // Mark the first image as signaled
-    );
-    mImageInFlightFence = mDevice->GetVkDevice().createFence( fenceCreateInfo );
 }
 
 void
@@ -149,7 +162,7 @@ vks::SwapChain::Impl::InitializeSwapChainImages()
             vk::ImageViewCreateFlags(),
             mSwapChainImages[ i ],
             vk::ImageViewType::e2D,
-            vk::Format::eB8G8R8A8Unorm,
+            GetImageFormat(),
             vk::ComponentMapping
             (
                 vk::ComponentSwizzle::eIdentity,
@@ -168,6 +181,34 @@ vks::SwapChain::Impl::InitializeSwapChainImages()
         );
 
         mSwapChainImageViews[ i ] = mDevice->GetVkDevice().createImageView( imageViewCreateInfo );
+    }
+}
+
+void
+vks::SwapChain::Impl::InitializeSynchronizationObjects()
+{
+    mCommandBufferExecutedFence.resize( mSwapChainImages.size() );
+    for( int i = 0; i < mCommandBufferExecutedFence.size(); ++i )
+    {
+        auto fenceCreateInfo = vk::FenceCreateInfo
+        (
+            vk::FenceCreateFlagBits::eSignaled // Mark the first image as signaled
+        );
+        mCommandBufferExecutedFence[ i ] = mDevice->GetVkDevice().createFence( fenceCreateInfo );
+    }
+
+    mImageAcquiredSemaphores.resize( mSwapChainImages.size() );
+    for( int i = 0; i < mImageAcquiredSemaphores.size(); ++i )
+    {
+        auto semaphoreCreateInfo = vk::SemaphoreCreateInfo();
+        mImageAcquiredSemaphores[ i ] = mDevice->GetVkDevice().createSemaphore( semaphoreCreateInfo );
+    }
+
+    mBufferPresentedSemaphores.resize( mSwapChainImages.size() );
+    for( int i = 0; i < mBufferPresentedSemaphores.size(); ++i )
+    {
+        auto semaphoreCreateInfo = vk::SemaphoreCreateInfo( vk::SemaphoreCreateFlags() );
+        mBufferPresentedSemaphores[ i ] = mDevice->GetVkDevice().createSemaphore( semaphoreCreateInfo );
     }
 }
 
@@ -201,7 +242,9 @@ vk::Format vks::SwapChain::GetImageFormat()
 int
 vks::SwapChain::RetrieveNextImage()
 {
-    mImpl->mDevice->GetVkDevice().resetFences( mImpl->mImageInFlightFence );
+    mImpl->mCurrentFrame = ( mImpl->mCurrentFrame + 1 ) % mImpl->mSwapChainImages.size();
+
+    while( vk::Result::eTimeout == mImpl->mDevice->GetVkDevice().waitForFences( mImpl->mCommandBufferExecutedFence[ mImpl->mCurrentFrame ], VK_TRUE, UINT64_MAX ));
 
     // Block until a new image is acquired
     uint32_t imageIndex = 0;
@@ -209,15 +252,35 @@ vks::SwapChain::RetrieveNextImage()
     (
         mImpl->mSwapchain,
         UINT64_MAX,
+        mImpl->mImageAcquiredSemaphores[ mImpl->mCurrentFrame ],
         nullptr,
-        mImpl->mImageInFlightFence,
         &imageIndex
     );
 
-    // Wait until the image is no longer being read from by the window
-    mImpl->mDevice->GetVkDevice().waitForFences( mImpl->mImageInFlightFence, true, UINT64_MAX );
-
     return imageIndex;
+}
+
+void
+vks::SwapChain::SubmitCommandBuffer( uint32_t inImageIndex, vk::CommandBuffer inCommandBuffer )
+{
+    mImpl->mDevice->GetVkDevice().resetFences( mImpl->mCommandBufferExecutedFence[ mImpl->mCurrentFrame ] );
+    mImpl->mDevice->GetVkQueue().submit
+    (
+        vk::SubmitInfo
+        (
+            1,
+            &mImpl->mImageAcquiredSemaphores[ mImpl->mCurrentFrame ],
+            nullptr,
+            1,
+            &inCommandBuffer,
+            1,
+            &mImpl->mBufferPresentedSemaphores[ inImageIndex ]
+        ),
+        mImpl->mCommandBufferExecutedFence[ mImpl->mCurrentFrame ]
+    );
+
+    // Display the swapchain image
+    PresentImage( inImageIndex, mImpl->mBufferPresentedSemaphores[ inImageIndex ] );
 }
 
 /**

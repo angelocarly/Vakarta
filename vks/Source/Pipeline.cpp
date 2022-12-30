@@ -41,8 +41,6 @@ class vks::Pipeline::Impl
         vks::Buffer mUniformBuffer;
 };
 
-void UpdatePipelineUniforms();
-
 vks::Pipeline::Impl::Impl( vks::DevicePtr inDevice, vk::RenderPass inRenderPass )
 :
     mDevice( inDevice ),
@@ -121,12 +119,12 @@ vks::Pipeline::Impl::InitializeDescriptors()
     thePoolSizes[ 0 ].setDescriptorCount( 1 );
 
     vk::DescriptorPoolCreateInfo const theDescriptorPoolCreateInfo
-        (
-            vk::DescriptorPoolCreateFlags(),
-            1,
-            thePoolSizes.size(),
-            thePoolSizes.data()
-        );
+    (
+        vk::DescriptorPoolCreateFlags(),
+        1,
+        thePoolSizes.size(),
+        thePoolSizes.data()
+    );
 
     mDescriptorPool = mDevice->GetVkDevice().createDescriptorPool( theDescriptorPoolCreateInfo );
 
@@ -206,12 +204,6 @@ vks::Pipeline::Impl::InitializePipeline()
         VK_FALSE
     );
 
-    // Tesselation
-    vk::PipelineTessellationStateCreateInfo const theTessellationStateCreateInfo = vk::PipelineTessellationStateCreateInfo
-    (
-        vk::PipelineTessellationStateCreateFlags()
-    );
-
     // Viewport
     vk::PipelineViewportStateCreateInfo const theViewportStateCreateInfo = vk::PipelineViewportStateCreateInfo
     (
@@ -230,7 +222,7 @@ vks::Pipeline::Impl::InitializePipeline()
         false,
         vk::PolygonMode::eFill,
         vk::CullModeFlagBits::eNone,
-        vk::FrontFace::eClockwise,
+        vk::FrontFace::eCounterClockwise,
         false,
         0.0f,
         0.0f,
@@ -238,43 +230,59 @@ vks::Pipeline::Impl::InitializePipeline()
         1.0f
     );
 
-    // Depth stencil
-    vk::PipelineDepthStencilStateCreateInfo const theDepthStencilStateCreateInfo = vk::PipelineDepthStencilStateCreateInfo
+    // Multi sample
+    vk::PipelineMultisampleStateCreateInfo const theMultiSampleStateCreateInfo
     (
-        vk::PipelineDepthStencilStateCreateFlags(),
-        false,
-        false,
-        vk::CompareOp::eNever,
-        false,
-        false,
-        vk::StencilOp::eKeep,
-        vk::StencilOp::eKeep,
-        0.1f,
-        100.0f
+        vk::PipelineMultisampleStateCreateFlags(),
+        vk::SampleCountFlagBits::e1,
+        VK_FALSE
     );
+
+    // Depth stencil
+//    vk::PipelineDepthStencilStateCreateInfo const theDepthStencilStateCreateInfo = vk::PipelineDepthStencilStateCreateInfo
+//    (
+//        vk::PipelineDepthStencilStateCreateFlags(),
+//        true,
+//        true,
+//        vk::CompareOp::eLess,
+//        false,
+//        false,
+//        vk::StencilOp::eKeep,
+//        vk::StencilOp::eKeep,
+//        0.0f,
+//        1.0f
+//    );
 
     // Color blend
     std::vector< vk::PipelineColorBlendAttachmentState > theColorBlendAttachmentStates =
     {
         vk::PipelineColorBlendAttachmentState
 		(
-			false
+			false,
+            vk::BlendFactor::eOne,
+            vk::BlendFactor::eZero,
+            vk::BlendOp::eAdd,
+            vk::BlendFactor::eOne,
+            vk::BlendFactor::eZero,
+            vk::BlendOp::eAdd,
+            vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG | vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA
 		)
     };
     vk::PipelineColorBlendStateCreateInfo const theColorBlendStateCreateInfo = vk::PipelineColorBlendStateCreateInfo
     (
         vk::PipelineColorBlendStateCreateFlags(),
         false,
-        vk::LogicOp::eNoOp,
+        vk::LogicOp::eCopy,
         theColorBlendAttachmentStates.size(),
         theColorBlendAttachmentStates.data(),
-        { 1.0f, 1.0f, 1.0f, 1.0f }
+        { 0.0f, 0.0f, 0.0f, 0.0f }
     );
 
     // Dynamic states
     std::vector< vk::DynamicState > theDynamicStates =
     {
-        vk::DynamicState( VK_DYNAMIC_STATE_VIEWPORT )
+        vk::DynamicState( VK_DYNAMIC_STATE_VIEWPORT ),
+        vk::DynamicState( VK_DYNAMIC_STATE_SCISSOR ),
     };
     vk::PipelineDynamicStateCreateInfo const theDynamicStateCreateInfo = vk::PipelineDynamicStateCreateInfo
     (
@@ -301,22 +309,22 @@ vks::Pipeline::Impl::InitializePipeline()
     auto thePipelineCreateInfo = vk::GraphicsPipelineCreateInfo
     (
         vk::PipelineCreateFlags(),
-        1,
+        thePipelineShaderStageCreateInfos.size(),
         thePipelineShaderStageCreateInfos.data(),
-        & theVertexInputStateCreateInfo,
-        & theInputAssemblyStateCreateInfo,
-        & theTessellationStateCreateInfo,
+        &theVertexInputStateCreateInfo,
+        &theInputAssemblyStateCreateInfo,
+        nullptr,
         & theViewportStateCreateInfo,
         & theRasterizationStateCreateInfo,
+        & theMultiSampleStateCreateInfo,
         nullptr,
-        & theDepthStencilStateCreateInfo,
         & theColorBlendStateCreateInfo,
         & theDynamicStateCreateInfo,
         mPipelineLayout,
         mRenderPass,
         0,
-        mPipeline,
-        0
+        nullptr,
+        -1
     );
 
     mPipeline = static_cast< vk::UniqueHandle< vk::Pipeline, VULKAN_HPP_DEFAULT_DISPATCHER_TYPE > >(
@@ -348,19 +356,21 @@ vks::Pipeline::~Pipeline()
 void
 vks::Pipeline::UpdatePipelineUniforms( int inWidth, int inHeight )
 {
-    glm::mat4 theView = glm::lookAt
-    (
-        glm::vec3(0,0,-20),
-        glm::vec3(0,0,0),
-        glm::vec3(0,1,0)
-    );
-    auto theProjection = glm::perspective(glm::radians(90.0f ), (float) inWidth / (float) inHeight, 0.1f, 100.0f );
+//    glm::mat4 theView = glm::lookAt
+//    (
+//        glm::vec3(0,0,20),
+//        glm::vec3(0,0,0),
+//        glm::vec3(0,1,0)
+//    );
+//    auto theProjection = glm::perspective(glm::radians(90.0f ), (float) inWidth / (float) inHeight, 0.1f, 100.0f );
 
+    glm::mat4 ortho = glm::ortho(0.0f, float( inWidth ), 0.0f, float( inHeight ), 0.1f, 100.0f);
     UniformBufferObject theUniform;
-    theUniform.mView = theProjection * theView;
+    theUniform.mView = ortho;
+//    theUniform.mView = theProjection * theView;
 
     void * theData = mImpl->mDevice->MapMemory( mImpl->mUniformBuffer );
-    std::memcpy( theData, & theUniform, sizeof( UniformBufferObject ) );
+    std::memcpy( theData, &theUniform, sizeof( UniformBufferObject ) );
     mImpl->mDevice->UnmapMemory( mImpl->mUniformBuffer );
 }
 

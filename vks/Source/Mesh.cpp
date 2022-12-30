@@ -90,7 +90,7 @@ uint32_t vks::Mesh::GetIndexCount()
 void vks::Mesh::Draw( vk::CommandBuffer inCommandBuffer )
 {
     inCommandBuffer.bindVertexBuffers( 0, { mVertexBuffer.GetVkBuffer() }, { 0 } );
-    inCommandBuffer.bindIndexBuffer( GetIndexBuffer().GetVkBuffer(), 0, vk::IndexType::eUint32 );
+    inCommandBuffer.bindIndexBuffer( mIndexBuffer.GetVkBuffer(), 0, vk::IndexType::eUint32 );
     inCommandBuffer.drawIndexed( GetIndexCount(), 1, 0, 0, 0 );
 }
 
