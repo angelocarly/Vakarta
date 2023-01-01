@@ -1,14 +1,22 @@
 # VKRT
-A WIP engine to refresh my C++ and Vulkan knowledge.
+A generative art sandbox using the Vulkan API.
 
-## Used libraries
-- Vulkan
-- spdlog
-- glfw
+## Design goals
+- Create robust/reusable abstractions around the Vulkan API.
 
-## Building and running
-- `mkdir build`
-- `cd build`
+## Structure
+The project consists of a `vkrt` and a `vks` namespace. `vkrt` contains logic for the generative art whilst 'vks' contains abstractions around Vulkan. The abbreviations have no meaning yet.
+
+## Building
+VKRT requires the following packages to be available on your system:
+- [Vulkan](https://www.vulkan.org)
+- [spdlog](https://github.com/gabime/spdlog)
+- [glfw](https://www.glfw.org)
+
+Building happens with CMake:
+- `mkdir build && cd build`
 - `cmake ..`
 - `make`
-- `./VKRT`
+
+## Running
+- `build/vkrt/Debug/VKRT`
