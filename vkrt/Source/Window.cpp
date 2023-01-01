@@ -91,17 +91,26 @@ vkrt::Window::~Window()
 
 // ---------------------------------------------------------------------------------------------------------------------
 
-bool vkrt::Window::ShouldClose()
+bool
+vkrt::Window::ShouldClose()
 {
     return glfwWindowShouldClose( mImpl->mWindow.get() );
 }
 
-void vkrt::Window::Poll()
+void
+vkrt::Window::Poll()
 {
     glfwPollEvents();
 }
 
-vk::SurfaceKHR vkrt::Window::GetVkSurface()
+vk::SurfaceKHR
+vkrt::Window::GetVkSurface()
 {
     return mImpl->mSurface;
+}
+
+GLFWwindow *
+vkrt::Window::GetGLFWWindow()
+{
+    return mImpl->mWindow.get();
 }

@@ -17,19 +17,28 @@ class vkrt::Camera::Impl
         glm::mat4 CalculateModelMatrix() const;
         glm::mat4 CalculateViewMatrix() const;
         glm::mat4 CalculateProjectionMatrix() const;
-        void RotatePitch( float rads );
-        void RotateYaw( float rads );
+        void RotatePitch( float ihRadians );
+        void RotateYaw( float inRadians );
+        void UpdateViewVectors();
 
     public:
         glm::vec3 mPosition;
+
+        // Perspective values
         float mFov;
         float mAspect;
         float mZNear;
         float mZFar;
 
-        glm::quat mYawQuat;
-        glm::quat mPitchQuat;
-        glm::quat mRollQuat;
+        // Individual quaternions specifying the rotation
+        glm::quat mPitchQuat = glm::angleAxis( 0.0f, glm::vec3( 1.0f, 0.0f, 0.0f ) );
+        glm::quat mYawQuat = glm::angleAxis( 0.0f, glm::vec3( 0.0f, 1.0f, 0.0f) );
+        glm::quat mRollQuat = glm::angleAxis( 0.0f, glm::vec3( 0.0f, 0.0f, -1.0f ) );
+
+        // Direction vectors calculated from the quaternions
+        glm::vec3 mForward;
+        glm::vec3 mRight;
+        glm::vec3 mUp;
 };
 
 vkrt::Camera::Impl::Impl( float inFov, float inAspect, float inZNear, float inZFar )
@@ -39,7 +48,7 @@ vkrt::Camera::Impl::Impl( float inFov, float inAspect, float inZNear, float inZF
     mZNear( inZNear ),
     mZFar( inZFar )
 {
-
+    UpdateViewVectors();
 }
 
 vkrt::Camera::Impl::~Impl()
@@ -56,37 +65,49 @@ vkrt::Camera::Impl::CalculateModelMatrix() const
 glm::mat4
 vkrt::Camera::Impl::CalculateViewMatrix() const
 {
-    auto theRotation = mYawQuat * mPitchQuat * mRollQuat;
-    glm::normalize( theRotation );
-    return glm::mat4_cast( theRotation );
+    auto theRotation = mPitchQuat * mYawQuat;// * mRollQuat;
+    theRotation = glm::normalize( theRotation );
+    return  glm::mat4_cast( theRotation ) ;
 }
 
 glm::mat4
 vkrt::Camera::Impl::CalculateProjectionMatrix() const
 {
-    return glm::perspective(glm::radians( mFov ), mAspect, mZNear, mZFar );
+    auto thePerspective = glm::perspective(glm::radians( mFov ), mAspect, mZNear, mZFar );
+    thePerspective[1][1] *= -1; // Invert the y axis (https://stackoverflow.com/questions/68508935/vulkan-default-coord-system-for-vertex-positions)
+    return thePerspective;
 }
 
 /**
  * Rotate the view direction upward/downward
- * @param rads
+ * @param ihRadians
  */
 void
-vkrt::Camera::Impl::RotatePitch( float rads )
+vkrt::Camera::Impl::RotatePitch( float ihRadians )
 {
-    glm::quat qPitch = glm::angleAxis(rads, glm::vec3(1.0f, 0, 0));
+    glm::quat qPitch = glm::angleAxis(ihRadians, glm::vec3(1.0f, 0, 0 ) );
     mPitchQuat = mPitchQuat * qPitch;
+    UpdateViewVectors();
 }
 
 /**
  * Rotate the view direction left/right
- * @param rads
+ * @param inRadians
  */
 void
-vkrt::Camera::Impl::RotateYaw( float rads ) // rotate around cams local X axis
+vkrt::Camera::Impl::RotateYaw( float inRadians )
 {
-    glm::quat qYaw = glm::angleAxis(rads, glm::vec3(0.0f, 1.0f, 0));
+    glm::quat qYaw = glm::angleAxis(inRadians, glm::vec3(0.0f, 1.0f, 0 ) );
     mYawQuat = mYawQuat * qYaw;
+    UpdateViewVectors();
+}
+
+void vkrt::Camera::Impl::UpdateViewVectors()
+{
+    auto theRotation = glm::inverse( mPitchQuat * mYawQuat * mRollQuat );
+    mRight = glm::normalize( theRotation * glm::vec3(1, 0, 0));
+    mUp = glm::normalize( theRotation * glm::vec3(0, 1, 0));
+    mForward = glm::normalize( theRotation * glm::vec3(0, 0, -1)); // Left-handed coordinates
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -115,6 +136,12 @@ vkrt::Camera::SetPosition( glm::vec3 inPosition )
     mImpl->mPosition = inPosition;
 }
 
+void
+vkrt::Camera::Move( glm::vec3 inDelta )
+{
+    mImpl->mPosition += inDelta;
+}
+
 glm::mat4
 vkrt::Camera::GetMVP()
 {
@@ -131,4 +158,52 @@ void
 vkrt::Camera::RotateYaw( float inAngle )
 {
     mImpl->RotateYaw( inAngle );
+}
+
+glm::vec3
+vkrt::Camera::GetForward()
+{
+    return mImpl->mForward;
+}
+
+glm::vec3
+vkrt::Camera::GetRight()
+{
+    return mImpl->mRight;
+}
+
+void
+vkrt::Camera::Forward( float inDistance )
+{
+    mImpl->mPosition += mImpl->mForward * inDistance;
+}
+
+void
+vkrt::Camera::Backward( float inDistance )
+{
+    mImpl->mPosition -= mImpl->mForward * inDistance;
+}
+
+void
+vkrt::Camera::Right( float inDistance )
+{
+    mImpl->mPosition += mImpl->mRight * inDistance;
+}
+
+void
+vkrt::Camera::Left( float inDistance )
+{
+    mImpl->mPosition -= mImpl->mRight * inDistance;
+}
+
+void
+vkrt::Camera::Up( float inDistance )
+{
+    mImpl->mPosition += mImpl->mUp * inDistance;
+}
+
+void
+vkrt::Camera::Down( float inDistance )
+{
+    mImpl->mPosition -= mImpl->mUp * inDistance;
 }

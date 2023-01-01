@@ -18,7 +18,17 @@ namespace vkrt
             ~Camera();
         public:
             glm::vec3 GetPosition();
+            glm::vec3 GetForward();
+            glm::vec3 GetRight();
+
             void SetPosition( glm::vec3 inPosition );
+            void Move( glm::vec3 inDelta );
+            void Forward( float inDistance );
+            void Backward( float inDistance );
+            void Right( float inDistance );
+            void Left( float inDistance );
+            void Up( float inDistance );
+            void Down( float inDistance );
 
             glm::mat4 GetMVP();
 

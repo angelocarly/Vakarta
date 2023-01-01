@@ -1,8 +1,9 @@
 set(
     SOURCE_FILES
         Source/Camera.cpp
-        Source/main.cpp
         Source/Engine.cpp
+        Source/InputState.cpp
+        Source/main.cpp
         Source/Renderer.cpp
         Source/Window.cpp
 )
@@ -12,6 +13,7 @@ set(
         Camera.h
         Engine.h
         ForwardDecl.h
+        InputState.h
         Renderer.h
         Window.h
 )

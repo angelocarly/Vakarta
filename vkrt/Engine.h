@@ -28,7 +28,9 @@ class Engine
     private:
         vkrt::WindowPtr mWindow;
         vkrt::Renderer mRenderer;
-
+        vkrt::InputState mInputState;
+        vkrt::CameraPtr mCamera;
+        bool mMouseSwallowed = false;
 };
 
 

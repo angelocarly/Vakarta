@@ -5,6 +5,7 @@
 #ifndef VKRT_WINDOW_H
 #define VKRT_WINDOW_H
 
+#include <GLFW/glfw3.h>
 #include <vulkan/vulkan.hpp>
 #include <memory>
 
@@ -18,6 +19,7 @@ namespace vkrt
 
         public:
             vk::SurfaceKHR GetVkSurface();
+            GLFWwindow * GetGLFWWindow();
         public:
             bool ShouldClose();
             void Poll();

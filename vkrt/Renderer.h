@@ -13,6 +13,7 @@
 #include "Window.h"
 #include "ForwardDecl.h"
 #include "Camera.h"
+#include "InputState.h"
 
 namespace vkrt
 {
@@ -24,6 +25,7 @@ namespace vkrt
 
         public:
             void Render();
+            void SetCamera( vkrt::CameraPtr inCamera );
 
         private:
             vks::Instance & mInstance;
@@ -43,7 +45,7 @@ namespace vkrt
             std::unique_ptr< vks::Mesh > mMesh;
 
             // Scene
-            vkrt::Camera mCamera;
+            vkrt::CameraPtr mCamera;
 
         private:
             void InitializeCommandBuffers();

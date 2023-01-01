@@ -22,13 +22,10 @@ vkrt::Renderer::Renderer( vkrt::WindowPtr inWindow )
     mDevice( std::make_shared< vks::Device >( mPhysicalDevice ) ),
     mSwapChain( std::make_unique< vks::Swapchain >( mDevice, mWindow->GetVkSurface() ) ),
     mRenderPass( std::make_unique< vks::RenderPass >( mSwapChain ) ),
-    mPipeline( std::make_unique<vks::Pipeline>( mDevice, mRenderPass ) ),
-    mCamera( 45, float( mSwapChain->GetExtent().width ) / float( mSwapChain->GetExtent().height ), 0.1f, 100.0f )
+    mPipeline( std::make_unique<vks::Pipeline>( mDevice, mRenderPass ) )
 {
     InitializeCommandBuffers();
     InitializeRenderObject();
-
-    mCamera.SetPosition( glm::vec3( 0, 0, 20 ) );
 }
 
 vkrt::Renderer::~Renderer()
@@ -56,15 +53,14 @@ vkrt::Renderer::InitializeRenderObject()
 {
     std::vector< vks::Vertex > theVertices =
     {
-        vks::Vertex( glm::vec3( -1, -1, 0 ) ),
-        vks::Vertex( glm::vec3( -1, 1, 0 ) ),
-        vks::Vertex( glm::vec3( 1, 1, 0 ) ),
-        vks::Vertex( glm::vec3( 1, -1, 0 ) )
+        vks::Vertex( glm::vec3( 0, 0, 0 ) ),
+        vks::Vertex( glm::vec3( 0, 1, 0 ) ),
+        vks::Vertex( glm::vec3( 5, 0, 0 ) )
+//        vks::Vertex( glm::vec3( 1, -1, 0 ) )
     };
     std::vector< uint32_t > theIndices =
     {
-        0, 1, 2,
-        0, 2, 3,
+        0, 1, 2
     };
 
     mMesh = std::make_unique< vks::Mesh >( mDevice, theVertices, theIndices );
@@ -94,7 +90,7 @@ void vkrt::Renderer::Render()
             const auto theScissors = vk::Rect2D( { 0, 0 }, mSwapChain->GetExtent() );
             theCommandBuffer.setScissor( 0, 1, & theScissors );
 
-            mPipeline->UpdatePipelineUniforms( mCamera.GetMVP() );
+            mPipeline->UpdatePipelineUniforms( mCamera->GetMVP() );
             mPipeline->Bind( theCommandBuffer );
             mMesh->Draw( theCommandBuffer );
         }
@@ -103,4 +99,10 @@ void vkrt::Renderer::Render()
     theCommandBuffer.end();
 
     mSwapChain->SubmitCommandBuffer( theImageIndex, theCommandBuffer );
+}
+
+void
+vkrt::Renderer::SetCamera( vkrt::CameraPtr inCamera )
+{
+    mCamera = inCamera;
 }

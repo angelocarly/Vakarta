@@ -11,6 +11,8 @@ namespace vkrt
 {
     class Window;
     typedef std::shared_ptr< vkrt::Window > WindowPtr;
+    class Camera;
+    typedef std::shared_ptr< vkrt::Camera > CameraPtr;
 }
 
 #endif //VKRT_FORWARDDECL_H
