@@ -12,6 +12,7 @@
 #include "vks/Mesh.h"
 #include "Window.h"
 #include "ForwardDecl.h"
+#include "Camera.h"
 
 namespace vkrt
 {
@@ -28,7 +29,6 @@ namespace vkrt
             vks::Instance & mInstance;
             vks::PhysicalDevicePtr mPhysicalDevice;
             vks::DevicePtr mDevice;
-            vk::Semaphore mPresentSemaphore;
 
             // Display
             vkrt::WindowPtr mWindow;
@@ -41,9 +41,12 @@ namespace vkrt
 
             // Render data
             std::unique_ptr< vks::Mesh > mMesh;
+
+            // Scene
+            vkrt::Camera mCamera;
+
         private:
             void InitializeCommandBuffers();
-            void InitializeSynchronizationObject();
             void InitializeRenderObject();
     };
 }

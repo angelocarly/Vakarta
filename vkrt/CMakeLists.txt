@@ -1,5 +1,6 @@
 set(
     SOURCE_FILES
+        Source/Camera.cpp
         Source/main.cpp
         Source/Engine.cpp
         Source/Renderer.cpp
@@ -8,6 +9,7 @@ set(
 
 set(
     HEADER_FILES
+        Camera.h
         Engine.h
         ForwardDecl.h
         Renderer.h

@@ -10,6 +10,7 @@
 #include <vulkan/vulkan.hpp>
 
 #include <memory>
+#include <glm/mat4x4.hpp>
 
 namespace vks
 {
@@ -20,7 +21,7 @@ namespace vks
             ~Pipeline();
 
         public:
-            void UpdatePipelineUniforms( int inWidth, int inHeight );
+            void UpdatePipelineUniforms( glm::mat4 inCamera );
             void Bind( vk::CommandBuffer inCommandBuffer );
 
         private:

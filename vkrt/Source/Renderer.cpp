@@ -22,17 +22,18 @@ vkrt::Renderer::Renderer( vkrt::WindowPtr inWindow )
     mDevice( std::make_shared< vks::Device >( mPhysicalDevice ) ),
     mSwapChain( std::make_unique< vks::Swapchain >( mDevice, mWindow->GetVkSurface() ) ),
     mRenderPass( std::make_unique< vks::RenderPass >( mSwapChain ) ),
-    mPipeline( std::make_unique<vks::Pipeline>( mDevice, mRenderPass ) )
+    mPipeline( std::make_unique<vks::Pipeline>( mDevice, mRenderPass ) ),
+    mCamera( 45, float( mSwapChain->GetExtent().width ) / float( mSwapChain->GetExtent().height ), 0.1f, 100.0f )
 {
     InitializeCommandBuffers();
-    InitializeSynchronizationObject();
     InitializeRenderObject();
+
+    mCamera.SetPosition( glm::vec3( 0, 0, 20 ) );
 }
 
 vkrt::Renderer::~Renderer()
 {
     mDevice->GetVkDevice().waitIdle();
-    mDevice->GetVkDevice().destroy( mPresentSemaphore );
 }
 
 // =====================================================================================================================
@@ -51,26 +52,14 @@ vkrt::Renderer::InitializeCommandBuffers()
 }
 
 void
-vkrt::Renderer::InitializeSynchronizationObject()
-{
-    mPresentSemaphore = mDevice->GetVkDevice().createSemaphore
-    (
-        vk::SemaphoreCreateInfo
-        (
-            vk::SemaphoreCreateFlags()
-        )
-    );
-}
-
-void
 vkrt::Renderer::InitializeRenderObject()
 {
     std::vector< vks::Vertex > theVertices =
     {
-        vks::Vertex( glm::vec3( 100, 100, 0 ) ),
-        vks::Vertex( glm::vec3( 100, 600, 0 ) ),
-        vks::Vertex( glm::vec3( 600, 600, 0 ) ),
-        vks::Vertex( glm::vec3( 600, 100, 0 ) )
+        vks::Vertex( glm::vec3( -1, -1, 0 ) ),
+        vks::Vertex( glm::vec3( -1, 1, 0 ) ),
+        vks::Vertex( glm::vec3( 1, 1, 0 ) ),
+        vks::Vertex( glm::vec3( 1, -1, 0 ) )
     };
     std::vector< uint32_t > theIndices =
     {
@@ -105,7 +94,7 @@ void vkrt::Renderer::Render()
             const auto theScissors = vk::Rect2D( { 0, 0 }, mSwapChain->GetExtent() );
             theCommandBuffer.setScissor( 0, 1, & theScissors );
 
-            mPipeline->UpdatePipelineUniforms( mSwapChain->GetExtent().width, mSwapChain->GetExtent().height );
+            mPipeline->UpdatePipelineUniforms( mCamera.GetMVP() );
             mPipeline->Bind( theCommandBuffer );
             mMesh->Draw( theCommandBuffer );
         }
