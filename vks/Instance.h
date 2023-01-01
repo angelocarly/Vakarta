@@ -15,7 +15,6 @@ namespace vks
     {
         public:
             static vks::Instance& GetInstance();
-
         private:
             Instance();
             ~Instance();
@@ -24,7 +23,6 @@ namespace vks
             vk::Instance GetVkInstance();
 
         private:
-
             class Impl;
             std::unique_ptr< Impl > mImpl;
     };

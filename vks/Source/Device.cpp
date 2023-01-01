@@ -141,17 +141,20 @@ vks::Device::~Device()
 
 // =====================================================================================================================
 
-vks::PhysicalDevicePtr vks::Device::GetPhysicalDevice()
+vks::PhysicalDevicePtr
+vks::Device::GetPhysicalDevice()
 {
     return mImpl->mPhysicalDevice;
 }
 
-vk::Device vks::Device::GetVkDevice()
+vk::Device
+vks::Device::GetVkDevice()
 {
     return mImpl->mDevice;
 }
 
-vk::Queue vks::Device::GetVkQueue()
+vk::Queue
+vks::Device::GetVkQueue()
 {
     return mImpl->mQueue;
 }

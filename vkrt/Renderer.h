@@ -21,12 +21,8 @@ namespace vkrt
             Renderer( vkrt::WindowPtr inWindow );
             ~Renderer();
 
+        public:
             void Render();
-
-        private:
-            void InitializeCommandBuffers();
-            void InitializeSynchronizationObject();
-            void InitializeRenderObject();
 
         private:
             vks::Instance & mInstance;
@@ -45,6 +41,10 @@ namespace vkrt
 
             // Render data
             std::unique_ptr< vks::Mesh > mMesh;
+        private:
+            void InitializeCommandBuffers();
+            void InitializeSynchronizationObject();
+            void InitializeRenderObject();
     };
 }
 

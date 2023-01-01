@@ -77,17 +77,20 @@ vks::Mesh::GetIndexBuffer()
     return mIndexBuffer;
 }
 
-uint32_t vks::Mesh::GetVertexCount()
+uint32_t
+vks::Mesh::GetVertexCount()
 {
     return mVertexCount;
 }
 
-uint32_t vks::Mesh::GetIndexCount()
+uint32_t
+vks::Mesh::GetIndexCount()
 {
     return mIndexCount;
 }
 
-void vks::Mesh::Draw( vk::CommandBuffer inCommandBuffer )
+void
+vks::Mesh::Draw( vk::CommandBuffer inCommandBuffer )
 {
     inCommandBuffer.bindVertexBuffers( 0, { mVertexBuffer.GetVkBuffer() }, { 0 } );
     inCommandBuffer.bindIndexBuffer( mIndexBuffer.GetVkBuffer(), 0, vk::IndexType::eUint32 );

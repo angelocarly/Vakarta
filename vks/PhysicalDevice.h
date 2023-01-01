@@ -29,6 +29,7 @@ namespace vks
             explicit PhysicalDevice( vks::Instance & inInstance );
             ~PhysicalDevice();
 
+        public:
             vk::PhysicalDevice GetVkPhysicalDevice();
             QueueFamilyIndices FindQueueFamilyIndices();
 

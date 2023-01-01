@@ -16,6 +16,7 @@ namespace vks
             Buffer();
             Buffer( vk::Buffer inBuffer, vma::Allocation inAllocation );
 
+        public:
             vk::Buffer GetVkBuffer();
             vma::Allocation GetVmaAllocation();
 

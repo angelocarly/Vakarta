@@ -15,6 +15,7 @@ namespace vks
             RenderPass( vks::SwapchainPtr inSwapChain );
             ~RenderPass();
 
+        public:
             vk::RenderPass GetVkRenderPass();
             vk::RenderPassBeginInfo GetVkBeginInfo( int inImageIndex );
 

@@ -16,9 +16,11 @@ namespace vkrt
             Window( int width, int height, const char * title);
             ~Window();
 
+        public:
+            vk::SurfaceKHR GetVkSurface();
+        public:
             bool ShouldClose();
             void Poll();
-            vk::SurfaceKHR GetVkSurface();
 
         private:
             class Impl;

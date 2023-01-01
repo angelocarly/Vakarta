@@ -18,13 +18,15 @@ namespace vks
             Swapchain( vks::DevicePtr inLogicalDevice, vk::SurfaceKHR inSurface );
             ~Swapchain();
 
+        public:
             vks::DevicePtr GetDevice();
             vk::Extent2D GetExtent();
             vk::SwapchainKHR GetVkSwapchain();
             vk::Format GetImageFormat();
             std::vector< vk::ImageView > GetSwapchainImageViews();
-
             int GetImageCount();
+
+        public:
             int RetrieveNextImage();
             void PresentImage( uint32_t inImageIndex, vk::Semaphore & inWaitSemaphore );
             void SubmitCommandBuffer( uint32_t inImageIndex, vk::CommandBuffer inCommandBuffer );

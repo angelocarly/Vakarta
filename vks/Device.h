@@ -20,11 +20,13 @@ namespace vks
             explicit Device( vks::PhysicalDevicePtr inDevice );
             ~Device();
 
+        public:
             vks::PhysicalDevicePtr GetPhysicalDevice();
             vk::Device GetVkDevice();
             vk::CommandPool GetVkCommandPool();
             vk::Queue GetVkQueue();
 
+        public:
             vk::CommandBuffer BeginSingleTimeCommands();
             void EndSingleTimeCommands( vk::CommandBuffer & inCommandBuffer );
             vks::Buffer CreateBuffer( vk::BufferCreateInfo inBufferCreateInfo, vma::AllocationCreateInfo inAllocationCreateInfo );

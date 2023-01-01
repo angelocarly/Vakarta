@@ -16,12 +16,14 @@ vks::Buffer::Buffer( vk::Buffer inBuffer, vma::Allocation inAllocation )
 {
 }
 
-vk::Buffer vks::Buffer::GetVkBuffer()
+vk::Buffer
+vks::Buffer::GetVkBuffer()
 {
     return mBuffer;
 }
 
-vma::Allocation vks::Buffer::GetVmaAllocation()
+vma::Allocation
+vks::Buffer::GetVmaAllocation()
 {
     return mAllocation;
 }

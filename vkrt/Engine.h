@@ -20,6 +20,7 @@ class Engine
         Engine();
         ~Engine();
 
+    public:
         void Update();
         void Render();
         bool ShouldClose();

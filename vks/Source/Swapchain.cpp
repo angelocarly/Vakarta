@@ -326,7 +326,8 @@ vks::Swapchain::GetExtent()
     return mImpl->mExtent;
 }
 
-int vks::Swapchain::GetImageCount()
+int
+vks::Swapchain::GetImageCount()
 {
     return mImpl->mSwapChainImages.size();
 }

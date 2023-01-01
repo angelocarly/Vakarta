@@ -2,19 +2,21 @@
 // Created by magnias on 7/7/22.
 //
 
-#include <vulkan/vulkan.hpp>
-#include <spdlog/spdlog.h>
-#include <GLFW/glfw3.h>
-#include <spdlog/sinks/stdout_color_sinks.h>
-#include "vks/Instance.h"
 #include "vks/ForwardDecl.h"
+#include "vks/Instance.h"
+
+#include <GLFW/glfw3.h>
+#include <spdlog/spdlog.h>
+#include <spdlog/sinks/stdout_color_sinks.h>
+#include <vulkan/vulkan.hpp>
 
 #define VMA_IMPLEMENTATION
 #include <vk_mem_alloc.hpp>
 
 // ============================================ Debug Callback =========================================================
 
- VkResult vkCreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkDebugUtilsMessengerEXT* pDebugMessenger) {
+VkResult
+vkCreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkDebugUtilsMessengerEXT* pDebugMessenger) {
     auto func = (PFN_vkCreateDebugUtilsMessengerEXT) vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT");
     if (func != nullptr) {
         return func(instance, pCreateInfo, pAllocator, pDebugMessenger);
@@ -23,7 +25,8 @@
     }
 }
 
-void vkDestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT debugMessenger, const VkAllocationCallbacks* pAllocator) {
+void
+vkDestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT debugMessenger, const VkAllocationCallbacks* pAllocator) {
     auto func = (PFN_vkDestroyDebugUtilsMessengerEXT) vkGetInstanceProcAddr(instance, "vkDestroyDebugUtilsMessengerEXT");
     if (func != nullptr) {
         func(instance, debugMessenger, pAllocator);
@@ -76,14 +79,15 @@ class vks::Instance::Impl
         void GetDebugUtilsMessengerCreateInfo( vk::DebugUtilsMessengerCreateInfoEXT & inCreateInfo );
 
     public:
-        vk::Instance mInstance;
-        vk::DebugUtilsMessengerEXT mDebugMessenger;
-
 #ifdef NDEBUG
         const bool kEnableValidationLayers = false;
 #else
         const bool kEnableValidationLayers = true;
 #endif
+
+    public:
+        vk::Instance mInstance;
+        vk::DebugUtilsMessengerEXT mDebugMessenger;
 
         const std::vector< const char * > mValidationLayers =
         {
@@ -100,7 +104,8 @@ vks::Instance::Impl::Impl()
 {
 }
 
-void vks::Instance::Impl::GetDebugUtilsMessengerCreateInfo( vk::DebugUtilsMessengerCreateInfoEXT & inCreateInfo )
+void
+vks::Instance::Impl::GetDebugUtilsMessengerCreateInfo( vk::DebugUtilsMessengerCreateInfoEXT & inCreateInfo )
 {
     inCreateInfo.flags = vk::DebugUtilsMessengerCreateFlagsEXT();
     inCreateInfo.messageSeverity = vk::DebugUtilsMessageSeverityFlagBitsEXT::eVerbose | vk::DebugUtilsMessageSeverityFlagBitsEXT::eWarning | vk::DebugUtilsMessageSeverityFlagBitsEXT::eError;
@@ -109,7 +114,8 @@ void vks::Instance::Impl::GetDebugUtilsMessengerCreateInfo( vk::DebugUtilsMessen
 }
 
 
-void vks::Instance::Impl::CreateVulkanInstance()
+void
+vks::Instance::Impl::CreateVulkanInstance()
 {
     vk::ApplicationInfo applicationInfo = vk::ApplicationInfo
     (
@@ -138,7 +144,8 @@ void vks::Instance::Impl::CreateVulkanInstance()
     mInstance = vk::createInstance( createInfo );
 }
 
-std::vector< const char * > vks::Instance::Impl::GetRequiredExtensions()
+std::vector< const char * >
+vks::Instance::Impl::GetRequiredExtensions()
 {
     uint32_t glfwExtensionCount = 0;
     const char** glfwExtensions;
@@ -231,7 +238,8 @@ vks::Instance::GetInstance()
     return vksInstance;
 }
 
-vk::Instance vks::Instance::GetVkInstance()
+vk::Instance
+vks::Instance::GetVkInstance()
 {
     return mImpl->mInstance;
 }

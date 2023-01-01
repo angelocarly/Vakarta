@@ -20,16 +20,16 @@ namespace vks
             ~Mesh();
 
         public:
-            void Draw( vk::CommandBuffer inCommandBuffer );
-
             vks::Buffer GetVertexBuffer();
             vks::Buffer GetIndexBuffer();
             uint32_t GetVertexCount();
             uint32_t GetIndexCount();
+        public:
+            void Draw( vk::CommandBuffer inCommandBuffer );
 
         private:
             vks::DevicePtr mDevice;
-
+        private:
             uint32_t mVertexCount;
             uint32_t mIndexCount;
             vks::Buffer mVertexBuffer;

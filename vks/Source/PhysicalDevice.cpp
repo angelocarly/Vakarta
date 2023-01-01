@@ -2,16 +2,16 @@
 // Created by Angelo Carly on 21/11/2022.
 //
 
-
-#include <spdlog/spdlog.h>
-#include "vks/ForwardDecl.h"
 #include "vks/PhysicalDevice.h"
 
-// =====================================================================================================================
+#include "vks/ForwardDecl.h"
+
+#include <spdlog/spdlog.h>
 
 namespace
 {
-    bool CheckExtensionSupport( vk::PhysicalDevice inDevice, std::vector< const char * > inRequiredExtensions )
+    bool
+    CheckExtensionSupport( vk::PhysicalDevice inDevice, std::vector< const char * > inRequiredExtensions )
     {
         std::vector< vk::ExtensionProperties > theExtensions = inDevice.enumerateDeviceExtensionProperties();
         for( const char * theRequiredExtension : inRequiredExtensions )
@@ -68,7 +68,7 @@ class vks::PhysicalDevice::Impl
 
 vks::PhysicalDevice::Impl::Impl( vks::Instance & inInstance )
 :
-mInstance( inInstance )
+    mInstance( inInstance )
 {
     InitializeVulkanDevice();
 }
@@ -77,7 +77,8 @@ vks::PhysicalDevice::Impl::~Impl()
 {
 }
 
-void vks::PhysicalDevice::Impl::InitializeVulkanDevice()
+void
+vks::PhysicalDevice::Impl::InitializeVulkanDevice()
 {
     spdlog::get( "vulkan" )->debug( "Initializing physical device:" );
 
@@ -117,12 +118,14 @@ vks::PhysicalDevice::~PhysicalDevice()
     // Physical device is implicitly destroyed when destroying the instance
 }
 
-vk::PhysicalDevice vks::PhysicalDevice::GetVkPhysicalDevice()
+vk::PhysicalDevice
+vks::PhysicalDevice::GetVkPhysicalDevice()
 {
     return mImpl->mPhysicalDevice;
 }
 
-vks::QueueFamilyIndices vks::PhysicalDevice::FindQueueFamilyIndices()
+vks::QueueFamilyIndices
+vks::PhysicalDevice::FindQueueFamilyIndices()
 {
     return ::FindQueueFamilyIndices( mImpl->mPhysicalDevice );
 }

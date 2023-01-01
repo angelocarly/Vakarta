@@ -11,7 +11,8 @@ vks::Vertex::Vertex( glm::vec3 inPosition )
 
 }
 
-glm::vec3 vks::Vertex::GetPosition()
+glm::vec3
+vks::Vertex::GetPosition()
 {
     return mPosition;
 }

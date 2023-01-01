@@ -8,7 +8,6 @@ set(
         Source/PhysicalDevice.cpp
         Source/Pipeline.cpp
         Source/RenderPass.cpp
-        Source/RenderTarget.cpp
         Source/Swapchain.cpp
         Source/Utils.cpp
         Source/Vertex.cpp
@@ -25,7 +24,6 @@ set(
         PhysicalDevice.h
         Pipeline.h
         RenderPass.h
-        RenderTarget.h
         Swapchain.h
         Utils.h
         Vertex.h
