@@ -22,6 +22,7 @@ class vks::RenderPass::Impl
     public:
         vk::RenderPass mRenderPass;
         std::vector< vk::Framebuffer > mFrameBuffers;
+        vk::ClearValue mClearValue;
 
     private:
         void InitializeRenderPass();
@@ -124,6 +125,11 @@ vks::RenderPass::Impl::InitializeRenderPass()
     );
 
     mRenderPass = mDevice->GetVkDevice().createRenderPass( theRenderPassCreateInfo );
+
+    mClearValue = vk::ClearValue
+    (
+        vk::ClearColorValue( std::array< float, 4 >( { 0, 0, 0, 0 } ) )
+    );
 }
 
 void
@@ -172,17 +178,13 @@ vks::RenderPass::GetVkRenderPass()
 vk::RenderPassBeginInfo
 vks::RenderPass::GetVkBeginInfo( int inImageIndex )
 {
-    auto theClearValue = vk::ClearValue
-    (
-        vk::ClearColorValue( std::array< float, 4 >( { 1, 1, 0, 1 } ) )
-    );
     auto theRenderPassBeginInfo = vk::RenderPassBeginInfo
     (
         mImpl->mRenderPass,
         mImpl->mFrameBuffers[ inImageIndex ],
         vk::Rect2D( vk::Offset2D( 0, 0 ), mImpl->mSwapchain->GetExtent() ),
         1,
-        & theClearValue
+        & mImpl->mClearValue
     );
     return theRenderPassBeginInfo;
 }
