@@ -12,18 +12,22 @@
 
 namespace vks
 {
-    class SwapChain
+    class Swapchain
     {
         public:
-            SwapChain( vks::DevicePtr inLogicalDevice, vk::SurfaceKHR inSurface );
-            ~SwapChain();
+            Swapchain( vks::DevicePtr inLogicalDevice, vk::SurfaceKHR inSurface );
+            ~Swapchain();
 
-            int RetrieveNextImage();
+            vks::DevicePtr GetDevice();
+            vk::Extent2D GetExtent();
             vk::SwapchainKHR GetVkSwapchain();
-            void PresentImage( uint32_t inImageIndex, vk::Semaphore & inWaitSemaphore );
-            std::vector< vk::Framebuffer > CreateFrameBuffers( vk::RenderPass inRenderPass );
-            void SubmitCommandBuffer( uint32_t inImageIndex, vk::CommandBuffer inCommandBuffer );
             vk::Format GetImageFormat();
+            std::vector< vk::ImageView > GetSwapchainImageViews();
+
+            int GetImageCount();
+            int RetrieveNextImage();
+            void PresentImage( uint32_t inImageIndex, vk::Semaphore & inWaitSemaphore );
+            void SubmitCommandBuffer( uint32_t inImageIndex, vk::CommandBuffer inCommandBuffer );
 
         private:
             class Impl;

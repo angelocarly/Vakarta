@@ -18,6 +18,10 @@ namespace vks
 //        VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME
     };
 
+    class Swapchain;
+    typedef std::shared_ptr< vks::Swapchain > SwapchainPtr;
+    class RenderPass;
+    typedef std::shared_ptr< vks::RenderPass > RenderPassPtr;
     class PhysicalDevice;
     typedef std::shared_ptr< vks::PhysicalDevice > PhysicalDevicePtr;
     class Device;

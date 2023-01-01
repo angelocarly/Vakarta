@@ -7,7 +7,7 @@
 
 #include "vks/Device.h"
 #include "vks/PhysicalDevice.h"
-#include "vks/SwapChain.h"
+#include "vks/Swapchain.h"
 #include "vks/Pipeline.h"
 #include "vks/Mesh.h"
 #include "Window.h"
@@ -24,8 +24,6 @@ namespace vkrt
             void Render();
 
         private:
-            void InitializeRenderPass();
-            void InitializeFrameBuffers();
             void InitializeCommandBuffers();
             void InitializeSynchronizationObject();
             void InitializeRenderObject();
@@ -38,15 +36,11 @@ namespace vkrt
 
             // Display
             vkrt::WindowPtr mWindow;
-            vks::SwapChain mSwapChain;
-            std::vector< vk::Framebuffer > mFrameBuffers;
+            vks::SwapchainPtr mSwapChain;
             std::vector< vk::CommandBuffer > mCommandBuffers;
 
             // Pipeline
-//            vk::AttachmentReference mColorAttachmentReference;
-//            vk::AttachmentDescription mColorAttachmentDescription;
-//            vk::SubpassDescription mSubPass;
-            vk::RenderPass mRenderPass;
+            vks::RenderPassPtr mRenderPass;
             std::unique_ptr< vks::Pipeline > mPipeline;
 
             // Render data

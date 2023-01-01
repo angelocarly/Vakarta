@@ -6,6 +6,7 @@
 
 #include "vks/ForwardDecl.h"
 #include "vks/Device.h"
+#include "vks/RenderPass.h"
 #include "vks/Vertex.h"
 #include "vks/Utils.h"
 
@@ -20,7 +21,7 @@ struct UniformBufferObject
 class vks::Pipeline::Impl
 {
     public:
-        Impl( vks::DevicePtr inDevice, vk::RenderPass inRenderPass );
+        Impl( vks::DevicePtr inDevice, vks::RenderPassPtr inRenderPass );
         ~Impl();
 
     private:
@@ -30,7 +31,7 @@ class vks::Pipeline::Impl
 
     public:
         vks::DevicePtr mDevice;
-        vk::RenderPass mRenderPass;
+        vks::RenderPassPtr mRenderPass;
 
         vk::PipelineLayout mPipelineLayout;
         vk::Pipeline mPipeline;
@@ -41,7 +42,7 @@ class vks::Pipeline::Impl
         vks::Buffer mUniformBuffer;
 };
 
-vks::Pipeline::Impl::Impl( vks::DevicePtr inDevice, vk::RenderPass inRenderPass )
+vks::Pipeline::Impl::Impl( vks::DevicePtr inDevice, vks::RenderPassPtr inRenderPass )
 :
     mDevice( inDevice ),
     mRenderPass( inRenderPass )
@@ -321,7 +322,7 @@ vks::Pipeline::Impl::InitializePipeline()
         & theColorBlendStateCreateInfo,
         & theDynamicStateCreateInfo,
         mPipelineLayout,
-        mRenderPass,
+        mRenderPass->GetVkRenderPass(),
         0,
         nullptr,
         -1
@@ -341,7 +342,7 @@ vks::Pipeline::Impl::InitializePipeline()
 
 // =====================================================================================================================
 
-vks::Pipeline::Pipeline( vks::DevicePtr inDevice, vk::RenderPass inRenderPass )
+vks::Pipeline::Pipeline( vks::DevicePtr inDevice, vks::RenderPassPtr inRenderPass )
 :
     mImpl( new Impl( inDevice, inRenderPass ) )
 {

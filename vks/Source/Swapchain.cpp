@@ -2,7 +2,7 @@
 // Created by Angelo Carly on 03/12/2022.
 //
 
-#include "vks/SwapChain.h"
+#include "vks/Swapchain.h"
 
 #include "vks/PhysicalDevice.h"
 #include "vks/Device.h"
@@ -12,7 +12,7 @@
 
 // ---------------------------------------------------------------------------------------------------------------------
 
-class vks::SwapChain::Impl
+class vks::Swapchain::Impl
 {
     public:
         Impl( const vks::DevicePtr inDevice, vk::SurfaceKHR inSurface );
@@ -25,8 +25,9 @@ class vks::SwapChain::Impl
         vk::SurfaceKHR mSurface;
         vk::SwapchainKHR mSwapchain;
     public:
+        vk::Extent2D mExtent;
         std::vector< vk::Image > mSwapChainImages;
-        std::vector< vk::ImageView > mSwapChainImageViews;
+        std::vector< vk::ImageView > mSwapchainImageViews;
 
         int mCurrentFrame = 0;
         std::vector< vk::Fence > mCommandBufferExecutedFence;
@@ -41,7 +42,7 @@ class vks::SwapChain::Impl
         vk::ColorSpaceKHR GetColorSpace();
 };
 
-vks::SwapChain::Impl::Impl( const vks::DevicePtr inDevice, vk::SurfaceKHR inSurface )
+vks::Swapchain::Impl::Impl( const vks::DevicePtr inDevice, vk::SurfaceKHR inSurface )
 :
     mDevice( inDevice ),
     mSurface( inSurface )
@@ -51,14 +52,14 @@ vks::SwapChain::Impl::Impl( const vks::DevicePtr inDevice, vk::SurfaceKHR inSurf
     InitializeSynchronizationObjects();
 }
 
-vks::SwapChain::Impl::~Impl()
+vks::Swapchain::Impl::~Impl()
 {
     mDevice->GetVkDevice().waitForFences( mCommandBufferExecutedFence, true, UINT64_MAX );
     mDevice->GetVkDevice().waitIdle();
 
-    for( int i = 0; i < mSwapChainImageViews.size(); i++ )
+    for( int i = 0; i < mSwapchainImageViews.size(); i++ )
     {
-        mDevice->GetVkDevice().destroy( mSwapChainImageViews[ i ] );
+        mDevice->GetVkDevice().destroy( mSwapchainImageViews[ i ] );
     }
 
     for( auto theFence : mCommandBufferExecutedFence )
@@ -78,19 +79,19 @@ vks::SwapChain::Impl::~Impl()
 }
 
 vk::Format
-vks::SwapChain::Impl::GetImageFormat()
+vks::Swapchain::Impl::GetImageFormat()
 {
     return vk::Format::eB8G8R8A8Srgb;
 }
 
 vk::ColorSpaceKHR
-vks::SwapChain::Impl::GetColorSpace()
+vks::Swapchain::Impl::GetColorSpace()
 {
     return vk::ColorSpaceKHR::eSrgbNonlinear;
 }
 
 void
-vks::SwapChain::Impl::InitializeSwapChain()
+vks::Swapchain::Impl::InitializeSwapChain()
 {
     spdlog::get( "vulkan" )->debug( "Initializing swapchain." );
 
@@ -99,6 +100,7 @@ vks::SwapChain::Impl::InitializeSwapChain()
     auto surfaceCapabilities = physicalDevice->GetVkPhysicalDevice().getSurfaceCapabilitiesKHR( mSurface );
     auto surfaceFormats = physicalDevice->GetVkPhysicalDevice().getSurfaceFormatsKHR( mSurface );
     auto presentModes = physicalDevice->GetVkPhysicalDevice().getSurfacePresentModesKHR( mSurface );
+    mExtent = surfaceCapabilities.currentExtent;
 
     const uint32_t graphicsFamilyIndex = mDevice->GetPhysicalDevice()->FindQueueFamilyIndices().graphicsFamilyIndex.value();
 
@@ -118,11 +120,11 @@ vks::SwapChain::Impl::InitializeSwapChain()
     if( !hasFormat )
     {
         spdlog::get( "vulkan" )->error
-        (
-            "The surface doesn't support the requested format ({}) with colorspace ({})",
-            to_string( theFormat ),
-            to_string( theColorSpace )
-        );
+            (
+                "The surface doesn't support the requested format ({}) with colorspace ({})",
+                to_string( theFormat ),
+                to_string( theColorSpace )
+            );
         std::exit( 1 );
     }
 
@@ -133,7 +135,7 @@ vks::SwapChain::Impl::InitializeSwapChain()
         3,
         GetImageFormat(),
         GetColorSpace(),
-        surfaceCapabilities.currentExtent, // Initialize swapchain images with the current extent
+        mExtent, // Initialize swapchain images with the current extent
         1,
         vk::ImageUsageFlagBits::eColorAttachment,
         vk::SharingMode::eExclusive,
@@ -150,12 +152,12 @@ vks::SwapChain::Impl::InitializeSwapChain()
 }
 
 void
-vks::SwapChain::Impl::InitializeSwapChainImages()
+vks::Swapchain::Impl::InitializeSwapChainImages()
 {
     mSwapChainImages = mDevice->GetVkDevice().getSwapchainImagesKHR( mSwapchain );
-    mSwapChainImageViews.resize( mSwapChainImages.size() );
+    mSwapchainImageViews.resize( mSwapChainImages.size() );
 
-    for (size_t i = 0; i < mSwapChainImageViews.size(); i++)
+    for ( size_t i = 0; i < mSwapchainImageViews.size(); i++)
     {
         auto imageViewCreateInfo = vk::ImageViewCreateInfo
         (
@@ -180,12 +182,12 @@ vks::SwapChain::Impl::InitializeSwapChainImages()
             )
         );
 
-        mSwapChainImageViews[ i ] = mDevice->GetVkDevice().createImageView( imageViewCreateInfo );
+        mSwapchainImageViews[ i ] = mDevice->GetVkDevice().createImageView( imageViewCreateInfo );
     }
 }
 
 void
-vks::SwapChain::Impl::InitializeSynchronizationObjects()
+vks::Swapchain::Impl::InitializeSynchronizationObjects()
 {
     mCommandBufferExecutedFence.resize( mSwapChainImages.size() );
     for( int i = 0; i < mCommandBufferExecutedFence.size(); ++i )
@@ -214,23 +216,23 @@ vks::SwapChain::Impl::InitializeSynchronizationObjects()
 
 // ---------------------------------------------------------------------------------------------------------------------
 
-vks::SwapChain::SwapChain( const vks::DevicePtr inLogicalDevice, vk::SurfaceKHR inSurface )
-:
+vks::Swapchain::Swapchain( const vks::DevicePtr inLogicalDevice, vk::SurfaceKHR inSurface )
+    :
     mImpl( new Impl( inLogicalDevice, inSurface ) )
 {
 }
 
-vks::SwapChain::~SwapChain()
+vks::Swapchain::~Swapchain()
 {
 }
 
 vk::SwapchainKHR
-vks::SwapChain::GetVkSwapchain()
+vks::Swapchain::GetVkSwapchain()
 {
     return mImpl->mSwapchain;
 }
 
-vk::Format vks::SwapChain::GetImageFormat()
+vk::Format vks::Swapchain::GetImageFormat()
 {
     return mImpl->GetImageFormat();
 }
@@ -240,7 +242,7 @@ vk::Format vks::SwapChain::GetImageFormat()
  * @return
  */
 int
-vks::SwapChain::RetrieveNextImage()
+vks::Swapchain::RetrieveNextImage()
 {
     mImpl->mCurrentFrame = ( mImpl->mCurrentFrame + 1 ) % mImpl->mSwapChainImages.size();
 
@@ -261,7 +263,7 @@ vks::SwapChain::RetrieveNextImage()
 }
 
 void
-vks::SwapChain::SubmitCommandBuffer( uint32_t inImageIndex, vk::CommandBuffer inCommandBuffer )
+vks::Swapchain::SubmitCommandBuffer( uint32_t inImageIndex, vk::CommandBuffer inCommandBuffer )
 {
     mImpl->mDevice->GetVkDevice().resetFences( mImpl->mCommandBufferExecutedFence[ mImpl->mCurrentFrame ] );
     mImpl->mDevice->GetVkQueue().submit
@@ -289,7 +291,7 @@ vks::SwapChain::SubmitCommandBuffer( uint32_t inImageIndex, vk::CommandBuffer in
  * @param inWaitSemaphore semaphore to trigger before submission
  */
 void
-vks::SwapChain::PresentImage( uint32_t inImageIndex, vk::Semaphore & inWaitSemaphore )
+vks::Swapchain::PresentImage( uint32_t inImageIndex, vk::Semaphore & inWaitSemaphore )
 {
     // Submit an image for presentation
     auto thePresentInfo = vk::PresentInfoKHR
@@ -306,29 +308,25 @@ vks::SwapChain::PresentImage( uint32_t inImageIndex, vk::Semaphore & inWaitSemap
     }
 }
 
-std::vector< vk::Framebuffer >
-vks::SwapChain::CreateFrameBuffers( vk::RenderPass inRenderPass )
+vks::DevicePtr
+vks::Swapchain::GetDevice()
 {
-    std::vector< vk::Framebuffer > theFrameBuffers;
-    theFrameBuffers.resize( mImpl->mSwapChainImageViews.size() );
-
-    for ( size_t i = 0; i < theFrameBuffers.size(); i++)
-    {
-        auto theSurfaceCapabilities = mImpl->mDevice->GetPhysicalDevice()->GetVkPhysicalDevice().getSurfaceCapabilitiesKHR( mImpl->mSurface );
-
-        auto theFrameBufferCreateInfo = vk::FramebufferCreateInfo
-        (
-            vk::FramebufferCreateFlags(),
-            inRenderPass,
-            1,
-            & mImpl->mSwapChainImageViews[ i ],
-            theSurfaceCapabilities.currentExtent.width,
-            theSurfaceCapabilities.currentExtent.height,
-            1
-        );
-        theFrameBuffers[i] = mImpl->mDevice->GetVkDevice().createFramebuffer( theFrameBufferCreateInfo );
-    }
-
-    return theFrameBuffers;
+    return mImpl->mDevice;
 }
 
+std::vector< vk::ImageView >
+vks::Swapchain::GetSwapchainImageViews()
+{
+    return mImpl->mSwapchainImageViews;
+}
+
+vk::Extent2D
+vks::Swapchain::GetExtent()
+{
+    return mImpl->mExtent;
+}
+
+int vks::Swapchain::GetImageCount()
+{
+    return mImpl->mSwapChainImages.size();
+}
