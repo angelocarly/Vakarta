@@ -41,9 +41,6 @@ void Engine::Update()
 
     if( mMouseSwallowed )
     {
-        spdlog::info( "Forward: {}, {}, {}", mCamera->GetForward().x, mCamera->GetForward().y, mCamera->GetForward().z );
-        spdlog::info( "Right: {}, {}, {}", mCamera->GetRight().x, mCamera->GetRight().y, mCamera->GetRight().z );
-        spdlog::info( "Position: {}, {}, {}", mCamera->GetPosition().x, mCamera->GetPosition().y, mCamera->GetPosition().z );
 
         glm::vec2 theMouseDelta = mInputState.GetMouseDelta() / 1000.0f;
         mCamera->RotatePitch( theMouseDelta.y );

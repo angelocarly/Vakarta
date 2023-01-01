@@ -53,14 +53,15 @@ vkrt::Renderer::InitializeRenderObject()
 {
     std::vector< vks::Vertex > theVertices =
     {
-        vks::Vertex( glm::vec3( 0, 0, 0 ) ),
-        vks::Vertex( glm::vec3( 0, 1, 0 ) ),
-        vks::Vertex( glm::vec3( 5, 0, 0 ) )
-//        vks::Vertex( glm::vec3( 1, -1, 0 ) )
+        vks::Vertex( glm::vec3( 0, 0, 0 ), glm::vec3( 1, 0, 0 ) ),
+        vks::Vertex( glm::vec3( 0, 1, 0 ), glm::vec3( 0, 1, 0 ) ),
+        vks::Vertex( glm::vec3( 5, 0, 0 ), glm::vec3( 0, 1, 0 ) ),
+        vks::Vertex( glm::vec3( 5, 1, 0 ), glm::vec3( 1, 0, 1 ) )
     };
     std::vector< uint32_t > theIndices =
     {
-        0, 1, 2
+        0, 1, 2,
+        1, 2, 3
     };
 
     mMesh = std::make_unique< vks::Mesh >( mDevice, theVertices, theIndices );

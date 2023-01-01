@@ -13,15 +13,17 @@ namespace vks
     class Vertex
     {
         public:
-            Vertex( glm::vec3 inPosition );
+            Vertex( glm::vec3 inPosition, glm::vec3 inColor );
 
         public:
             glm::vec3 GetPosition();
-            static vk::VertexInputAttributeDescription GetVkVertexInputAttributeDescription();
-            static vk::VertexInputBindingDescription GetVkVertexInputBindingDescription();
+            glm::vec3 GetColor();
+            static std::vector< vk::VertexInputAttributeDescription > GetVkVertexInputAttributeDescriptions();
+            static std::vector< vk::VertexInputBindingDescription > GetVkVertexInputBindingDescriptions();
 
         private:
             glm::vec3 mPosition;
+            glm::vec3 mColor;
 
     };
 }
