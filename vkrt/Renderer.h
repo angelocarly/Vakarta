@@ -10,17 +10,18 @@
 #include "vks/Swapchain.h"
 #include "vks/Pipeline.h"
 #include "vks/Mesh.h"
-#include "Window.h"
+#include "vks/Window.h"
 #include "ForwardDecl.h"
 #include "Camera.h"
 #include "InputState.h"
+#include "vks/Gui.h"
 
 namespace vkrt
 {
     class Renderer
     {
         public:
-            Renderer( vkrt::WindowPtr inWindow );
+            Renderer( vks::WindowPtr inWindow );
             ~Renderer();
 
         public:
@@ -33,9 +34,12 @@ namespace vkrt
             vks::DevicePtr mDevice;
 
             // Display
-            vkrt::WindowPtr mWindow;
+            vks::WindowPtr mWindow;
             vks::SwapchainPtr mSwapChain;
             std::vector< vk::CommandBuffer > mCommandBuffers;
+
+            // Gui
+            vks::ImGuiPtr mGui;
 
             // Pipeline
             vks::RenderPassPtr mRenderPass;

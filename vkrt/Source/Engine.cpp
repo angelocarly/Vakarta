@@ -1,4 +1,5 @@
 #include "vkrt/Engine.h"
+#include "imgui/imgui.h"
 
 #include <spdlog/spdlog.h>
 
@@ -8,7 +9,7 @@
 
 Engine::Engine()
 :
-    mWindow( std::make_shared< vkrt::Window >( WIDTH, HEIGHT, TITLE ) ),
+    mWindow( std::make_shared< vks::Window >( WIDTH, HEIGHT, TITLE ) ),
     mRenderer( mWindow ),
     mInputState( mWindow ),
     mCamera( std::make_shared< vkrt::Camera >( 45, float( WIDTH ) / float( HEIGHT ), 0.1f, 100.0f ) )
@@ -26,6 +27,10 @@ Engine::~Engine()
 void Engine::Update()
 {
     mWindow->Poll();
+
+    ImGuiIO &io = ImGui::GetIO();
+    if( io.WantCaptureMouse ) return;
+
     mInputState.Sync();
 
     if( mInputState.IsButtonClicked( GLFW_MOUSE_BUTTON_1 ) )

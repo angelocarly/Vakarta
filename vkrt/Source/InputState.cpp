@@ -2,15 +2,17 @@
 // Created by Angelo Carly on 01/01/2023.
 //
 
-#include <glm/vec2.hpp>
 #include "vkrt/InputState.h"
 
-#include "vkrt/Window.h"
+#include "vks/Window.h"
+
+#include <glm/vec2.hpp>
+#include <GLFW/glfw3.h>
 
 class vkrt::InputState::Impl
 {
     public:
-        Impl( vkrt::WindowPtr inWindow );
+        Impl( vks::WindowPtr inWindow );
         ~Impl();
 
     public:
@@ -22,7 +24,7 @@ class vkrt::InputState::Impl
         void Sync();
 
     public:
-        vkrt::WindowPtr mWindow;
+        vks::WindowPtr mWindow;
 
     public:
         static bool mKeys[GLFW_KEY_LAST];
@@ -35,7 +37,7 @@ class vkrt::InputState::Impl
         static int mButtonsBuffer[GLFW_MOUSE_BUTTON_LAST];
 };
 
-vkrt::InputState::Impl::Impl( vkrt::WindowPtr inWindow )
+vkrt::InputState::Impl::Impl( vks::WindowPtr inWindow )
 :
     mWindow( inWindow )
 {
@@ -99,7 +101,7 @@ vkrt::InputState::Impl::Sync()
 
 // ---------------------------------------------------------------------------------------------------------------------
 
-vkrt::InputState::InputState( vkrt::WindowPtr inWindow )
+vkrt::InputState::InputState( vks::WindowPtr inWindow )
 :
     mImpl( new Impl( inWindow ) )
 {

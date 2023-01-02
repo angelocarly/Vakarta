@@ -5,7 +5,7 @@
 #ifndef VKRT_INPUTSTATE_H
 #define VKRT_INPUTSTATE_H
 
-#include "ForwardDecl.h"
+#include "vks/ForwardDecl.h"
 
 #include <glm/vec2.hpp>
 #include <memory>
@@ -15,7 +15,7 @@ namespace vkrt
     class InputState
     {
         public:
-            InputState( vkrt::WindowPtr inWindow );
+            InputState( vks::WindowPtr inWindow );
             ~InputState();
 
         public:

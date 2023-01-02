@@ -25,6 +25,7 @@ namespace vks
             vk::Format GetImageFormat();
             std::vector< vk::ImageView > GetSwapchainImageViews();
             int GetImageCount();
+            int GetMinImageCount();
 
         public:
             int RetrieveNextImage();

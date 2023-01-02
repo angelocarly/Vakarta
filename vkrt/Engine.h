@@ -26,7 +26,7 @@ class Engine
         bool ShouldClose();
 
     private:
-        vkrt::WindowPtr mWindow;
+        vks::WindowPtr mWindow;
         vkrt::Renderer mRenderer;
         vkrt::InputState mInputState;
         vkrt::CameraPtr mCamera;

@@ -3,29 +3,30 @@
 //
 #include "vkrt/Renderer.h"
 
-#include "vkrt/Window.h"
 
 #include "vks/ForwardDecl.h"
 #include "vks/RenderPass.h"
 #include "vks/Swapchain.h"
 #include "vks/Vertex.h"
+#include "vks/Window.h"
 
 #include <spdlog/spdlog.h>
 
 #include <memory>
 
-vkrt::Renderer::Renderer( vkrt::WindowPtr inWindow )
+vkrt::Renderer::Renderer( vks::WindowPtr inWindow )
 :
     mInstance( vks::Instance::GetInstance() ),
     mWindow( inWindow ),
     mPhysicalDevice( std::make_shared< vks::PhysicalDevice >( mInstance ) ),
     mDevice( std::make_shared< vks::Device >( mPhysicalDevice ) ),
-    mSwapChain( std::make_unique< vks::Swapchain >( mDevice, mWindow->GetVkSurface() ) ),
-    mRenderPass( std::make_unique< vks::RenderPass >( mSwapChain ) ),
-    mPipeline( std::make_unique<vks::Pipeline>( mDevice, mRenderPass ) )
+    mSwapChain( std::make_shared< vks::Swapchain >( mDevice, mWindow->GetVkSurface() ) ),
+    mRenderPass( std::make_shared< vks::RenderPass >( mSwapChain ) ),
+    mPipeline( std::make_unique< vks::Pipeline >( mDevice, mRenderPass ) )
 {
     InitializeCommandBuffers();
     InitializeRenderObject();
+    mGui = std::make_shared<vks::Gui>( mDevice, mWindow, mRenderPass, mSwapChain );
 }
 
 vkrt::Renderer::~Renderer()
@@ -56,12 +57,15 @@ vkrt::Renderer::InitializeRenderObject()
         vks::Vertex( glm::vec3( 0, 0, 0 ), glm::vec3( 1, 0, 0 ) ),
         vks::Vertex( glm::vec3( 0, 1, 0 ), glm::vec3( 0, 1, 0 ) ),
         vks::Vertex( glm::vec3( 5, 0, 0 ), glm::vec3( 0, 1, 0 ) ),
-        vks::Vertex( glm::vec3( 5, 1, 0 ), glm::vec3( 1, 0, 1 ) )
+        vks::Vertex( glm::vec3( 5, 1, 0 ), glm::vec3( 1, 0, 1 ) ),
+        vks::Vertex( glm::vec3( 50, 30, 0 ), glm::vec3( 0, 0, 1 ) ),
+        vks::Vertex( glm::vec3( 50, 1, 0 ), glm::vec3( 1, 1, 0 ) )
     };
     std::vector< uint32_t > theIndices =
     {
         0, 1, 2,
-        1, 2, 3
+        1, 2, 3,
+        3, 4, 5
     };
 
     mMesh = std::make_unique< vks::Mesh >( mDevice, theVertices, theIndices );
@@ -94,6 +98,9 @@ void vkrt::Renderer::Render()
             mPipeline->UpdatePipelineUniforms( mCamera->GetMVP() );
             mPipeline->Bind( theCommandBuffer );
             mMesh->Draw( theCommandBuffer );
+
+            mGui->Update();
+            mGui->Render( theCommandBuffer );
         }
         theCommandBuffer.endRenderPass();
     }

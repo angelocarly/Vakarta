@@ -5,7 +5,6 @@ set(
         Source/InputState.cpp
         Source/main.cpp
         Source/Renderer.cpp
-        Source/Window.cpp
 )
 
 set(
@@ -15,7 +14,6 @@ set(
         ForwardDecl.h
         InputState.h
         Renderer.h
-        Window.h
 )
 
 set( CMAKE_CXX_STANDARD 11 )

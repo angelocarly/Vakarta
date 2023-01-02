@@ -2,6 +2,7 @@ set(
     SOURCE_FILES
         Source/Buffer.cpp
         Source/Image.cpp
+        Source/ImGui.cpp
         Source/Instance.cpp
         Source/Device.cpp
         Source/Mesh.cpp
@@ -11,12 +12,14 @@ set(
         Source/Swapchain.cpp
         Source/Utils.cpp
         Source/Vertex.cpp
+        Source/Window.cpp
 )
 
 set(
     HEADER_FILES
         Buffer.h
         Image.h
+        Gui.h
         ForwardDecl.h
         Instance.h
         Device.h
@@ -27,6 +30,7 @@ set(
         Swapchain.h
         Utils.h
         Vertex.h
+        Window.h
 )
 
 set( CMAKE_CXX_STANDARD 11)
@@ -38,6 +42,11 @@ add_library(
 target_include_directories( vks PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/.. )
 
 set_property( TARGET vks PROPERTY CXX_STANDARD 17 )
+
+target_link_libraries(
+        vks PUBLIC
+        imgui
+)
 
 # Vulkan
 find_package(Vulkan REQUIRED)

@@ -25,6 +25,7 @@ namespace vks
             vk::Device GetVkDevice();
             vk::CommandPool GetVkCommandPool();
             vk::Queue GetVkQueue();
+            vma::Allocator GetVmaAllocator();
 
         public:
             vk::CommandBuffer BeginSingleTimeCommands();

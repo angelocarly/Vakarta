@@ -34,6 +34,8 @@ class vks::Swapchain::Impl
         std::vector< vk::Semaphore > mImageAcquiredSemaphores;
         std::vector< vk::Semaphore > mBufferPresentedSemaphores;
 
+        const int mMinImageCount = 2;
+
     private:
         void InitializeSwapChain();
         void InitializeSwapChainImages();
@@ -330,4 +332,9 @@ int
 vks::Swapchain::GetImageCount()
 {
     return mImpl->mSwapChainImages.size();
+}
+
+int vks::Swapchain::GetMinImageCount()
+{
+    return mImpl->mMinImageCount;
 }

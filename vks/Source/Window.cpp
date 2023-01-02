@@ -5,7 +5,7 @@
 
 #define GLFW_INCLUDE_VULKAN
 
-#include "vkrt/Window.h"
+#include "vks/Window.h"
 
 #include <GLFW/glfw3.h>
 #include <vulkan/vulkan.hpp>
@@ -16,7 +16,7 @@
 
 // =====================================================================================================================
 
-class vkrt::Window::Impl
+class vks::Window::Impl
 {
     public:
         Impl( int width, int height, const char * title );
@@ -39,19 +39,19 @@ class vkrt::Window::Impl
         vk::SurfaceKHR mSurface;
 };
 
-vkrt::Window::Impl::Impl(int inWidth, int inHeight, const char * inTitle )
+vks::Window::Impl::Impl(int inWidth, int inHeight, const char * inTitle )
 {
     CreateWindow( inWidth, inHeight, inTitle );
     InitializeSurface();
 }
 
-vkrt::Window::Impl::~Impl()
+vks::Window::Impl::~Impl()
 {
     vks::Instance::GetInstance().GetVkInstance().destroy( mSurface );
 }
 
 void
-vkrt::Window::Impl::CreateWindow( int width, int height, const char * title)
+vks::Window::Impl::CreateWindow( int width, int height, const char * title)
 {
     glfwInit();
 
@@ -63,7 +63,7 @@ vkrt::Window::Impl::CreateWindow( int width, int height, const char * title)
 }
 
 void
-vkrt::Window::Impl::InitializeSurface()
+vks::Window::Impl::InitializeSurface()
 {
     VkSurfaceKHR theVkSurface;
     glfwCreateWindowSurface
@@ -79,38 +79,38 @@ vkrt::Window::Impl::InitializeSurface()
 
 // =====================================================================================================================
 
-vkrt::Window::Window( int width, int height, const char * title )
+vks::Window::Window( int width, int height, const char * title )
 :
     mImpl( new Impl( width, height, title ) )
 {
 }
 
-vkrt::Window::~Window()
+vks::Window::~Window()
 {
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
 
 bool
-vkrt::Window::ShouldClose()
+vks::Window::ShouldClose()
 {
     return glfwWindowShouldClose( mImpl->mWindow.get() );
 }
 
 void
-vkrt::Window::Poll()
+vks::Window::Poll()
 {
     glfwPollEvents();
 }
 
 vk::SurfaceKHR
-vkrt::Window::GetVkSurface()
+vks::Window::GetVkSurface()
 {
     return mImpl->mSurface;
 }
 
 GLFWwindow *
-vkrt::Window::GetGLFWWindow()
+vks::Window::GetGLFWWindow()
 {
     return mImpl->mWindow.get();
 }

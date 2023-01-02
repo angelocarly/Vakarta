@@ -45,6 +45,8 @@ void DestroyBuffer( vks::Buffer inBuffer );
 
 void DestroyImage( vks::Image inImage );
 
+vma::Allocator GetVmaAllocator();
+
 vks::Device::Impl::Impl( const vks::PhysicalDevicePtr inPhysicalDevice )
 :
     mPhysicalDevice( inPhysicalDevice )
@@ -157,6 +159,12 @@ vk::Queue
 vks::Device::GetVkQueue()
 {
     return mImpl->mQueue;
+}
+
+vma::Allocator
+vks::Device::GetVmaAllocator()
+{
+    return mImpl->mAllocator;
 }
 
 vk::CommandBuffer

@@ -9,7 +9,7 @@
 #include <vulkan/vulkan.hpp>
 #include <memory>
 
-namespace vkrt
+namespace vks
 {
     class Window
     {
