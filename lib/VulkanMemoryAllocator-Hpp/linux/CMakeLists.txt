@@ -30,18 +30,18 @@ target_link_libraries(VulkanMemoryAllocator-Hpp
 
 install(
     FILES
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/vk_mem_alloc_enums.hpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/vk_mem_alloc_funcs.hpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/vk_mem_alloc_handles.hpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/vk_mem_alloc_structs.hpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/vk_mem_alloc.hpp
+        include/vk_mem_alloc_enums.hpp
+        include/vk_mem_alloc_funcs.hpp
+        include/vk_mem_alloc_handles.hpp
+        include/vk_mem_alloc_structs.hpp
+        include/vk_mem_alloc.hpp
     DESTINATION
         include
 )
 
 install(
     FILES
-        ${CMAKE_CURRENT_SOURCE_DIR}/cmake/VulkanMemoryAllocator-HppConfig.cmake
+        cmake/VulkanMemoryAllocator-HppConfig.cmake
     DESTINATION
         lib/cmake/VulkanMemoryAllocator-Hpp
 )

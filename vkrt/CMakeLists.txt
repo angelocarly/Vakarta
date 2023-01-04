@@ -117,7 +117,11 @@ set( VMA "${LIB_DIR}/VulkanMemoryAllocator/include" )
 include_directories( ${VMA} )
 
 # vma
-set( VMA_HPP "${LIB_DIR}/VulkanMemoryAllocator-Hpp/include" )
+if(LINUX)
+    set( VMA_HPP "${LIB_DIR}/VulkanMemoryAllocator-Hpp/linux/include" )
+else()
+    set( VMA_HPP "${LIB_DIR}/VulkanMemoryAllocator-Hpp/mac/include" )
+endif()
 include_directories( ${VMA_HPP} )
 
 # spdlog

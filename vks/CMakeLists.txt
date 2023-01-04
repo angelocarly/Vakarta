@@ -59,7 +59,12 @@ set(ENV{VULKAN_SDK} "${SRC_DIR}/../lib/VulkanSDK/macOS/")
 include_directories( ${LIB_DIR}/VulkanMemoryAllocator/include )
 
 # VMA-hpp
-include_directories( ${LIB_DIR}/VulkanMemoryAllocator-Hpp/include )
+if(LINUX)
+    set( VMA_HPP "${LIB_DIR}/VulkanMemoryAllocator-Hpp/linux/include" )
+else()
+    set( VMA_HPP "${LIB_DIR}/VulkanMemoryAllocator-Hpp/mac/include" )
+endif()
+include_directories( ${VMA_HPP} )
 
 # GLFW
 find_package(glfw3 3.3 REQUIRED)
