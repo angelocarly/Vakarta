@@ -2,8 +2,8 @@
 // Created by Angelo Carly on 02/01/2023.
 //
 
-#ifndef VKRT_GUI_H
-#define VKRT_GUI_H
+#ifndef VKRT_GUIPASS_H
+#define VKRT_GUIPASS_H
 
 #include "ForwardDecl.h"
 
@@ -11,11 +11,11 @@
 
 namespace vks
 {
-    class Gui
+    class GuiPass
     {
         public:
-            Gui( vks::DevicePtr inDevice, vks::WindowPtr inWindow, vks::RenderPassPtr inRenderPass, vks::SwapchainPtr inSwapChain );
-            ~Gui();
+            GuiPass( vks::DevicePtr inDevice, vks::WindowPtr inWindow, vks::RenderPassPtr inRenderPass, vks::SwapchainPtr inSwapChain );
+            ~GuiPass();
 
         public:
             void Render( vk::CommandBuffer inCommandBuffer );
@@ -27,4 +27,4 @@ namespace vks
     };
 }
 
-#endif //VKRT_GUI_H
+#endif //VKRT_GUIPASS_H

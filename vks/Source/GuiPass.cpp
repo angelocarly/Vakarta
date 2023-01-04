@@ -3,7 +3,7 @@
 //
 
 #include <spdlog/spdlog.h>
-#include "vks/Gui.h"
+#include "vks/GuiPass.h"
 
 #include "vks/ForwardDecl.h"
 #include "vks/Device.h"
@@ -15,7 +15,7 @@
 #include "imgui/imgui.h"
 #include "vks/RenderPass.h"
 
-class vks::Gui::Impl
+class vks::GuiPass::Impl
 {
     public:
         Impl( vks::DevicePtr inDevice, vks::WindowPtr inWindow, vks::RenderPassPtr inRenderPass, vks::SwapchainPtr mSwapChain );
@@ -37,7 +37,7 @@ class vks::Gui::Impl
 
 void Update();
 
-vks::Gui::Impl::Impl( vks::DevicePtr inDevice, vks::WindowPtr inWindow, vks::RenderPassPtr inRenderPass, vks::SwapchainPtr inSwapChain )
+vks::GuiPass::Impl::Impl( vks::DevicePtr inDevice, vks::WindowPtr inWindow, vks::RenderPassPtr inRenderPass, vks::SwapchainPtr inSwapChain )
 :
     mDevice( inDevice ),
     mWindow( inWindow ),
@@ -48,7 +48,7 @@ vks::Gui::Impl::Impl( vks::DevicePtr inDevice, vks::WindowPtr inWindow, vks::Ren
     InitializeImGui();
 }
 
-vks::Gui::Impl::~Impl()
+vks::GuiPass::Impl::~Impl()
 {
     mDevice->GetVkDevice().waitIdle();
 
@@ -60,7 +60,7 @@ vks::Gui::Impl::~Impl()
 }
 
 void
-vks::Gui::Impl::InitializeDescriptorPool()
+vks::GuiPass::Impl::InitializeDescriptorPool()
 {
     std::vector< vk::DescriptorPoolSize > thePoolSizes =
     {
@@ -89,7 +89,7 @@ vks::Gui::Impl::InitializeDescriptorPool()
 }
 
 void
-vks::Gui::Impl::InitializeImGui()
+vks::GuiPass::Impl::InitializeImGui()
 {
     ::IMGUI_CHECKVERSION();
     ::ImGui::CreateContext();
@@ -127,7 +127,7 @@ vks::Gui::Impl::InitializeImGui()
 }
 
 void
-vks::Gui::Impl::CheckVkResult( VkResult inResult )
+vks::GuiPass::Impl::CheckVkResult( VkResult inResult )
 {
     if ( inResult == 0 ) return;
 
@@ -138,26 +138,26 @@ vks::Gui::Impl::CheckVkResult( VkResult inResult )
 
 // ---------------------------------------------------------------------------------------------------------------------
 
-vks::Gui::Gui( vks::DevicePtr inDevice, vks::WindowPtr inWindow, vks::RenderPassPtr inRenderPass, vks::SwapchainPtr inSwapChain )
+vks::GuiPass::GuiPass( vks::DevicePtr inDevice, vks::WindowPtr inWindow, vks::RenderPassPtr inRenderPass, vks::SwapchainPtr inSwapChain )
 :
     mImpl( new Impl( inDevice, inWindow, inRenderPass, inSwapChain ) )
 {
 
 }
 
-vks::Gui::~Gui()
+vks::GuiPass::~GuiPass()
 {
 
 }
 
 void
-vks::Gui::Render( vk::CommandBuffer inCommandBuffer )
+vks::GuiPass::Render( vk::CommandBuffer inCommandBuffer )
 {
     ImGui_ImplVulkan_RenderDrawData( ::ImGui::GetDrawData(), inCommandBuffer );
 }
 
 void
-vks::Gui::Update()
+vks::GuiPass::Update()
 {
     // Start the Dear ImGui frame
     ImGui_ImplVulkan_NewFrame();

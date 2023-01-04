@@ -10,9 +10,13 @@
 #include "vks/Vertex.h"
 #include "vks/Window.h"
 
+#define TINYOBJLOADER_IMPLEMENTATION
+#include <tiny_obj_loader.h>
+
 #include <spdlog/spdlog.h>
 
 #include <memory>
+#include <unordered_map>
 
 vkrt::Renderer::Renderer( vks::WindowPtr inWindow )
 :
@@ -26,7 +30,7 @@ vkrt::Renderer::Renderer( vks::WindowPtr inWindow )
 {
     InitializeCommandBuffers();
     InitializeRenderObject();
-    mGui = std::make_shared<vks::Gui>( mDevice, mWindow, mRenderPass, mSwapChain );
+    mGui = std::make_shared<vks::GuiPass>( mDevice, mWindow, mRenderPass, mSwapChain );
 }
 
 vkrt::Renderer::~Renderer()
@@ -68,7 +72,57 @@ vkrt::Renderer::InitializeRenderObject()
         3, 4, 5
     };
 
-    mMesh = std::make_unique< vks::Mesh >( mDevice, theVertices, theIndices );
+//    mMesh = std::make_unique< vks::Mesh >( mDevice, theVertices, theIndices );
+
+    std::istringstream sourceStream( std::filesystem::path( "resources/teapot.obj" ) );
+    tinyobj::attrib_t inattrib;
+    std::vector<tinyobj::shape_t> inshapes;
+    std::vector<tinyobj::material_t> inmaterials;
+
+    std::string warn;
+    std::string* err;
+    bool ret = tinyobj::LoadObj( &inattrib, &inshapes, &inmaterials, err, "resources/teapot.obj", "resources");
+    if (!warn.empty())
+    {
+        spdlog::warn( "WARNING: {}", warn );
+    }
+    if (!err->empty())
+    {
+        spdlog::error( "ERROR: {}", *err );
+    }
+    if (!ret)
+    {
+        spdlog::error( "Failed to load file" );
+        std::exit( 1 );
+    }
+
+    std::vector< vks::Vertex > vertices;
+    std::vector< std::uint32_t > indices;
+    std::unordered_map< std::uint32_t, std::uint32_t > uniqueVertices;
+
+    for( const auto& shape : inshapes )
+    {
+        for( const auto& index : shape.mesh.indices )
+        {
+            glm::vec3 position
+            {
+                inattrib.vertices[3 * index.vertex_index + 0],
+                inattrib.vertices[3 * index.vertex_index + 1],
+                inattrib.vertices[3 * index.vertex_index + 2]
+            };
+
+            std::uint32_t theHash = abs( ( position.x * 6969 + position.y * 12345 + position.z * 12345566 ) );
+            if ( uniqueVertices.count( theHash ) == 0 )
+            {
+                vertices.push_back( vks::Vertex{ position, glm::vec3(1, 0, 0) } );
+                uniqueVertices[ theHash ] = static_cast<uint32_t>(vertices.size());
+            }
+
+            indices.push_back( uniqueVertices[ theHash ] );
+        }
+    }
+    mMesh = std::make_unique< vks::Mesh >( mDevice, vertices, indices );
+
 }
 
 // ---------------------------------------------------------------------------------------------------------------------

@@ -14,7 +14,7 @@
 #include "ForwardDecl.h"
 #include "Camera.h"
 #include "InputState.h"
-#include "vks/Gui.h"
+#include "vks/GuiPass.h"
 
 namespace vkrt
 {

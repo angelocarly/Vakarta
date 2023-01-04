@@ -2,7 +2,7 @@ set(
     SOURCE_FILES
         Source/Buffer.cpp
         Source/Image.cpp
-        Source/ImGui.cpp
+        Source/GuiPass.cpp
         Source/Instance.cpp
         Source/Device.cpp
         Source/Mesh.cpp
@@ -19,7 +19,7 @@ set(
     HEADER_FILES
         Buffer.h
         Image.h
-        Gui.h
+        GuiPass.h
         ForwardDecl.h
         Instance.h
         Device.h
@@ -47,6 +47,7 @@ target_link_libraries(
         vks PUBLIC
         imgui
 )
+target_include_directories( vks PUBLIC ${LIB_DIR} )
 
 # Vulkan
 find_package(Vulkan REQUIRED)

@@ -62,6 +62,18 @@ add_custom_target(
 
 add_dependencies( ${PROJECT_NAME} Shaders )
 
+### Resources
+add_custom_command(
+        TARGET ${PROJECT_NAME} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_CURRENT_BINARY_DIR}/Debug/resources"
+)
+add_custom_command(
+        TARGET ${PROJECT_NAME} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy
+        ${CMAKE_SOURCE_DIR}/resources/teapot.obj
+        ${CMAKE_CURRENT_BINARY_DIR}/Debug/resources/teapot.obj
+)
+
 ### External dependencies
 
 # Vulkan
@@ -90,6 +102,14 @@ add_definitions( ${GLM_DEFINITIONS} )
 # stb
 set( STB_DIR "${LIB_DIR}/stb" )
 include_directories( ${STB_DIR} )
+
+# tinyobjloader
+set( TINYOBJLOADER_DIR "${LIB_DIR}/tinyobjloader" )
+include_directories( ${TINYOBJLOADER_DIR} )
+
+# imgui
+set( IMGUI_DIR "${LIB_DIR}/imgui" )
+include_directories( ${IMGUI_DIR} )
 
 # vma
 set( VMA "${LIB_DIR}/VulkanMemoryAllocator" )
