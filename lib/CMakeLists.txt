@@ -25,3 +25,9 @@ target_include_directories(
         PUBLIC ${IMGUI_DIR}
         PUBLIC ${IMGUI_DIR}/backends
 )
+
+find_package( Vulkan REQUIRED )
+target_link_libraries( imgui PUBLIC Vulkan::Vulkan )
+
+find_package( glfw3 3.3 REQUIRED )
+target_link_libraries( imgui PUBLIC glfw )

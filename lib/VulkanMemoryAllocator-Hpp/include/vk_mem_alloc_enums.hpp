@@ -27,15 +27,16 @@ namespace VMA_HPP_NAMESPACE {
 
 namespace VULKAN_HPP_NAMESPACE {
   template<> struct FlagTraits<VMA_HPP_NAMESPACE::AllocatorCreateFlagBits> {
-    static VULKAN_HPP_CONST_OR_CONSTEXPR bool isBitmask = true;
-    static VULKAN_HPP_CONST_OR_CONSTEXPR Flags<VMA_HPP_NAMESPACE::AllocatorCreateFlagBits> allFlags =
-        VMA_HPP_NAMESPACE::AllocatorCreateFlagBits::eExternallySynchronized
-      | VMA_HPP_NAMESPACE::AllocatorCreateFlagBits::eKhrDedicatedAllocation
-      | VMA_HPP_NAMESPACE::AllocatorCreateFlagBits::eKhrBindMemory2
-      | VMA_HPP_NAMESPACE::AllocatorCreateFlagBits::eExtMemoryBudget
-      | VMA_HPP_NAMESPACE::AllocatorCreateFlagBits::eAmdDeviceCoherentMemory
-      | VMA_HPP_NAMESPACE::AllocatorCreateFlagBits::eBufferDeviceAddress
-      | VMA_HPP_NAMESPACE::AllocatorCreateFlagBits::eExtMemoryPriority;
+    enum : VkFlags {
+      allFlags =
+          VkFlags(VMA_HPP_NAMESPACE::AllocatorCreateFlagBits::eExternallySynchronized)
+        | VkFlags(VMA_HPP_NAMESPACE::AllocatorCreateFlagBits::eKhrDedicatedAllocation)
+        | VkFlags(VMA_HPP_NAMESPACE::AllocatorCreateFlagBits::eKhrBindMemory2)
+        | VkFlags(VMA_HPP_NAMESPACE::AllocatorCreateFlagBits::eExtMemoryBudget)
+        | VkFlags(VMA_HPP_NAMESPACE::AllocatorCreateFlagBits::eAmdDeviceCoherentMemory)
+        | VkFlags(VMA_HPP_NAMESPACE::AllocatorCreateFlagBits::eBufferDeviceAddress)
+        | VkFlags(VMA_HPP_NAMESPACE::AllocatorCreateFlagBits::eExtMemoryPriority)
+    };
   };
 }
 
@@ -147,24 +148,25 @@ namespace VMA_HPP_NAMESPACE {
 
 namespace VULKAN_HPP_NAMESPACE {
   template<> struct FlagTraits<VMA_HPP_NAMESPACE::AllocationCreateFlagBits> {
-    static VULKAN_HPP_CONST_OR_CONSTEXPR bool isBitmask = true;
-    static VULKAN_HPP_CONST_OR_CONSTEXPR Flags<VMA_HPP_NAMESPACE::AllocationCreateFlagBits> allFlags =
-        VMA_HPP_NAMESPACE::AllocationCreateFlagBits::eDedicatedMemory
-      | VMA_HPP_NAMESPACE::AllocationCreateFlagBits::eNeverAllocate
-      | VMA_HPP_NAMESPACE::AllocationCreateFlagBits::eMapped
-      | VMA_HPP_NAMESPACE::AllocationCreateFlagBits::eUserDataCopyString
-      | VMA_HPP_NAMESPACE::AllocationCreateFlagBits::eUpperAddress
-      | VMA_HPP_NAMESPACE::AllocationCreateFlagBits::eDontBind
-      | VMA_HPP_NAMESPACE::AllocationCreateFlagBits::eWithinBudget
-      | VMA_HPP_NAMESPACE::AllocationCreateFlagBits::eCanAlias
-      | VMA_HPP_NAMESPACE::AllocationCreateFlagBits::eHostAccessSequentialWrite
-      | VMA_HPP_NAMESPACE::AllocationCreateFlagBits::eHostAccessRandom
-      | VMA_HPP_NAMESPACE::AllocationCreateFlagBits::eHostAccessAllowTransferInstead
-      | VMA_HPP_NAMESPACE::AllocationCreateFlagBits::eStrategyMinMemory
-      | VMA_HPP_NAMESPACE::AllocationCreateFlagBits::eStrategyMinTime
-      | VMA_HPP_NAMESPACE::AllocationCreateFlagBits::eStrategyMinOffset
-      | VMA_HPP_NAMESPACE::AllocationCreateFlagBits::eStrategyBestFit
-      | VMA_HPP_NAMESPACE::AllocationCreateFlagBits::eStrategyFirstFit;
+    enum : VkFlags {
+      allFlags =
+          VkFlags(VMA_HPP_NAMESPACE::AllocationCreateFlagBits::eDedicatedMemory)
+        | VkFlags(VMA_HPP_NAMESPACE::AllocationCreateFlagBits::eNeverAllocate)
+        | VkFlags(VMA_HPP_NAMESPACE::AllocationCreateFlagBits::eMapped)
+        | VkFlags(VMA_HPP_NAMESPACE::AllocationCreateFlagBits::eUserDataCopyString)
+        | VkFlags(VMA_HPP_NAMESPACE::AllocationCreateFlagBits::eUpperAddress)
+        | VkFlags(VMA_HPP_NAMESPACE::AllocationCreateFlagBits::eDontBind)
+        | VkFlags(VMA_HPP_NAMESPACE::AllocationCreateFlagBits::eWithinBudget)
+        | VkFlags(VMA_HPP_NAMESPACE::AllocationCreateFlagBits::eCanAlias)
+        | VkFlags(VMA_HPP_NAMESPACE::AllocationCreateFlagBits::eHostAccessSequentialWrite)
+        | VkFlags(VMA_HPP_NAMESPACE::AllocationCreateFlagBits::eHostAccessRandom)
+        | VkFlags(VMA_HPP_NAMESPACE::AllocationCreateFlagBits::eHostAccessAllowTransferInstead)
+        | VkFlags(VMA_HPP_NAMESPACE::AllocationCreateFlagBits::eStrategyMinMemory)
+        | VkFlags(VMA_HPP_NAMESPACE::AllocationCreateFlagBits::eStrategyMinTime)
+        | VkFlags(VMA_HPP_NAMESPACE::AllocationCreateFlagBits::eStrategyMinOffset)
+        | VkFlags(VMA_HPP_NAMESPACE::AllocationCreateFlagBits::eStrategyBestFit)
+        | VkFlags(VMA_HPP_NAMESPACE::AllocationCreateFlagBits::eStrategyFirstFit)
+    };
   };
 }
 
@@ -227,10 +229,11 @@ namespace VMA_HPP_NAMESPACE {
 
 namespace VULKAN_HPP_NAMESPACE {
   template<> struct FlagTraits<VMA_HPP_NAMESPACE::PoolCreateFlagBits> {
-    static VULKAN_HPP_CONST_OR_CONSTEXPR bool isBitmask = true;
-    static VULKAN_HPP_CONST_OR_CONSTEXPR Flags<VMA_HPP_NAMESPACE::PoolCreateFlagBits> allFlags =
-        VMA_HPP_NAMESPACE::PoolCreateFlagBits::eIgnoreBufferImageGranularity
-      | VMA_HPP_NAMESPACE::PoolCreateFlagBits::eLinearAlgorithm;
+    enum : VkFlags {
+      allFlags =
+          VkFlags(VMA_HPP_NAMESPACE::PoolCreateFlagBits::eIgnoreBufferImageGranularity)
+        | VkFlags(VMA_HPP_NAMESPACE::PoolCreateFlagBits::eLinearAlgorithm)
+    };
   };
 }
 
@@ -283,12 +286,13 @@ namespace VMA_HPP_NAMESPACE {
 
 namespace VULKAN_HPP_NAMESPACE {
   template<> struct FlagTraits<VMA_HPP_NAMESPACE::DefragmentationFlagBits> {
-    static VULKAN_HPP_CONST_OR_CONSTEXPR bool isBitmask = true;
-    static VULKAN_HPP_CONST_OR_CONSTEXPR Flags<VMA_HPP_NAMESPACE::DefragmentationFlagBits> allFlags =
-        VMA_HPP_NAMESPACE::DefragmentationFlagBits::eFlagAlgorithmFast
-      | VMA_HPP_NAMESPACE::DefragmentationFlagBits::eFlagAlgorithmBalanced
-      | VMA_HPP_NAMESPACE::DefragmentationFlagBits::eFlagAlgorithmFull
-      | VMA_HPP_NAMESPACE::DefragmentationFlagBits::eFlagAlgorithmExtensive;
+    enum : VkFlags {
+      allFlags =
+          VkFlags(VMA_HPP_NAMESPACE::DefragmentationFlagBits::eFlagAlgorithmFast)
+        | VkFlags(VMA_HPP_NAMESPACE::DefragmentationFlagBits::eFlagAlgorithmBalanced)
+        | VkFlags(VMA_HPP_NAMESPACE::DefragmentationFlagBits::eFlagAlgorithmFull)
+        | VkFlags(VMA_HPP_NAMESPACE::DefragmentationFlagBits::eFlagAlgorithmExtensive)
+    };
   };
 }
 
@@ -353,9 +357,10 @@ namespace VMA_HPP_NAMESPACE {
 
 namespace VULKAN_HPP_NAMESPACE {
   template<> struct FlagTraits<VMA_HPP_NAMESPACE::VirtualBlockCreateFlagBits> {
-    static VULKAN_HPP_CONST_OR_CONSTEXPR bool isBitmask = true;
-    static VULKAN_HPP_CONST_OR_CONSTEXPR Flags<VMA_HPP_NAMESPACE::VirtualBlockCreateFlagBits> allFlags =
-        VMA_HPP_NAMESPACE::VirtualBlockCreateFlagBits::eLinearAlgorithm;
+    enum : VkFlags {
+      allFlags =
+          VkFlags(VMA_HPP_NAMESPACE::VirtualBlockCreateFlagBits::eLinearAlgorithm)
+    };
   };
 }
 
@@ -407,12 +412,13 @@ namespace VMA_HPP_NAMESPACE {
 
 namespace VULKAN_HPP_NAMESPACE {
   template<> struct FlagTraits<VMA_HPP_NAMESPACE::VirtualAllocationCreateFlagBits> {
-    static VULKAN_HPP_CONST_OR_CONSTEXPR bool isBitmask = true;
-    static VULKAN_HPP_CONST_OR_CONSTEXPR Flags<VMA_HPP_NAMESPACE::VirtualAllocationCreateFlagBits> allFlags =
-        VMA_HPP_NAMESPACE::VirtualAllocationCreateFlagBits::eUpperAddress
-      | VMA_HPP_NAMESPACE::VirtualAllocationCreateFlagBits::eStrategyMinMemory
-      | VMA_HPP_NAMESPACE::VirtualAllocationCreateFlagBits::eStrategyMinTime
-      | VMA_HPP_NAMESPACE::VirtualAllocationCreateFlagBits::eStrategyMinOffset;
+    enum : VkFlags {
+      allFlags =
+          VkFlags(VMA_HPP_NAMESPACE::VirtualAllocationCreateFlagBits::eUpperAddress)
+        | VkFlags(VMA_HPP_NAMESPACE::VirtualAllocationCreateFlagBits::eStrategyMinMemory)
+        | VkFlags(VMA_HPP_NAMESPACE::VirtualAllocationCreateFlagBits::eStrategyMinTime)
+        | VkFlags(VMA_HPP_NAMESPACE::VirtualAllocationCreateFlagBits::eStrategyMinOffset)
+    };
   };
 }
 
