@@ -44,7 +44,7 @@ target_include_directories( vks PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/.. )
 set_property( TARGET vks PROPERTY CXX_STANDARD 17 )
 
 target_link_libraries(
-        vks PUBLIC
+    vks PUBLIC
         imgui
 )
 target_include_directories( vks PUBLIC ${LIB_DIR} )
@@ -56,7 +56,10 @@ set(ENV{VK_ICD_FILENAMES} "${SRC_DIR}/../lib/VulkanSDK/macOS/etc/vulkan/icd.d/Mo
 set(ENV{VULKAN_SDK} "${SRC_DIR}/../lib/VulkanSDK/macOS/")
 
 # VMA
-target_include_directories( vks PUBLIC ${LIB_DIR}/VulkanMemoryAllocator/include )
+include_directories( ${LIB_DIR}/VulkanMemoryAllocator/include )
+
+# VMA-hpp
+include_directories( ${LIB_DIR}/VulkanMemoryAllocator-Hpp/include )
 
 # GLFW
 find_package(glfw3 3.3 REQUIRED)

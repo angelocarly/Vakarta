@@ -81,6 +81,7 @@ vks::Device::Impl::InitializeLogicalDevice()
         & theQueuePriority
     );
 
+    auto theRequiredExtensions = vks::GetRequiredExtensions();
     vk::DeviceCreateInfo theDeviceCreateInfo
     (
         vk::DeviceCreateFlags(),
@@ -88,12 +89,12 @@ vks::Device::Impl::InitializeLogicalDevice()
         theDeviceQueueCreateInfos.data(),
         0,
         nullptr,
-        std::uint32_t( kEnabledExtensions.size() ),
-        kEnabledExtensions.data(),
+        std::uint32_t( theRequiredExtensions.size() ),
+        theRequiredExtensions.data(),
         & theDeviceFeatures
     );
 
-    for( const char * theExtensionName : kEnabledExtensions )
+    for( const char * theExtensionName : vks::GetRequiredExtensions() )
     {
         spdlog::get( "vulkan" )->debug( "- {}", theExtensionName );
     }

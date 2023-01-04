@@ -129,10 +129,15 @@ vks::Instance::Impl::CreateVulkanInstance()
     vk::DebugUtilsMessengerCreateInfoEXT theDebugUtilsMessengerCreateInfo;
     GetDebugUtilsMessengerCreateInfo( theDebugUtilsMessengerCreateInfo );
 
+    vk::InstanceCreateFlagBits theCreateFlagBits = vk::InstanceCreateFlagBits();
+#ifdef TARGET_OS_X
+    theCreateFlagBits = vk::InstanceCreateFlagBits::eEnumeratePortabilityKHR;
+#endif
+
     auto requiredExtensions = GetRequiredExtensions();
     vk::InstanceCreateInfo createInfo = vk::InstanceCreateInfo
     (
-        vk::InstanceCreateFlags( vk::InstanceCreateFlagBits::eEnumeratePortabilityKHR ),
+        theCreateFlagBits,
         &applicationInfo,
         mValidationLayers.size(),
         mValidationLayers.data(),
@@ -155,7 +160,12 @@ vks::Instance::Impl::GetRequiredExtensions()
     for(uint32_t i = 0; i < glfwExtensionCount; i++) {
         requiredExtensions.emplace_back(glfwExtensions[i]);
     }
+
+#ifdef TARGET_OS_X
     requiredExtensions.emplace_back( VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME );
+#endif
+
+    // Provide debug information
     requiredExtensions.emplace_back( VK_EXT_DEBUG_UTILS_EXTENSION_NAME );
 
     return requiredExtensions;

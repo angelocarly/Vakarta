@@ -11,12 +11,15 @@
 
 namespace vks
 {
-    const std::vector< const char * > kEnabledExtensions = {
-        VK_KHR_SWAPCHAIN_EXTENSION_NAME,
-        VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME
-//        VK_EXT_DEBUG_UTILS_EXTENSION_NAME,
-//        VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME
-    };
+    static std::vector< const char * > GetRequiredExtensions()
+    {
+        static std::vector< const char * > theExtensions;
+        theExtensions.push_back( VK_KHR_SWAPCHAIN_EXTENSION_NAME );
+#if TARGET_OS_X
+        theExtensions.push_back( VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME );
+#endif
+        return theExtensions;
+    }
 
     class Swapchain;
     typedef std::shared_ptr< vks::Swapchain > SwapchainPtr;

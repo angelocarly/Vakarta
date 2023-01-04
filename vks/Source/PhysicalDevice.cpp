@@ -92,8 +92,9 @@ vks::PhysicalDevice::Impl::InitializeVulkanDevice()
         spdlog::get( "vulkan" )->debug( "- API version: {}", theDeviceProperties.apiVersion );
         spdlog::get( "vulkan" )->debug( "- Driver version: {}", theDeviceProperties.driverVersion );
 
+        auto theExtensions = vks::GetRequiredExtensions();
         if(
-            CheckExtensionSupport( thePotentialDevice, vks::kEnabledExtensions )
+            CheckExtensionSupport( thePotentialDevice, theExtensions )
             && ::FindQueueFamilyIndices( thePotentialDevice ).IsComplete() )
         {
             mPhysicalDevice = thePotentialDevice;

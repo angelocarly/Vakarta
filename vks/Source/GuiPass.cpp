@@ -10,9 +10,9 @@
 #include "vks/PhysicalDevice.h"
 #include "vks/Window.h"
 
-#include "imgui/imgui_impl_vulkan.h"
-#include "imgui/imgui_impl_glfw.h"
-#include "imgui/imgui.h"
+#include "imgui_impl_vulkan.h"
+#include "imgui_impl_glfw.h"
+#include "imgui.h"
 #include "vks/RenderPass.h"
 
 class vks::GuiPass::Impl

@@ -15,6 +15,7 @@
 
 #include <spdlog/spdlog.h>
 
+#include <filesystem>
 #include <memory>
 #include <unordered_map>
 
