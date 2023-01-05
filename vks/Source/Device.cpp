@@ -8,6 +8,7 @@
 #include "vk_mem_alloc.hpp"
 #include "vks/Buffer.h"
 #include "vks/Image.h"
+#include "vks/Utils.h"
 
 #include <spdlog/spdlog.h>
 #include <vulkan/vulkan.hpp>
@@ -39,13 +40,6 @@ class vks::Device::Impl
 
 // ---------------------------------------------------------------------------------------------------------------------
 
-vks::Buffer CreateBuffer( vk::BufferCreateInfo inBufferCreateInfo, vma::AllocationCreateInfo inAllocationCreateInfo );
-
-void DestroyBuffer( vks::Buffer inBuffer );
-
-void DestroyImage( vks::Image inImage );
-
-vma::Allocator GetVmaAllocator();
 
 vks::Device::Impl::Impl( const vks::PhysicalDevicePtr inPhysicalDevice )
 :
@@ -81,7 +75,7 @@ vks::Device::Impl::InitializeLogicalDevice()
         & theQueuePriority
     );
 
-    auto theRequiredExtensions = vks::GetRequiredExtensions();
+    auto theRequiredExtensions = mPhysicalDevice->GetRequiredExtensions();
     vk::DeviceCreateInfo theDeviceCreateInfo
     (
         vk::DeviceCreateFlags(),
@@ -94,7 +88,7 @@ vks::Device::Impl::InitializeLogicalDevice()
         & theDeviceFeatures
     );
 
-    for( const char * theExtensionName : vks::GetRequiredExtensions() )
+    for( const char * theExtensionName : mPhysicalDevice->GetRequiredExtensions() )
     {
         spdlog::get( "vulkan" )->debug( "- {}", theExtensionName );
     }

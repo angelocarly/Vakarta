@@ -18,6 +18,7 @@ namespace vks
     {
         public:
             static vk::ShaderModule CreateVkShaderModule( vks::DevicePtr inDevice, std::filesystem::path inPath );
+            static bool IsTargetApple();
     };
 }
 

@@ -4,6 +4,7 @@
 
 #include "vks/ForwardDecl.h"
 #include "vks/Instance.h"
+#include "vks/Utils.h"
 
 #include <GLFW/glfw3.h>
 #include <spdlog/spdlog.h>
@@ -130,9 +131,10 @@ vks::Instance::Impl::CreateVulkanInstance()
     GetDebugUtilsMessengerCreateInfo( theDebugUtilsMessengerCreateInfo );
 
     vk::InstanceCreateFlagBits theCreateFlagBits = vk::InstanceCreateFlagBits();
-#ifdef TARGET_OS_X
-    theCreateFlagBits = vk::InstanceCreateFlagBits::eEnumeratePortabilityKHR;
-#endif
+    if( vks::Utils::IsTargetApple() )
+    {
+        theCreateFlagBits = vk::InstanceCreateFlagBits::eEnumeratePortabilityKHR;
+    }
 
     auto requiredExtensions = GetRequiredExtensions();
     vk::InstanceCreateInfo createInfo = vk::InstanceCreateInfo
@@ -161,9 +163,10 @@ vks::Instance::Impl::GetRequiredExtensions()
         requiredExtensions.emplace_back(glfwExtensions[i]);
     }
 
-#ifdef TARGET_OS_X
-    requiredExtensions.emplace_back( VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME );
-#endif
+    if( vks::Utils::IsTargetApple() )
+    {
+        requiredExtensions.emplace_back( VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME );
+    }
 
     // Provide debug information
     requiredExtensions.emplace_back( VK_EXT_DEBUG_UTILS_EXTENSION_NAME );

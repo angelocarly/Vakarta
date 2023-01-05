@@ -48,3 +48,12 @@ vks::Utils::CreateVkShaderModule( vks::DevicePtr inDevice, std::filesystem::path
 
     return inDevice->GetVkDevice().createShaderModule( theShaderModuleCreateInfo );
 }
+
+bool vks::Utils::IsTargetApple()
+{
+#ifdef __APPLE__
+    return true;
+#else
+    return false;
+#endif
+}

@@ -32,6 +32,7 @@ namespace vks
         public:
             vk::PhysicalDevice GetVkPhysicalDevice();
             QueueFamilyIndices FindQueueFamilyIndices();
+            static std::vector< const char * > GetRequiredExtensions();
 
         private:
             class Impl;

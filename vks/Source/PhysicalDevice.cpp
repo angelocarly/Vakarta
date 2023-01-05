@@ -5,6 +5,7 @@
 #include "vks/PhysicalDevice.h"
 
 #include "vks/ForwardDecl.h"
+#include "vks/Utils.h"
 
 #include <spdlog/spdlog.h>
 
@@ -85,14 +86,7 @@ vks::PhysicalDevice::Impl::InitializeVulkanDevice()
     std::vector< vk::PhysicalDevice > thePotentialDevices = mInstance.GetVkInstance().enumeratePhysicalDevices();
     for( vk::PhysicalDevice thePotentialDevice: thePotentialDevices )
     {
-        auto theDeviceProperties = thePotentialDevice.getProperties();
-        spdlog::get( "vulkan" )->debug( "- ID: {}", theDeviceProperties.deviceID );
-        spdlog::get( "vulkan" )->debug( "- Name: {}", theDeviceProperties.deviceName );
-        spdlog::get( "vulkan" )->debug( "- Device type: {}", to_string( theDeviceProperties.deviceType ) );
-        spdlog::get( "vulkan" )->debug( "- API version: {}", theDeviceProperties.apiVersion );
-        spdlog::get( "vulkan" )->debug( "- Driver version: {}", theDeviceProperties.driverVersion );
-
-        auto theExtensions = vks::GetRequiredExtensions();
+        auto theExtensions = GetRequiredExtensions();
         if(
             CheckExtensionSupport( thePotentialDevice, theExtensions )
             && ::FindQueueFamilyIndices( thePotentialDevice ).IsComplete() )
@@ -129,4 +123,20 @@ vks::QueueFamilyIndices
 vks::PhysicalDevice::FindQueueFamilyIndices()
 {
     return ::FindQueueFamilyIndices( mImpl->mPhysicalDevice );
+}
+
+std::vector< const char * >
+vks::PhysicalDevice::GetRequiredExtensions()
+{
+    static std::vector< const char * > theExtensions;
+
+    theExtensions.push_back( VK_KHR_SWAPCHAIN_EXTENSION_NAME );
+
+    if( vks::Utils::IsTargetApple() )
+    {
+        // Allow using a subset of the vulkan api
+        theExtensions.push_back( VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME );
+    }
+
+    return theExtensions;
 }

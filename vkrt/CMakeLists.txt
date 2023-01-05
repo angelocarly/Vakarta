@@ -35,10 +35,10 @@ target_link_libraries(
 # if(NOT LINUX) should work, too, if you need that
 if(LINUX)
 	set( GLSL_VALIDATOR "/usr/bin/glslangValidator" )
-    set( EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_BINARY_DIR} )
+    set( VKRT_BIN_PATH ${CMAKE_CURRENT_BINARY_DIR} )
 else()
 	set( GLSL_VALIDATOR "/usr/local/bin/glslangValidator" )
-    set( EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_BINARY_DIR}/Debug )
+    set( VKRT_BIN_PATH ${CMAKE_CURRENT_BINARY_DIR}/Debug )
 endif()
 
 file(
@@ -50,11 +50,11 @@ file(
 
 foreach( GLSL ${GLSL_SOURCE_FILES} )
     get_filename_component( FILE_NAME ${GLSL} NAME )
-    set( SPIRV "${EXECUTABLE_OUTPUT_PATH}/shaders/${FILE_NAME}.spv" )
+    set( SPIRV "${VKRT_BIN_PATH}/shaders/${FILE_NAME}.spv" )
     message( ${SPIRV} )
     add_custom_command(
             OUTPUT ${SPIRV}
-            COMMAND ${CMAKE_COMMAND} -E make_directory "${EXECUTABLE_OUTPUT_PATH}/shaders"
+            COMMAND ${CMAKE_COMMAND} -E make_directory "${VKRT_BIN_PATH}/shaders"
             COMMAND ${GLSL_VALIDATOR} --target-env vulkan1.0 -V ${GLSL} -o ${SPIRV}
             DEPENDS ${GLSL} )
     list( APPEND SPIRV_BINARY_FILES ${SPIRV} )
@@ -70,13 +70,13 @@ add_dependencies( ${PROJECT_NAME} Shaders )
 ### Resources
 add_custom_command(
         TARGET ${PROJECT_NAME} POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E make_directory "${EXECUTABLE_OUTPUT_PATH}/resources"
+        COMMAND ${CMAKE_COMMAND} -E make_directory "${VKRT_BIN_PATH}/resources"
 )
 add_custom_command(
         TARGET ${PROJECT_NAME} POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy
         ${CMAKE_SOURCE_DIR}/resources/teapot.obj
-        ${EXECUTABLE_OUTPUT_PATH}/resources/teapot.obj
+        ${VKRT_BIN_PATH}/resources/teapot.obj
 )
 
 ### External dependencies

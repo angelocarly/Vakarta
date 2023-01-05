@@ -82,7 +82,7 @@ vkrt::Renderer::InitializeRenderObject()
 
     std::string warn;
     std::string* err;
-    bool ret = tinyobj::LoadObj( &inattrib, &inshapes, &inmaterials, err, "resources/teapot.obj", "resources");
+    bool ret = tinyobj::LoadObj( &inattrib, &inshapes, &inmaterials, err, "resources/teapot.obj" );
     if (!warn.empty())
     {
         spdlog::warn( "WARNING: {}", warn );
