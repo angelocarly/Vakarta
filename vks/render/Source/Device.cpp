@@ -5,8 +5,8 @@
 #include "vks/render/Device.h"
 
 #include "vks/core/Buffer.h"
+#include "vks/core/Image.h"
 #include "vks/render/PhysicalDevice.h"
-#include "vks/render/Image.h"
 #include "vks/render/Utils.h"
 
 #include <spdlog/spdlog.h>
@@ -210,7 +210,7 @@ vks::Image
 vks::Device::CreateImage( vk::ImageCreateInfo inImageCreateInfo, vma::AllocationCreateInfo inAllocationCreateInfo )
 {
     auto theImageResult = mImpl->mAllocator.createImage( inImageCreateInfo, inAllocationCreateInfo );
-    return vks::Image( theImageResult.first, theImageResult.second );
+    return { theImageResult.first, theImageResult.second };
 }
 
 void

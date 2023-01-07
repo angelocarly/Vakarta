@@ -2,7 +2,7 @@
 // Created by Angelo Carly on 30/11/2022.
 //
 
-#include "vks/render/Image.h"
+#include "vks/core/Image.h"
 
 #include <vulkan/vulkan.hpp>
 #include <vk_mem_alloc.hpp>

@@ -17,6 +17,7 @@
 #include "vks/render/Window.h"
 #include "vks/render/ForwardDecl.h"
 #include "vks/render/GuiPass.h"
+#include "vks/assets/AssetLoader.h"
 
 namespace vkrt
 {
@@ -42,6 +43,9 @@ namespace vkrt
 
             // Gui
             vks::ImGuiPtr mGui;
+
+            // Resources
+            vks::AssetLoader mAssetLoader;
 
             // Pipeline
             vks::RenderPassPtr mRenderPass;

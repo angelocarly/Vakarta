@@ -2,7 +2,6 @@ set(
     SOURCE_FILES
         Source/Device.cpp
         Source/GuiPass.cpp
-        Source/Image.cpp
         Source/Instance.cpp
         Source/Mesh.cpp
         Source/PhysicalDevice.cpp
@@ -18,7 +17,6 @@ set(
         Device.h
         ForwardDecl.h
         GuiPass.h
-        Image.h
         Instance.h
         Mesh.h
         PhysicalDevice.h

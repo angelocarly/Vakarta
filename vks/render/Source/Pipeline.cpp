@@ -10,6 +10,9 @@
 #include "vks/render/RenderPass.h"
 #include "vks/render/Utils.h"
 
+#define GLM_FORCE_RADIANS
+#define GLM_FORCE_DEPTH_ZERO_TO_ONE
+
 #include <glm/gtc/matrix_transform.hpp>
 #include <vulkan/vulkan.hpp>
 
@@ -240,19 +243,19 @@ vks::Pipeline::Impl::InitializePipeline()
     );
 
     // Depth stencil
-//    vk::PipelineDepthStencilStateCreateInfo const theDepthStencilStateCreateInfo = vk::PipelineDepthStencilStateCreateInfo
-//    (
-//        vk::PipelineDepthStencilStateCreateFlags(),
-//        true,
-//        true,
-//        vk::CompareOp::eLess,
-//        false,
-//        false,
-//        vk::StencilOp::eKeep,
-//        vk::StencilOp::eKeep,
-//        0.0f,
-//        1.0f
-//    );
+    vk::PipelineDepthStencilStateCreateInfo const theDepthStencilStateCreateInfo = vk::PipelineDepthStencilStateCreateInfo
+    (
+        vk::PipelineDepthStencilStateCreateFlags(),
+        true,
+        true,
+        vk::CompareOp::eLess,
+        false,
+        false,
+        vk::StencilOp::eKeep,
+        vk::StencilOp::eKeep,
+        0.0f,
+        1.0f
+    );
 
     // Color blend
     std::vector< vk::PipelineColorBlendAttachmentState > theColorBlendAttachmentStates =
@@ -315,12 +318,12 @@ vks::Pipeline::Impl::InitializePipeline()
         &theVertexInputStateCreateInfo,
         &theInputAssemblyStateCreateInfo,
         nullptr,
-        & theViewportStateCreateInfo,
-        & theRasterizationStateCreateInfo,
-        & theMultiSampleStateCreateInfo,
-        nullptr,
-        & theColorBlendStateCreateInfo,
-        & theDynamicStateCreateInfo,
+        &theViewportStateCreateInfo,
+        &theRasterizationStateCreateInfo,
+        &theMultiSampleStateCreateInfo,
+        &theDepthStencilStateCreateInfo,
+        &theColorBlendStateCreateInfo,
+        &theDynamicStateCreateInfo,
         mPipelineLayout,
         mRenderPass->GetVkRenderPass(),
         0,

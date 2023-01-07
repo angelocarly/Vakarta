@@ -39,6 +39,16 @@ vks::Vertex::GetVkVertexInputAttributeDescriptions()
             1,
             0,
             vk::Format::eR32G32B32Sfloat,
+            offsetof( Vertex, normal )
+        )
+    );
+    theAttributes.push_back
+    (
+        vk::VertexInputAttributeDescription
+        (
+            2,
+            0,
+            vk::Format::eR32G32B32Sfloat,
             offsetof( Vertex, color )
         )
     );

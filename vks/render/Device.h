@@ -6,8 +6,8 @@
 #define VKRT_DEVICE_H
 
 #include "vks/core/Buffer.h"
+#include "vks/core/Image.h"
 #include "vks/render/ForwardDecl.h"
-#include "vks/render/Image.h"
 #include "vks/render/Instance.h"
 
 #include <vulkan/vulkan.hpp>

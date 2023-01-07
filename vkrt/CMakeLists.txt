@@ -72,16 +72,23 @@ add_custom_target(
 add_dependencies( ${PROJECT_NAME} Shaders )
 
 ### Resources
+set(
+    RESOURCES
+        teapot.obj
+        bunny.obj
+)
 add_custom_command(
         TARGET ${PROJECT_NAME} POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E make_directory "${VKRT_BIN_PATH}/resources"
 )
-add_custom_command(
-        TARGET ${PROJECT_NAME} POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy
-        ${CMAKE_SOURCE_DIR}/resources/teapot.obj
-        ${VKRT_BIN_PATH}/resources/teapot.obj
-)
+foreach( RESOURCE ${RESOURCES} )
+    add_custom_command(
+            TARGET ${PROJECT_NAME} POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy
+            ${CMAKE_SOURCE_DIR}/resources/${RESOURCE}
+            ${VKRT_BIN_PATH}/resources/${RESOURCE}
+    )
+endforeach( RESOURCE )
 
 ### External dependencies
 
@@ -111,10 +118,6 @@ add_definitions( ${GLM_DEFINITIONS} )
 # stb
 set( STB_DIR "${LIB_DIR}/stb" )
 include_directories( ${STB_DIR} )
-
-# tinyobjloader
-set( TINYOBJLOADER_DIR "${LIB_DIR}/tinyobjloader" )
-include_directories( ${TINYOBJLOADER_DIR} )
 
 # vma
 set( VMA "${LIB_DIR}/VulkanMemoryAllocator/include" )

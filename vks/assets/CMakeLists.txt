@@ -1,11 +1,13 @@
 set(
     HEADER_FILES
-        Assets.h
+        AssetLoader.h
+        MeshResource.h
 )
 
 set(
     SOURCE_FILES
-        Source/Assets.cpp
+        Source/AssetLoader.cpp
+        Source/MeshResource.cpp
 )
 
 add_library(
@@ -18,11 +20,21 @@ set_property( TARGET VksAssets PROPERTY CXX_STANDARD 17 )
 target_include_directories( VksAssets PUBLIC ${PROJECT_ROOT_DIR} )
 target_include_directories( VksAssets PUBLIC ${LIB_DIR} )
 
+# Project libraries
+target_link_libraries(
+        VksAssets PUBLIC
+        VksCore
+)
+
 # Vulkan
 find_package(Vulkan REQUIRED)
 target_link_libraries( VksAssets PUBLIC Vulkan::Vulkan)
 set(ENV{VK_ICD_FILENAMES} "${SRC_DIR}/../lib/VulkanSDK/macOS/etc/vulkan/icd.d/MoltenVK_icd.json")
 set(ENV{VULKAN_SDK} "${SRC_DIR}/../lib/VulkanSDK/macOS/")
+
+# tinyobjloader
+set( TINYOBJLOADER_DIR "${LIB_DIR}/tinyobjloader" )
+include_directories( ${TINYOBJLOADER_DIR} )
 
 # VMA
 include_directories( ${LIB_DIR}/VulkanMemoryAllocator/include )

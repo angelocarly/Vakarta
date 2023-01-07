@@ -35,6 +35,7 @@ class vks::GuiPass::Impl
 
         vk::DescriptorPool mDescriptorPool;
 
+        bool mDemoEnabled = false;
 };
 
 void Update();
@@ -171,7 +172,20 @@ vks::GuiPass::Update()
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
 
-    ImGui::ShowDemoWindow();
+    if( mImpl->mDemoEnabled )
+    {
+        ImGui::ShowDemoWindow();
+    }
+
+    if (ImGui::BeginMainMenuBar())
+    {
+        if( ImGui::BeginMenu( "Menu" ) )
+        {
+            ImGui::MenuItem("Show demo window" , nullptr, &mImpl->mDemoEnabled );
+            ImGui::EndMenu();
+        }
+        ImGui::EndMainMenuBar();
+    }
 
     // Rendering
     ImGui::Render();

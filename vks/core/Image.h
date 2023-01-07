@@ -5,7 +5,7 @@
 #ifndef PACKZ_IMAGE_H
 #define PACKZ_IMAGE_H
 
-#include "ForwardDecl.h"
+#include "vks/render/ForwardDecl.h"
 
 #include "vulkan/vulkan.hpp"
 #include "vk_mem_alloc.hpp"

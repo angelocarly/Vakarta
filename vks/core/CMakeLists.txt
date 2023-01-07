@@ -1,12 +1,14 @@
 set(
     HEADER_FILES
         Buffer.h
+        Image.h
         Vertex.h
 )
 
 set(
     SOURCE_FILES
         Source/Buffer.cpp
+        Source/Image.cpp
         Source/Vertex.cpp
 )
 
