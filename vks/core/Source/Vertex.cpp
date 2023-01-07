@@ -2,25 +2,20 @@
 // Created by Angelo Carly on 27/12/2022.
 //
 
-#include "vks/Vertex.h"
+#include "vks/core/Vertex.h"
+
+vks::Vertex::Vertex()
+:
+    position( glm::vec3() ),
+    color( glm::vec3() )
+{
+}
 
 vks::Vertex::Vertex( glm::vec3 inPosition, glm::vec3 inColor )
 :
-    mPosition( inPosition ),
-    mColor( inColor )
+    position( inPosition ),
+    color( inColor )
 {
-}
-
-glm::vec3
-vks::Vertex::GetPosition()
-{
-    return mPosition;
-}
-
-glm::vec3
-vks::Vertex::GetColor()
-{
-    return mColor;
 }
 
 std::vector< vk::VertexInputAttributeDescription >
@@ -34,7 +29,7 @@ vks::Vertex::GetVkVertexInputAttributeDescriptions()
             0,
             0,
             vk::Format::eR32G32B32Sfloat,
-            offsetof( Vertex, mPosition )
+            offsetof( Vertex, position )
         )
     );
     theAttributes.push_back
@@ -44,7 +39,7 @@ vks::Vertex::GetVkVertexInputAttributeDescriptions()
             1,
             0,
             vk::Format::eR32G32B32Sfloat,
-            offsetof( Vertex, mColor )
+            offsetof( Vertex, color )
         )
     );
     return theAttributes;
@@ -65,3 +60,4 @@ vks::Vertex::GetVkVertexInputBindingDescriptions()
     );
     return theDescriptions;
 }
+

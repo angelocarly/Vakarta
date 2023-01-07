@@ -5,7 +5,7 @@
 #ifndef VKRT_INPUTSTATE_H
 #define VKRT_INPUTSTATE_H
 
-#include "vks/ForwardDecl.h"
+#include "vks/render/ForwardDecl.h"
 
 #include <glm/vec2.hpp>
 #include <memory>

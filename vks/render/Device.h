@@ -5,12 +5,12 @@
 #ifndef VKRT_DEVICE_H
 #define VKRT_DEVICE_H
 
-#include <vulkan/vulkan.hpp>
+#include "vks/core/Buffer.h"
+#include "vks/render/ForwardDecl.h"
+#include "vks/render/Image.h"
+#include "vks/render/Instance.h"
 
-#include "Instance.h"
-#include "ForwardDecl.h"
-#include "Buffer.h"
-#include "Image.h"
+#include <vulkan/vulkan.hpp>
 
 namespace vks
 {

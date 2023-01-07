@@ -2,16 +2,16 @@
 // Created by Angelo Carly on 21/11/2022.
 //
 
-#include "vks/Device.h"
+#include "vks/render/Device.h"
 
-#include "vks/PhysicalDevice.h"
-#include "vk_mem_alloc.hpp"
-#include "vks/Buffer.h"
-#include "vks/Image.h"
-#include "vks/Utils.h"
+#include "vks/core/Buffer.h"
+#include "vks/render/PhysicalDevice.h"
+#include "vks/render/Image.h"
+#include "vks/render/Utils.h"
 
 #include <spdlog/spdlog.h>
 #include <vulkan/vulkan.hpp>
+#include <vk_mem_alloc.hpp>
 #include <optional>
 
 // =====================================================================================================================

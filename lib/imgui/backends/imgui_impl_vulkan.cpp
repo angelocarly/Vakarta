@@ -555,6 +555,16 @@ void ImGui_ImplVulkan_RenderDrawData(ImDrawData* draw_data, VkCommandBuffer comm
                 }
                 vkCmdBindDescriptorSets(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, bd->PipelineLayout, 0, 1, desc_set, 0, nullptr);
 
+                // Mac fix for missing content
+                float scale[2];
+                scale[0] = 2.0f / draw_data->DisplaySize.x;
+                scale[1] = 2.0f / draw_data->DisplaySize.y;
+                float translate[2];
+                translate[0] = -1.0f - draw_data->DisplayPos.x * scale[0];
+                translate[1] = -1.0f - draw_data->DisplayPos.y * scale[1];
+                vkCmdPushConstants(command_buffer, bd->PipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, sizeof(float) * 0, sizeof(float) * 2, scale);
+                vkCmdPushConstants(command_buffer, bd->PipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, sizeof(float) * 2, sizeof(float) * 2, translate);
+
                 // Draw
                 vkCmdDrawIndexed(command_buffer, pcmd->ElemCount, 1, pcmd->IdxOffset + global_idx_offset, pcmd->VtxOffset + global_vtx_offset, 0);
             }

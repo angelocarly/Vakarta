@@ -5,11 +5,11 @@
 #ifndef VKRT_PHYSICALDEVICE_H
 #define VKRT_PHYSICALDEVICE_H
 
+#include "vks/render/ForwardDecl.h"
+#include "vks/render/Instance.h"
+
 #include <vulkan/vulkan.hpp>
 #include <optional>
-
-#include "vks/Instance.h"
-#include "ForwardDecl.h"
 
 namespace vks
 {

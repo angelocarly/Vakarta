@@ -2,12 +2,12 @@ set( CMAKE_CXX_STANDARD 11 )
 
 ## IMGUI
 
-set( IMGUI_DIR ${CMAKE_CURRENT_SOURCE_DIR}/imgui )
-add_library( imgui STATIC )
-set_target_properties( imgui PROPERTIES POSITION_INDEPENDENT_CODE ON )
+set( IMGUI_DIR ${CMAKE_CURRENT_SOURCE_DIR}/Imgui )
+add_library( Imgui STATIC )
+set_target_properties( Imgui PROPERTIES POSITION_INDEPENDENT_CODE ON )
 
 target_sources(
-    imgui
+    Imgui
         PRIVATE
         ${IMGUI_DIR}/imgui_demo.cpp
         ${IMGUI_DIR}/imgui_draw.cpp
@@ -21,13 +21,15 @@ target_sources(
 )
 
 target_include_directories(
-    imgui
+    Imgui
         PUBLIC ${IMGUI_DIR}
         PUBLIC ${IMGUI_DIR}/backends
 )
 
 find_package( Vulkan REQUIRED )
-target_link_libraries( imgui PUBLIC Vulkan::Vulkan )
+target_link_libraries( Imgui PUBLIC Vulkan::Vulkan )
 
 find_package( glfw3 3.3 REQUIRED )
-target_link_libraries( imgui PUBLIC glfw )
+target_link_libraries( Imgui PUBLIC glfw )
+
+## End imgui

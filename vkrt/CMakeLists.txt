@@ -16,23 +16,27 @@ set(
         Renderer.h
 )
 
-set( CMAKE_CXX_STANDARD 11 )
 add_executable(
     ${PROJECT_NAME}
         ${SOURCE_FILES}
         ${HEADER_FILES}
 )
-target_include_directories( ${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/.. )
+
+target_include_directories( ${PROJECT_NAME} PUBLIC ${PROJECT_ROOT_DIR} )
+
 set_property( TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 17 )
 
+## Project libraries
 target_link_libraries(
     ${PROJECT_NAME} PUBLIC
-        vks
+        VksAssets
+        VksRender
+        VksCore
+        Imgui
 )
 
 ### Shaders
 
-# if(NOT LINUX) should work, too, if you need that
 if(LINUX)
 	set( GLSL_VALIDATOR "/usr/bin/glslangValidator" )
     set( VKRT_BIN_PATH ${CMAKE_CURRENT_BINARY_DIR} )

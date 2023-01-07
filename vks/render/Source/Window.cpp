@@ -5,12 +5,12 @@
 
 #define GLFW_INCLUDE_VULKAN
 
-#include "vks/Window.h"
+#include "vks/render/Window.h"
+
+#include <vks/render/Instance.h>
 
 #include <GLFW/glfw3.h>
 #include <vulkan/vulkan.hpp>
-
-#include <vks/Instance.h>
 
 #include "string"
 

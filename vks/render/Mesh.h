@@ -5,10 +5,11 @@
 #ifndef VKRT_MESH_H
 #define VKRT_MESH_H
 
+#include "vks/core/Buffer.h"
+#include "vks/core/Vertex.h"
+#include "vks/render/ForwardDecl.h"
+
 #include <vulkan/vulkan.hpp>
-#include "Buffer.h"
-#include "Vertex.h"
-#include "ForwardDecl.h"
 
 namespace vks
 {

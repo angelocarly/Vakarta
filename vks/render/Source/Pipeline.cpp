@@ -2,13 +2,13 @@
 // Created by Angelo Carly on 18/12/2022.
 //
 
-#include "vks/Pipeline.h"
+#include "vks/render/Pipeline.h"
 
-#include "vks/ForwardDecl.h"
-#include "vks/Device.h"
-#include "vks/RenderPass.h"
-#include "vks/Vertex.h"
-#include "vks/Utils.h"
+#include "vks/core/Vertex.h"
+#include "vks/render/ForwardDecl.h"
+#include "vks/render/Device.h"
+#include "vks/render/RenderPass.h"
+#include "vks/render/Utils.h"
 
 #include <glm/gtc/matrix_transform.hpp>
 #include <vulkan/vulkan.hpp>

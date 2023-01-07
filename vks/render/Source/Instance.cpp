@@ -2,9 +2,9 @@
 // Created by magnias on 7/7/22.
 //
 
-#include "vks/ForwardDecl.h"
-#include "vks/Instance.h"
-#include "vks/Utils.h"
+#include "vks/render/ForwardDecl.h"
+#include "vks/render/Instance.h"
+#include "vks/render/Utils.h"
 
 #include <GLFW/glfw3.h>
 #include <spdlog/spdlog.h>

@@ -2,9 +2,10 @@
 // Created by Angelo Carly on 30/11/2022.
 //
 
-#include "vks/Image.h"
-#include "vulkan/vulkan.hpp"
-#include "vk_mem_alloc.hpp"
+#include "vks/render/Image.h"
+
+#include <vulkan/vulkan.hpp>
+#include <vk_mem_alloc.hpp>
 
 vks::Image::Image()
 {}

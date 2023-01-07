@@ -2,11 +2,11 @@
 // Created by Angelo Carly on 01/01/2023.
 //
 
-#include "vks/RenderPass.h"
+#include "vks/render/RenderPass.h"
 
-#include "vks/ForwardDecl.h"
-#include "vks/Device.h"
-#include "vks/Swapchain.h"
+#include "vks/render/ForwardDecl.h"
+#include "vks/render/Device.h"
+#include "vks/render/Swapchain.h"
 
 #include <vulkan/vulkan.hpp>
 

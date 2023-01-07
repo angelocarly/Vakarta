@@ -2,11 +2,11 @@
 // Created by Angelo Carly on 03/12/2022.
 //
 
-#include "vks/Swapchain.h"
+#include "vks/render/Swapchain.h"
 
-#include "vks/PhysicalDevice.h"
-#include "vks/Device.h"
-#include "vks/ForwardDecl.h"
+#include "vks/render/Device.h"
+#include "vks/render/ForwardDecl.h"
+#include "vks/render/PhysicalDevice.h"
 
 #include <spdlog/spdlog.h>
 

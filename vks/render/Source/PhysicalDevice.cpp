@@ -2,10 +2,11 @@
 // Created by Angelo Carly on 21/11/2022.
 //
 
-#include "vks/PhysicalDevice.h"
+#include "vks/render/PhysicalDevice.h"
 
-#include "vks/ForwardDecl.h"
-#include "vks/Utils.h"
+#include "vks/render/ForwardDecl.h"
+#include "vks/render/Utils.h"
+#include "vks/render/Instance.h"
 
 #include <spdlog/spdlog.h>
 

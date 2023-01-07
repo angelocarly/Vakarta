@@ -2,9 +2,9 @@
 // Created by Angelo Carly on 27/12/2022.
 //
 
-#include "vks/Utils.h"
-#include "vks/ForwardDecl.h"
-#include "vks/Device.h"
+#include "vks/render/Utils.h"
+#include "vks/render/ForwardDecl.h"
+#include "vks/render/Device.h"
 
 #include <vulkan/vulkan.hpp>
 

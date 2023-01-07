@@ -5,16 +5,18 @@
 #ifndef VKRT_RENDERER_H
 #define VKRT_RENDERER_H
 
-#include "vks/Device.h"
-#include "vks/PhysicalDevice.h"
-#include "vks/Swapchain.h"
-#include "vks/Pipeline.h"
-#include "vks/Mesh.h"
-#include "vks/Window.h"
-#include "ForwardDecl.h"
 #include "Camera.h"
+#include "ForwardDecl.h"
 #include "InputState.h"
-#include "vks/GuiPass.h"
+
+#include "vks/render/Device.h"
+#include "vks/render/PhysicalDevice.h"
+#include "vks/render/Swapchain.h"
+#include "vks/render/Pipeline.h"
+#include "vks/render/Mesh.h"
+#include "vks/render/Window.h"
+#include "vks/render/ForwardDecl.h"
+#include "vks/render/GuiPass.h"
 
 namespace vkrt
 {

@@ -4,10 +4,11 @@
 
 #include "vkrt/InputState.h"
 
-#include "vks/Window.h"
+#include "vks/render/Window.h"
 
 #include <glm/vec2.hpp>
 #include <GLFW/glfw3.h>
+#include <imgui/backends/imgui_impl_glfw.h>
 
 class vkrt::InputState::Impl
 {
@@ -64,18 +65,22 @@ int vkrt::InputState::Impl::mButtonsBuffer[GLFW_MOUSE_BUTTON_LAST];
 void
 vkrt::InputState::Impl::key_callback( GLFWwindow *window, int key, int scancode, int action, int mods )
 {
+    ImGui_ImplGlfw_KeyCallback( window, key, scancode, action, mods );
     mKeys[key] = action != GLFW_RELEASE;
 }
 
 void
 vkrt::InputState::Impl::mouse_button_callback( GLFWwindow *window, int button, int action, int mods )
 {
+    ImGui_ImplGlfw_MouseButtonCallback( window, button, action, mods );
     mButtonsBuffer[button] = action;
 }
 
 void
 vkrt::InputState::Impl::mouse_cursor_callback(GLFWwindow *window, double xpos, double ypos )
 {
+    ImGui_ImplGlfw_CursorPosCallback( window, xpos, ypos );
+
     glm::vec2 prevMousePos = mMousePosBuffer;
     mMousePosBuffer.x = (float) xpos;
     mMousePosBuffer.y = (float) ypos;

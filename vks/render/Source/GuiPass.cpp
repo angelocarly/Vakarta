@@ -2,18 +2,18 @@
 // Created by Angelo Carly on 02/01/2023.
 //
 
+#include "vks/render/GuiPass.h"
+
+#include "vks/render/Device.h"
+#include "vks/render/ForwardDecl.h"
+#include "vks/render/PhysicalDevice.h"
+#include "vks/render/RenderPass.h"
+#include "vks/render/Window.h"
+
 #include <spdlog/spdlog.h>
-#include "vks/GuiPass.h"
-
-#include "vks/ForwardDecl.h"
-#include "vks/Device.h"
-#include "vks/PhysicalDevice.h"
-#include "vks/Window.h"
-
-#include "imgui_impl_vulkan.h"
-#include "imgui_impl_glfw.h"
-#include "imgui.h"
-#include "vks/RenderPass.h"
+#include <imgui_impl_vulkan.h>
+#include <imgui_impl_glfw.h>
+#include <imgui.h>
 
 class vks::GuiPass::Impl
 {
@@ -24,6 +24,7 @@ class vks::GuiPass::Impl
     private:
         void InitializeDescriptorPool();
         void InitializeImGui();
+        void SetStyle();
         static void CheckVkResult( VkResult inResult );
 
     public:
@@ -33,6 +34,7 @@ class vks::GuiPass::Impl
         vks::SwapchainPtr mSwapChain;
 
         vk::DescriptorPool mDescriptorPool;
+
 };
 
 void Update();
@@ -96,10 +98,8 @@ vks::GuiPass::Impl::InitializeImGui()
     ImGuiIO& io = ::ImGui::GetIO();
     (void) io;
 
-    io.DisplaySize = ImVec2( mSwapChain->GetExtent().width, mSwapChain->GetExtent().height );
-//    io.DisplayFramebufferScale = ImVec2(2.0f, 2.0f);
-
-    ::ImGui::StyleColorsDark();
+    ImGui::StyleColorsDark();
+    SetStyle();
 
     // Setup Vulkan bindings
     ImGui_ImplGlfw_InitForVulkan( mWindow->GetGLFWWindow(), true);
@@ -124,6 +124,13 @@ vks::GuiPass::Impl::InitializeImGui()
     ImGui_ImplVulkan_CreateFontsTexture(theCommandBuffer );
     mDevice->EndSingleTimeCommands( theCommandBuffer );
     ImGui_ImplVulkan_DestroyFontUploadObjects();
+}
+
+void
+vks::GuiPass::Impl::SetStyle()
+{
+    ImGuiStyle* theStyle = &ImGui::GetStyle();
+    theStyle->WindowBorderSize = 0.0f;
 }
 
 void
@@ -153,7 +160,7 @@ vks::GuiPass::~GuiPass()
 void
 vks::GuiPass::Render( vk::CommandBuffer inCommandBuffer )
 {
-    ImGui_ImplVulkan_RenderDrawData( ::ImGui::GetDrawData(), inCommandBuffer );
+    ImGui_ImplVulkan_RenderDrawData( ImGui::GetDrawData(), inCommandBuffer );
 }
 
 void
@@ -164,9 +171,8 @@ vks::GuiPass::Update()
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
 
-    bool show_demo_window;
-    ::ImGui::ShowDemoWindow( &show_demo_window );
+    ImGui::ShowDemoWindow();
 
     // Rendering
-    ::ImGui::Render();
+    ImGui::Render();
 }

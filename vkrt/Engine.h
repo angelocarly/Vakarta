@@ -7,8 +7,8 @@
 
 #include <GLFW/glfw3.h>
 
-#include "vks/Instance.h"
-#include "vks/PhysicalDevice.h"
+#include "vks/render/Instance.h"
+#include "vks/render/PhysicalDevice.h"
 
 #include "vkrt/ForwardDecl.h"
 #include "vkrt/Renderer.h"

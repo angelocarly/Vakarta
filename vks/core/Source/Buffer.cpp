@@ -2,7 +2,7 @@
 // Created by Angelo Carly on 27/12/2022.
 //
 
-#include "vks/Buffer.h"
+#include "vks/core/Buffer.h"
 
 vks::Buffer::Buffer()
 {

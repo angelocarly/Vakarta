@@ -2,10 +2,11 @@
 // Created by Angelo Carly on 27/12/2022.
 //
 
-#include "vks/Device.h"
-#include "vks/ForwardDecl.h"
-#include "vks/Mesh.h"
-#include "vks/Vertex.h"
+#include "vks/render/Mesh.h"
+
+#include "vks/core/Vertex.h"
+#include "vks/render/Device.h"
+#include "vks/render/ForwardDecl.h"
 
 vks::Mesh::Mesh()
 {

@@ -3,12 +3,12 @@
 //
 #include "vkrt/Renderer.h"
 
+#include "vks/core/Vertex.h"
 
-#include "vks/ForwardDecl.h"
-#include "vks/RenderPass.h"
-#include "vks/Swapchain.h"
-#include "vks/Vertex.h"
-#include "vks/Window.h"
+#include "vks/render/ForwardDecl.h"
+#include "vks/render/RenderPass.h"
+#include "vks/render/Swapchain.h"
+#include "vks/render/Window.h"
 
 #define TINYOBJLOADER_IMPLEMENTATION
 #include <tiny_obj_loader.h>
@@ -54,42 +54,37 @@ vkrt::Renderer::InitializeCommandBuffers()
     }
 }
 
+struct KeyFuncs
+{
+    size_t operator()(const glm::vec3& k)const
+    {
+        return std::hash< float >()( k.x ) ^ std::hash< float >()( k.y ) ^ std::hash< float >()( k.z );
+    }
+
+    bool operator()(const glm::vec3& a, const glm::vec3& b)const
+    {
+        return a.x == b.x && a.y == b.y && a.z == b.z;
+    }
+};
+
 void
 vkrt::Renderer::InitializeRenderObject()
 {
-    std::vector< vks::Vertex > theVertices =
-    {
-        vks::Vertex( glm::vec3( 0, 0, 0 ), glm::vec3( 1, 0, 0 ) ),
-        vks::Vertex( glm::vec3( 0, 1, 0 ), glm::vec3( 0, 1, 0 ) ),
-        vks::Vertex( glm::vec3( 5, 0, 0 ), glm::vec3( 0, 1, 0 ) ),
-        vks::Vertex( glm::vec3( 5, 1, 0 ), glm::vec3( 1, 0, 1 ) ),
-        vks::Vertex( glm::vec3( 50, 30, 0 ), glm::vec3( 0, 0, 1 ) ),
-        vks::Vertex( glm::vec3( 50, 1, 0 ), glm::vec3( 1, 1, 0 ) )
-    };
-    std::vector< uint32_t > theIndices =
-    {
-        0, 1, 2,
-        1, 2, 3,
-        3, 4, 5
-    };
-
-//    mMesh = std::make_unique< vks::Mesh >( mDevice, theVertices, theIndices );
-
     std::istringstream sourceStream( std::filesystem::path( "resources/teapot.obj" ) );
     tinyobj::attrib_t inattrib;
     std::vector<tinyobj::shape_t> inshapes;
     std::vector<tinyobj::material_t> inmaterials;
 
     std::string warn;
-    std::string* err;
-    bool ret = tinyobj::LoadObj( &inattrib, &inshapes, &inmaterials, err, "resources/teapot.obj" );
+    std::string err;
+    bool ret = tinyobj::LoadObj( &inattrib, &inshapes, &inmaterials, &err, "resources/teapot.obj" );
     if (!warn.empty())
     {
         spdlog::warn( "WARNING: {}", warn );
     }
-    if (!err->empty())
+    if (!err.empty())
     {
-        spdlog::error( "ERROR: {}", *err );
+        spdlog::error( "ERROR: {}", err );
     }
     if (!ret)
     {
@@ -99,27 +94,28 @@ vkrt::Renderer::InitializeRenderObject()
 
     std::vector< vks::Vertex > vertices;
     std::vector< std::uint32_t > indices;
-    std::unordered_map< std::uint32_t, std::uint32_t > uniqueVertices;
+    std::unordered_map< glm::vec3, std::uint32_t, KeyFuncs, KeyFuncs > uniqueVertices;
 
     for( const auto& shape : inshapes )
     {
         for( const auto& index : shape.mesh.indices )
         {
-            glm::vec3 position
-            {
-                inattrib.vertices[3 * index.vertex_index + 0],
-                inattrib.vertices[3 * index.vertex_index + 1],
-                inattrib.vertices[3 * index.vertex_index + 2]
-            };
 
-            std::uint32_t theHash = abs( ( position.x * 6969 + position.y * 12345 + position.z * 12345566 ) );
-            if ( uniqueVertices.count( theHash ) == 0 )
+            vks::Vertex theVertex;
+            theVertex.position.x = inattrib.vertices[3 * index.vertex_index + 0];
+            theVertex.position.y = inattrib.vertices[3 * index.vertex_index + 1];
+            theVertex.position.z = inattrib.vertices[3 * index.vertex_index + 2];
+            theVertex.color.r = 1.0f;
+            theVertex.color.g = 0.0f;
+            theVertex.color.b = 0.0f;
+
+            if ( uniqueVertices.count( theVertex.position ) == 0 )
             {
-                vertices.push_back( vks::Vertex{ position, glm::vec3(1, 0, 0) } );
-                uniqueVertices[ theHash ] = static_cast<uint32_t>(vertices.size());
+                uniqueVertices[ theVertex.position ] = static_cast<uint32_t>( vertices.size() );
+                vertices.push_back( theVertex );
             }
 
-            indices.push_back( uniqueVertices[ theHash ] );
+            indices.push_back( uniqueVertices[ theVertex.position ] );
         }
     }
     mMesh = std::make_unique< vks::Mesh >( mDevice, vertices, indices );

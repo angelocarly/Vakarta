@@ -5,12 +5,11 @@
 #ifndef VKRT_PIPELINE_H
 #define VKRT_PIPELINE_H
 
-#include "vks/ForwardDecl.h"
+#include "vks/render/ForwardDecl.h"
 
 #include <vulkan/vulkan.hpp>
-
-#include <memory>
 #include <glm/mat4x4.hpp>
+#include <memory>
 
 namespace vks
 {
