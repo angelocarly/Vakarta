@@ -34,6 +34,7 @@ namespace vkrt
 
             void RotatePitch( float inAngle );
             void RotateYaw( float inAngle );
+            void RotateRoll( float inAngle );
 
         private:
             class Impl;

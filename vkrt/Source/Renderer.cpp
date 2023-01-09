@@ -16,25 +16,21 @@
 #include <memory>
 #include <unordered_map>
 
-vkrt::Renderer::Renderer( vks::WindowPtr inWindow )
+vkrt::Renderer::Renderer( vks::VulkanSessionPtr inSession, vks::WindowPtr inWindow )
 :
-    mInstance( vks::Instance::GetInstance() ),
     mWindow( inWindow ),
-    mPhysicalDevice( std::make_shared< vks::PhysicalDevice >( mInstance ) ),
-    mDevice( std::make_shared< vks::Device >( mPhysicalDevice ) ),
+    mDevice( inSession->GetDevice() ),
     mSwapChain( std::make_shared< vks::Swapchain >( mDevice, mWindow->GetVkSurface() ) ),
     mRenderPass( std::make_shared< vks::RenderPass >( mSwapChain ) ),
-    mPipeline( std::make_unique< vks::Pipeline >( mDevice, mRenderPass ) ),
-    mAssetLoader()
+    mPipeline( std::make_unique< vks::Pipeline >( mDevice, mRenderPass ) )
 {
-InitializeCommandBuffers();
+    InitializeCommandBuffers();
     InitializeRenderObject();
     mGui = std::make_shared<vks::GuiPass>( mDevice, mWindow, mRenderPass, mSwapChain );
 }
 
 vkrt::Renderer::~Renderer()
 {
-    mDevice->GetVkDevice().waitIdle();
 }
 
 // =====================================================================================================================
@@ -56,15 +52,12 @@ vkrt::Renderer::InitializeCommandBuffers()
 void
 vkrt::Renderer::InitializeRenderObject()
 {
-
-    auto theMesh = mAssetLoader.LoadMeshResource( "resources/bunny.obj" );
-    mMesh = std::make_unique< vks::Mesh >( mDevice, theMesh.GetVertices(), theMesh.GetIndices() );
-
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
 
-void vkrt::Renderer::Render()
+void
+vkrt::Renderer::Render( vks::Mesh & inMesh )
 {
     uint32_t theImageIndex = mSwapChain->RetrieveNextImage();
 
@@ -88,7 +81,7 @@ void vkrt::Renderer::Render()
 
             mPipeline->UpdatePipelineUniforms( mCamera->GetMVP() );
             mPipeline->Bind( theCommandBuffer );
-            mMesh->Draw( theCommandBuffer );
+            inMesh.Draw( theCommandBuffer );
 
             mGui->Update();
             mGui->Render( theCommandBuffer );

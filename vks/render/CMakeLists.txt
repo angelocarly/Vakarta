@@ -9,6 +9,7 @@ set(
         Source/RenderPass.cpp
         Source/Swapchain.cpp
         Source/Utils.cpp
+        Source/VulkanSession.cpp
         Source/Window.cpp
 )
 
@@ -24,6 +25,7 @@ set(
         RenderPass.h
         Swapchain.h
         Utils.h
+        VulkanSession.h
         Window.h
 )
 

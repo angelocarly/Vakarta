@@ -19,6 +19,8 @@ namespace vks
     typedef std::shared_ptr< vks::PhysicalDevice > PhysicalDevicePtr;
     class Device;
     typedef std::shared_ptr< vks::Device > DevicePtr;
+    class VulkanSession;
+    typedef std::shared_ptr< vks::VulkanSession > VulkanSessionPtr;
     class Window;
     typedef std::shared_ptr< vks::Window > WindowPtr;
     class GuiPass;

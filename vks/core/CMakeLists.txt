@@ -2,6 +2,7 @@ set(
     HEADER_FILES
         Buffer.h
         Image.h
+        Line.h
         Vertex.h
 )
 
@@ -9,6 +10,7 @@ set(
     SOURCE_FILES
         Source/Buffer.cpp
         Source/Image.cpp
+        Source/Line.cpp
         Source/Vertex.cpp
 )
 

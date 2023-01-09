@@ -10,19 +10,25 @@
 Engine::Engine()
 :
     mWindow( std::make_shared< vks::Window >( WIDTH, HEIGHT, TITLE ) ),
-    mRenderer( mWindow ),
+    mVulkanSession( vks::VulkanSession::GetInstance() ),
+    mRenderer( mVulkanSession, mWindow ),
     mInputState( mWindow ),
-    mCamera( std::make_shared< vkrt::Camera >( 45, float( WIDTH ) / float( HEIGHT ), 0.1f, 100.0f ) )
+    mCamera( std::make_shared< vkrt::Camera >( 45, float( WIDTH ) / float( HEIGHT ), 0.1f, 100.0f ) ),
+    mAssetLoader()
 {
     mCamera->SetPosition( glm::vec3( 0, 0, 5 ));
     mRenderer.SetCamera( mCamera );
+
+    auto theMesh = mAssetLoader.LoadMeshResource( "resources/bunny.obj" );
+    mMesh = std::make_unique< vks::Mesh >( mVulkanSession->GetDevice(), theMesh.GetVertices(), theMesh.GetIndices() );
 }
 
 Engine::~Engine()
 {
+    mVulkanSession->GetDevice()->GetVkDevice().waitIdle();
 }
 
-// -------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 
 void Engine::Update()
 {
@@ -51,6 +57,14 @@ void Engine::Update()
         mCamera->RotatePitch( theMouseDelta.y );
         mCamera->RotateYaw( theMouseDelta.x );
 
+        if( mInputState.IsKeyDown( GLFW_KEY_Q ) )
+        {
+            mCamera->RotateRoll( -0.1f );
+        }
+        if( mInputState.IsKeyDown( GLFW_KEY_E ) )
+        {
+            mCamera->RotateRoll( 0.1f );
+        }
         if( mInputState.IsKeyDown( GLFW_KEY_W ) )
         {
             mCamera->Forward( 0.1f );
@@ -80,7 +94,7 @@ void Engine::Update()
 
 void Engine::Render()
 {
-    mRenderer.Render();
+    mRenderer.Render( *mMesh );
 }
 
 bool Engine::ShouldClose()

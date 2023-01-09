@@ -27,11 +27,17 @@ class Engine
 
     private:
         vks::WindowPtr mWindow;
+        vks::VulkanSessionPtr mVulkanSession;
         vkrt::Renderer mRenderer;
         vkrt::InputState mInputState;
         vkrt::CameraPtr mCamera;
         bool mMouseSwallowed = false;
-};
 
+    private:
+
+        // Resources
+        vks::AssetLoader mAssetLoader;
+        std::unique_ptr< vks::Mesh > mMesh;
+};
 
 #endif //VKRT_ENGINE_H

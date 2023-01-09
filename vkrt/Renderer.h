@@ -18,22 +18,22 @@
 #include "vks/render/ForwardDecl.h"
 #include "vks/render/GuiPass.h"
 #include "vks/assets/AssetLoader.h"
+#include "vks/render/VulkanSession.h"
 
 namespace vkrt
 {
     class Renderer
     {
         public:
-            Renderer( vks::WindowPtr inWindow );
+            Renderer( vks::VulkanSessionPtr inSession, vks::WindowPtr inWindow );
             ~Renderer();
 
         public:
-            void Render();
+            void Render( vks::Mesh & inMesh );
             void SetCamera( vkrt::CameraPtr inCamera );
 
         private:
-            vks::Instance & mInstance;
-            vks::PhysicalDevicePtr mPhysicalDevice;
+            vks::VulkanSessionPtr mSession;
             vks::DevicePtr mDevice;
 
             // Display
@@ -44,15 +44,9 @@ namespace vkrt
             // Gui
             vks::ImGuiPtr mGui;
 
-            // Resources
-            vks::AssetLoader mAssetLoader;
-
             // Pipeline
             vks::RenderPassPtr mRenderPass;
             std::unique_ptr< vks::Pipeline > mPipeline;
-
-            // Render data
-            std::unique_ptr< vks::Mesh > mMesh;
 
             // Scene
             vkrt::CameraPtr mCamera;

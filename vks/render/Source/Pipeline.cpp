@@ -191,7 +191,7 @@ vks::Pipeline::Impl::InitializePipeline()
     // Vertex binding
     auto theVertexInputBindingDescriptions = vks::Vertex::GetVkVertexInputBindingDescriptions();
     auto theVertexInputAttributeDescriptions = vks::Vertex::GetVkVertexInputAttributeDescriptions();
-    vk::PipelineVertexInputStateCreateInfo const theVertexInputStateCreateInfo = vk::PipelineVertexInputStateCreateInfo
+    auto const theVertexInputStateCreateInfo = vk::PipelineVertexInputStateCreateInfo
     (
         vk::PipelineVertexInputStateCreateFlags(),
         theVertexInputBindingDescriptions.size(),
@@ -201,7 +201,7 @@ vks::Pipeline::Impl::InitializePipeline()
     );
 
     // Input assembly
-    vk::PipelineInputAssemblyStateCreateInfo const theInputAssemblyStateCreateInfo = vk::PipelineInputAssemblyStateCreateInfo
+    auto const theInputAssemblyStateCreateInfo = vk::PipelineInputAssemblyStateCreateInfo
     (
         vk::PipelineInputAssemblyStateCreateFlags(),
         vk::PrimitiveTopology::eTriangleList,
@@ -209,7 +209,7 @@ vks::Pipeline::Impl::InitializePipeline()
     );
 
     // Viewport
-    vk::PipelineViewportStateCreateInfo const theViewportStateCreateInfo = vk::PipelineViewportStateCreateInfo
+    auto const theViewportStateCreateInfo = vk::PipelineViewportStateCreateInfo
     (
         vk::PipelineViewportStateCreateFlags(),
         0,
@@ -219,7 +219,7 @@ vks::Pipeline::Impl::InitializePipeline()
     );
 
     // Rasterization
-    vk::PipelineRasterizationStateCreateInfo const theRasterizationStateCreateInfo = vk::PipelineRasterizationStateCreateInfo
+    auto const theRasterizationStateCreateInfo = vk::PipelineRasterizationStateCreateInfo
     (
         vk::PipelineRasterizationStateCreateFlags(),
         false,
@@ -235,7 +235,7 @@ vks::Pipeline::Impl::InitializePipeline()
     );
 
     // Multi sample
-    vk::PipelineMultisampleStateCreateInfo const theMultiSampleStateCreateInfo
+    auto const theMultiSampleStateCreateInfo = vk::PipelineMultisampleStateCreateInfo
     (
         vk::PipelineMultisampleStateCreateFlags(),
         vk::SampleCountFlagBits::e1,
@@ -243,7 +243,7 @@ vks::Pipeline::Impl::InitializePipeline()
     );
 
     // Depth stencil
-    vk::PipelineDepthStencilStateCreateInfo const theDepthStencilStateCreateInfo = vk::PipelineDepthStencilStateCreateInfo
+    auto const theDepthStencilStateCreateInfo = vk::PipelineDepthStencilStateCreateInfo
     (
         vk::PipelineDepthStencilStateCreateFlags(),
         true,
@@ -272,7 +272,7 @@ vks::Pipeline::Impl::InitializePipeline()
             vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG | vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA
 		)
     };
-    vk::PipelineColorBlendStateCreateInfo const theColorBlendStateCreateInfo = vk::PipelineColorBlendStateCreateInfo
+    auto const theColorBlendStateCreateInfo = vk::PipelineColorBlendStateCreateInfo
     (
         vk::PipelineColorBlendStateCreateFlags(),
         false,
@@ -288,7 +288,7 @@ vks::Pipeline::Impl::InitializePipeline()
         vk::DynamicState( VK_DYNAMIC_STATE_VIEWPORT ),
         vk::DynamicState( VK_DYNAMIC_STATE_SCISSOR ),
     };
-    vk::PipelineDynamicStateCreateInfo const theDynamicStateCreateInfo = vk::PipelineDynamicStateCreateInfo
+    auto const theDynamicStateCreateInfo = vk::PipelineDynamicStateCreateInfo
     (
         vk::PipelineDynamicStateCreateFlags(),
         theDynamicStates.size(),

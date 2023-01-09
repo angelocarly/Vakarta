@@ -76,6 +76,7 @@ set(
     RESOURCES
         teapot.obj
         bunny.obj
+        mine.obj
 )
 add_custom_command(
         TARGET ${PROJECT_NAME} POST_BUILD
