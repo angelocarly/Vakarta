@@ -10,8 +10,8 @@
 #include "vks/render/Instance.h"
 #include "vks/render/PhysicalDevice.h"
 
-#include "vkrt/ForwardDecl.h"
-#include "vkrt/Renderer.h"
+#include "vkrt/core/ForwardDecl.h"
+#include "vkrt/graphics/Renderer.h"
 
 class Engine
 {
@@ -38,6 +38,9 @@ class Engine
         // Resources
         vks::AssetLoader mAssetLoader;
         std::unique_ptr< vks::Mesh > mMesh;
+
+        // Gui
+        vks::ImGuiPtr mGui;
 };
 
 #endif //VKRT_ENGINE_H

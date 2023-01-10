@@ -6,6 +6,7 @@
 #define VKRT_GUIPASS_H
 
 #include "ForwardDecl.h"
+#include "imgui_internal.h"
 
 #include <memory>
 
@@ -20,6 +21,8 @@ namespace vks
         public:
             void Render( vk::CommandBuffer inCommandBuffer );
             void Update();
+            ImGuiContext * GetImGuiContext();
+
 
         private:
             class Impl;

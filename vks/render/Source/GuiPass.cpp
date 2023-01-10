@@ -190,3 +190,9 @@ vks::GuiPass::Update()
     // Rendering
     ImGui::Render();
 }
+
+ImGuiContext *
+vks::GuiPass::GetImGuiContext()
+{
+    return ImGui::GetCurrentContext();
+}

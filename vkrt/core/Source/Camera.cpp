@@ -2,7 +2,7 @@
 // Created by Angelo Carly on 01/01/2023.
 //
 
-#include "vkrt/Camera.h"
+#include "vkrt/core/Camera.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>

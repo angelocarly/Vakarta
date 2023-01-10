@@ -1,7 +1,7 @@
 //
 // Created by Angelo Carly on 23/11/2022.
 //
-#include "vkrt/Renderer.h"
+#include "vkrt/graphics/Renderer.h"
 
 #include "vks/core/Vertex.h"
 
@@ -25,7 +25,6 @@ vkrt::Renderer::Renderer( vks::VulkanSessionPtr inSession, vks::WindowPtr inWind
     mPipeline( std::make_unique< vks::Pipeline >( mDevice, mRenderPass ) )
 {
     InitializeCommandBuffers();
-    InitializeRenderObject();
     mGui = std::make_shared<vks::GuiPass>( mDevice, mWindow, mRenderPass, mSwapChain );
 }
 
@@ -48,16 +47,10 @@ vkrt::Renderer::InitializeCommandBuffers()
     }
 }
 
-
-void
-vkrt::Renderer::InitializeRenderObject()
-{
-}
-
 // ---------------------------------------------------------------------------------------------------------------------
 
 void
-vkrt::Renderer::Render( vks::Mesh & inMesh )
+vkrt::Renderer::RenderFrame( vks::Mesh & inMesh )
 {
     uint32_t theImageIndex = mSwapChain->RetrieveNextImage();
 
@@ -66,6 +59,7 @@ vkrt::Renderer::Render( vks::Mesh & inMesh )
     {
         theCommandBuffer.beginRenderPass( mRenderPass->GetVkBeginInfo( theImageIndex ), vk::SubpassContents::eInline );
         {
+            // Set viewport and scissor
             auto theViewport = vk::Viewport
             (
                 0,
@@ -79,10 +73,12 @@ vkrt::Renderer::Render( vks::Mesh & inMesh )
             const auto theScissors = vk::Rect2D( { 0, 0 }, mSwapChain->GetExtent() );
             theCommandBuffer.setScissor( 0, 1, & theScissors );
 
+            // Draw commands
             mPipeline->UpdatePipelineUniforms( mCamera->GetMVP() );
             mPipeline->Bind( theCommandBuffer );
             inMesh.Draw( theCommandBuffer );
 
+            // Gui
             mGui->Update();
             mGui->Render( theCommandBuffer );
         }
@@ -97,4 +93,10 @@ void
 vkrt::Renderer::SetCamera( vkrt::CameraPtr inCamera )
 {
     mCamera = inCamera;
+}
+
+ImGuiContext *
+vkrt::Renderer::GetImGuiContext()
+{
+    return mGui->GetImGuiContext();
 }

@@ -5,9 +5,9 @@
 #ifndef VKRT_RENDERER_H
 #define VKRT_RENDERER_H
 
-#include "Camera.h"
-#include "ForwardDecl.h"
-#include "InputState.h"
+#include "vkrt/core/Camera.h"
+#include "vkrt/core/ForwardDecl.h"
+#include "vkrt/core/InputState.h"
 
 #include "vks/render/Device.h"
 #include "vks/render/PhysicalDevice.h"
@@ -19,6 +19,7 @@
 #include "vks/render/GuiPass.h"
 #include "vks/assets/AssetLoader.h"
 #include "vks/render/VulkanSession.h"
+#include "imgui_internal.h"
 
 namespace vkrt
 {
@@ -28,8 +29,10 @@ namespace vkrt
             Renderer( vks::VulkanSessionPtr inSession, vks::WindowPtr inWindow );
             ~Renderer();
 
+            ImGuiContext * GetImGuiContext();
+
         public:
-            void Render( vks::Mesh & inMesh );
+            void RenderFrame( vks::Mesh & inMesh );
             void SetCamera( vkrt::CameraPtr inCamera );
 
         private:
@@ -53,7 +56,6 @@ namespace vkrt
 
         private:
             void InitializeCommandBuffers();
-            void InitializeRenderObject();
     };
 }
 

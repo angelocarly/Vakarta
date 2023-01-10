@@ -1,4 +1,4 @@
-#include "vkrt/Engine.h"
+#include "vkrt/application/Engine.h"
 
 #include <imgui/imgui.h>
 #include <spdlog/spdlog.h>
@@ -21,6 +21,8 @@ Engine::Engine()
 
     auto theMesh = mAssetLoader.LoadMeshResource( "resources/bunny.obj" );
     mMesh = std::make_unique< vks::Mesh >( mVulkanSession->GetDevice(), theMesh.GetVertices(), theMesh.GetIndices() );
+
+    ImGui::SetCurrentContext( mRenderer.GetImGuiContext() );
 }
 
 Engine::~Engine()
@@ -94,7 +96,7 @@ void Engine::Update()
 
 void Engine::Render()
 {
-    mRenderer.Render( *mMesh );
+    mRenderer.RenderFrame( * mMesh );
 }
 
 bool Engine::ShouldClose()

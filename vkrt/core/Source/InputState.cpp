@@ -2,7 +2,7 @@
 // Created by Angelo Carly on 01/01/2023.
 //
 
-#include "vkrt/InputState.h"
+#include "vkrt/core/InputState.h"
 
 #include "vks/render/Window.h"
 
