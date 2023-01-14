@@ -1,14 +1,13 @@
 //
-// Created by Angelo Carly on 18/12/2022.
+// Created by Angelo Carly on 11/01/2023.
 //
 
 #ifndef VKRT_PIPELINE_H
 #define VKRT_PIPELINE_H
 
 #include "vks/render/ForwardDecl.h"
+#include "DescriptorSet.h"
 
-#include <vulkan/vulkan.hpp>
-#include <glm/mat4x4.hpp>
 #include <memory>
 
 namespace vks
@@ -16,12 +15,30 @@ namespace vks
     class Pipeline
     {
         public:
-            Pipeline( vks::DevicePtr inDevice, vks::RenderPassPtr inRenderPass );
+            struct PipelineCreateInfo
+            {
+                vk::RenderPass mRenderPass;
+                vk::ShaderModule mVertexShaderModule;
+                vk::ShaderModule mFragmentShaderModule;
+                std::vector< vk::DescriptorSetLayout > mDescriptorSetLayouts;
+                std::vector< vk::PushConstantRange > mPushConstants;
+            };
+            struct PipelineConfigInfo
+            {
+                vk::PrimitiveTopology topology;
+            };
+
+        public:
+            Pipeline( vks::DevicePtr inDevice, PipelineCreateInfo inPipelineCreateInfo, PipelineConfigInfo inPipelineConfigInfo );
             ~Pipeline();
 
         public:
-            void UpdatePipelineUniforms( glm::mat4 inCamera );
             void Bind( vk::CommandBuffer inCommandBuffer );
+            void BindDescriptorSets( vk::CommandBuffer inCommandBuffer, std::vector< vks::DescriptorSet > inDescriptorSets );
+
+            vk::Pipeline GetVkPipeline();
+            vk::PipelineLayout GetVkPipelineLayout();
+            PipelineConfigInfo GetDefaultConfig();
 
         private:
             class Impl;

@@ -9,10 +9,11 @@ vks::Buffer::Buffer()
 
 }
 
-vks::Buffer::Buffer( vk::Buffer inBuffer, vma::Allocation inAllocation )
+vks::Buffer::Buffer( vk::Buffer inBuffer, vma::Allocation inAllocation, vk::DeviceSize inSize )
 :
     mBuffer( inBuffer ),
-    mAllocation( inAllocation )
+    mAllocation( inAllocation ),
+    mSize( inSize )
 {
 }
 
@@ -26,4 +27,10 @@ vma::Allocation
 vks::Buffer::GetVmaAllocation()
 {
     return mAllocation;
+}
+
+vk::DeviceSize
+vks::Buffer::GetSize()
+{
+    return mSize;
 }

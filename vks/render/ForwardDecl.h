@@ -11,14 +11,16 @@
 
 namespace vks
 {
-    class Swapchain;
-    typedef std::shared_ptr< vks::Swapchain > SwapchainPtr;
-    class RenderPass;
-    typedef std::shared_ptr< vks::RenderPass > RenderPassPtr;
-    class PhysicalDevice;
-    typedef std::shared_ptr< vks::PhysicalDevice > PhysicalDevicePtr;
     class Device;
     typedef std::shared_ptr< vks::Device > DevicePtr;
+    class PhysicalDevice;
+    typedef std::shared_ptr< vks::PhysicalDevice > PhysicalDevicePtr;
+    class RenderPass;
+    typedef std::shared_ptr< vks::RenderPass > RenderPassPtr;
+    class Swapchain;
+    typedef std::shared_ptr< vks::Swapchain > SwapchainPtr;
+    class Pipeline;
+    typedef std::shared_ptr< vks::Pipeline > PipelinePtr;
     class VulkanSession;
     typedef std::shared_ptr< vks::VulkanSession > VulkanSessionPtr;
     class Window;

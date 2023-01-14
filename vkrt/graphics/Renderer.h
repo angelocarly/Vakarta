@@ -20,6 +20,7 @@
 #include "vks/assets/AssetLoader.h"
 #include "vks/render/VulkanSession.h"
 #include "imgui_internal.h"
+#include "MeshPipeline.h"
 
 namespace vkrt
 {
@@ -49,7 +50,7 @@ namespace vkrt
 
             // Pipeline
             vks::RenderPassPtr mRenderPass;
-            std::unique_ptr< vks::Pipeline > mPipeline;
+            std::unique_ptr< vkrt::MeshPipeline > mMeshPipeline;
 
             // Scene
             vkrt::CameraPtr mCamera;

@@ -1,5 +1,7 @@
 set(
     SOURCE_FILES
+        Source/DescriptorLayoutBuilder.cpp
+        Source/DescriptorSet.cpp
         Source/Device.cpp
         Source/GuiPass.cpp
         Source/Instance.cpp
@@ -15,6 +17,8 @@ set(
 
 set(
     HEADER_FILES
+        DescriptorLayoutBuilder.h
+        DescriptorSet.h
         Device.h
         ForwardDecl.h
         GuiPass.h

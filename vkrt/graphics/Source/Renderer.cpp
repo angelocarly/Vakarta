@@ -3,6 +3,8 @@
 //
 #include "vkrt/graphics/Renderer.h"
 
+#include "vkrt/graphics/MeshPipeline.h"
+
 #include "vks/core/Vertex.h"
 
 #include "vks/render/ForwardDecl.h"
@@ -22,7 +24,7 @@ vkrt::Renderer::Renderer( vks::VulkanSessionPtr inSession, vks::WindowPtr inWind
     mDevice( inSession->GetDevice() ),
     mSwapChain( std::make_shared< vks::Swapchain >( mDevice, mWindow->GetVkSurface() ) ),
     mRenderPass( std::make_shared< vks::RenderPass >( mSwapChain ) ),
-    mPipeline( std::make_unique< vks::Pipeline >( mDevice, mRenderPass ) )
+    mMeshPipeline( std::make_unique< vkrt::MeshPipeline >( mDevice, mRenderPass ) )
 {
     InitializeCommandBuffers();
     mGui = std::make_shared<vks::GuiPass>( mDevice, mWindow, mRenderPass, mSwapChain );
@@ -74,8 +76,8 @@ vkrt::Renderer::RenderFrame( vks::Mesh & inMesh )
             theCommandBuffer.setScissor( 0, 1, & theScissors );
 
             // Draw commands
-            mPipeline->UpdatePipelineUniforms( mCamera->GetMVP() );
-            mPipeline->Bind( theCommandBuffer );
+            mMeshPipeline->UpdatePipelineUniforms( mCamera->GetMVP() );
+            mMeshPipeline->Bind( theCommandBuffer );
             inMesh.Draw( theCommandBuffer );
 
             // Gui

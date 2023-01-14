@@ -14,15 +14,17 @@ namespace vks
     {
         public:
             Buffer();
-            Buffer( vk::Buffer inBuffer, vma::Allocation inAllocation );
+            Buffer( vk::Buffer inBuffer, vma::Allocation inAllocation, vk::DeviceSize inSize );
 
         public:
             vk::Buffer GetVkBuffer();
             vma::Allocation GetVmaAllocation();
+            vk::DeviceSize GetSize();
 
         private:
             vk::Buffer mBuffer;
             vma::Allocation mAllocation;
+            vk::DeviceSize mSize;
     };
 }
 

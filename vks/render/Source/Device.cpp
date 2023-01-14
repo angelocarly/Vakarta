@@ -197,7 +197,7 @@ vks::Buffer
 vks::Device::CreateBuffer( vk::BufferCreateInfo inBufferCreateInfo, vma::AllocationCreateInfo inAllocationCreateInfo )
 {
     auto theBuffer = mImpl->mAllocator.createBuffer( inBufferCreateInfo, inAllocationCreateInfo );
-    return { theBuffer.first, theBuffer.second };
+    return { theBuffer.first, theBuffer.second, inBufferCreateInfo.size };
 }
 
 void

@@ -1,182 +1,59 @@
 //
-// Created by Angelo Carly on 18/12/2022.
+// Created by Angelo Carly on 11/01/2023.
 //
 
 #include "vks/render/Pipeline.h"
 
 #include "vks/core/Vertex.h"
-#include "vks/render/ForwardDecl.h"
 #include "vks/render/Device.h"
+#include "vks/render/ForwardDecl.h"
 #include "vks/render/RenderPass.h"
 #include "vks/render/Utils.h"
-
-#define GLM_FORCE_RADIANS
-#define GLM_FORCE_DEPTH_ZERO_TO_ONE
-
-#include <glm/gtc/matrix_transform.hpp>
-#include <vulkan/vulkan.hpp>
-
-struct UniformBufferObject
-{
-    glm::mat4 mView;
-};
+#include "vks/render/DescriptorSet.h"
 
 class vks::Pipeline::Impl
 {
     public:
-        Impl( vks::DevicePtr inDevice, vks::RenderPassPtr inRenderPass );
+        Impl( vks::DevicePtr inDevice, vks::Pipeline::PipelineCreateInfo inPipelineCreateInfo, vks::Pipeline::PipelineConfigInfo inPipelineConfigInfo );
         ~Impl();
 
-    private:
-        void CreateBuffers();
-        void InitializeDescriptors();
+    public:
         void InitializePipeline();
 
     public:
         vks::DevicePtr mDevice;
-        vks::RenderPassPtr mRenderPass;
+        vks::Pipeline::PipelineCreateInfo mPipelineCreateInfo;
+        vks::Pipeline::PipelineConfigInfo mPipelineConfigInfo;
 
+    public:
         vk::PipelineLayout mPipelineLayout;
         vk::Pipeline mPipeline;
-
-        vk::DescriptorPool mDescriptorPool;
-        std::vector< vk::DescriptorSetLayout > mDescriptorSetLayouts;
-        vk::DescriptorSet mDescriptorSet;
-        vks::Buffer mUniformBuffer;
 };
 
-vks::Pipeline::Impl::Impl( vks::DevicePtr inDevice, vks::RenderPassPtr inRenderPass )
+vks::Pipeline::Impl::Impl( vks::DevicePtr inDevice, vks::Pipeline::PipelineCreateInfo inPipelineCreateInfo, vks::Pipeline::PipelineConfigInfo inPipelineConfigInfo )
 :
     mDevice( inDevice ),
-    mRenderPass( inRenderPass )
+    mPipelineCreateInfo( inPipelineCreateInfo ),
+    mPipelineConfigInfo( inPipelineConfigInfo )
 {
-    CreateBuffers();
-	InitializeDescriptors();
-	InitializePipeline();
+    InitializePipeline();
 }
 
 vks::Pipeline::Impl::~Impl()
 {
-    mDevice->DestroyBuffer( mUniformBuffer );
-
-    for( auto theDescriptorSetLayout : mDescriptorSetLayouts )
-    {
-        mDevice->GetVkDevice().destroy( theDescriptorSetLayout );
-    }
-    mDevice->GetVkDevice().destroy( mDescriptorPool );
-
     mDevice->GetVkDevice().destroy( mPipelineLayout );
     mDevice->GetVkDevice().destroy( mPipeline );
 }
 
 void
-vks::Pipeline::Impl::CreateBuffers()
-{
-    // Pipeline uniform buffer
-    vma::AllocationCreateInfo theUniformBufferAllocationInfo;
-    theUniformBufferAllocationInfo.usage = vma::MemoryUsage::eAuto;
-    theUniformBufferAllocationInfo.flags = vma::AllocationCreateFlagBits::eHostAccessSequentialWrite;
-    mUniformBuffer = mDevice->CreateBuffer
-    (
-        vk::BufferCreateInfo
-        (
-            vk::BufferCreateFlags(),
-            sizeof( UniformBufferObject ),
-            vk::BufferUsageFlagBits::eUniformBuffer
-        ),
-        theUniformBufferAllocationInfo
-    );
-}
-
-void
-vks::Pipeline::Impl::InitializeDescriptors()
-{
-    // Layout
-    std::vector< vk::DescriptorSetLayoutBinding > theDescriptorSetLayoutBindings =
-    {
-        vk::DescriptorSetLayoutBinding
-        (
-            std::uint32_t( 0 ),
-            vk::DescriptorType::eUniformBuffer,
-            1,
-            vk::ShaderStageFlagBits::eVertex,
-            nullptr
-        )
-    };
-
-    auto theDescriptorSetLayoutCreateInfo = vk::DescriptorSetLayoutCreateInfo
-    (
-        vk::DescriptorSetLayoutCreateFlags(),
-        theDescriptorSetLayoutBindings.size(),
-        theDescriptorSetLayoutBindings.data()
-    );
-
-	auto theDescriptorSetLayout = mDevice->GetVkDevice().createDescriptorSetLayout
-    (
-        theDescriptorSetLayoutCreateInfo
-    );
-    mDescriptorSetLayouts = { theDescriptorSetLayout };
-
-    // Pool
-    std::array< vk::DescriptorPoolSize, 1 > thePoolSizes = {};
-    thePoolSizes[ 0 ].setType( vk::DescriptorType::eUniformBuffer );
-    thePoolSizes[ 0 ].setDescriptorCount( 1 );
-
-    vk::DescriptorPoolCreateInfo const theDescriptorPoolCreateInfo
-    (
-        vk::DescriptorPoolCreateFlags(),
-        1,
-        thePoolSizes.size(),
-        thePoolSizes.data()
-    );
-
-    mDescriptorPool = mDevice->GetVkDevice().createDescriptorPool( theDescriptorPoolCreateInfo );
-
-    // Allocate a descriptor set from the pool
-    vk::DescriptorSetAllocateInfo const theDescriptorSetAllocateInfo
-    (
-        mDescriptorPool,
-        std::uint32_t( mDescriptorSetLayouts.size() ),
-        mDescriptorSetLayouts.data()
-    );
-
-    mDescriptorSet = mDevice->GetVkDevice().allocateDescriptorSets( theDescriptorSetAllocateInfo ).front();
-
-    // Configure the descriptors
-    std::array< vk::WriteDescriptorSet, 1 > theWriteDescriptorSet;
-
-    // Uniform buffer
-    vk::DescriptorBufferInfo const theDescriptorBufferInfo
-    (
-        mUniformBuffer.GetVkBuffer(),
-        0,
-        sizeof( UniformBufferObject )
-    );
-    theWriteDescriptorSet[ 0 ].setDstSet( mDescriptorSet );
-    theWriteDescriptorSet[ 0 ].setDstBinding( 0 );
-    theWriteDescriptorSet[ 0 ].setDstArrayElement( 0 );
-    theWriteDescriptorSet[ 0 ].setDescriptorType( vk::DescriptorType::eUniformBuffer );
-    theWriteDescriptorSet[ 0 ].setDescriptorCount( 1 );
-    theWriteDescriptorSet[ 0 ].setPBufferInfo( &theDescriptorBufferInfo );
-
-    mDevice->GetVkDevice().updateDescriptorSets( theWriteDescriptorSet, {} );
-
-}
-
-void
 vks::Pipeline::Impl::InitializePipeline()
 {
-    // TODO: Move load shader out of vkrt
-    // Shaders
-    vk::ShaderModule theVertexShader = vks::Utils::CreateVkShaderModule( mDevice, std::filesystem::path( "shaders/RenderShader.vert.spv" ) );
-    vk::ShaderModule theFragmentShader = vks::Utils::CreateVkShaderModule( mDevice, std::filesystem::path( "shaders/RenderShader.frag.spv" ) );
-
     std::array< vk::PipelineShaderStageCreateInfo, 2 > thePipelineShaderStageCreateInfos;
     thePipelineShaderStageCreateInfos[ 0 ] = vk::PipelineShaderStageCreateInfo
     (
         vk::PipelineShaderStageCreateFlags(),
         vk::ShaderStageFlagBits::eVertex,
-        theVertexShader,
+        mPipelineCreateInfo.mVertexShaderModule,
         "main"
     );
 
@@ -184,7 +61,7 @@ vks::Pipeline::Impl::InitializePipeline()
     (
         vk::PipelineShaderStageCreateFlags(),
         vk::ShaderStageFlagBits::eFragment,
-        theFragmentShader,
+        mPipelineCreateInfo.mFragmentShaderModule,
         "main"
     );
 
@@ -204,7 +81,7 @@ vks::Pipeline::Impl::InitializePipeline()
     auto const theInputAssemblyStateCreateInfo = vk::PipelineInputAssemblyStateCreateInfo
     (
         vk::PipelineInputAssemblyStateCreateFlags(),
-        vk::PrimitiveTopology::eTriangleList,
+        mPipelineConfigInfo.topology,
         VK_FALSE
     );
 
@@ -261,16 +138,16 @@ vks::Pipeline::Impl::InitializePipeline()
     std::vector< vk::PipelineColorBlendAttachmentState > theColorBlendAttachmentStates =
     {
         vk::PipelineColorBlendAttachmentState
-		(
-			false,
-            vk::BlendFactor::eOne,
-            vk::BlendFactor::eZero,
-            vk::BlendOp::eAdd,
-            vk::BlendFactor::eOne,
-            vk::BlendFactor::eZero,
-            vk::BlendOp::eAdd,
-            vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG | vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA
-		)
+            (
+                false,
+                vk::BlendFactor::eOne,
+                vk::BlendFactor::eZero,
+                vk::BlendOp::eAdd,
+                vk::BlendFactor::eOne,
+                vk::BlendFactor::eZero,
+                vk::BlendOp::eAdd,
+                vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG | vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA
+            )
     };
     auto const theColorBlendStateCreateInfo = vk::PipelineColorBlendStateCreateInfo
     (
@@ -299,10 +176,10 @@ vks::Pipeline::Impl::InitializePipeline()
     auto thePipelineLayoutCreateInfo = vk::PipelineLayoutCreateInfo
     (
         vk::PipelineLayoutCreateFlags(),
-        mDescriptorSetLayouts.size(),
-        mDescriptorSetLayouts.data(),
-        0,
-        nullptr
+        mPipelineCreateInfo.mDescriptorSetLayouts.size(),
+        mPipelineCreateInfo.mDescriptorSetLayouts.data(),
+        mPipelineCreateInfo.mPushConstants.size(),
+        mPipelineCreateInfo.mPushConstants.data()
     );
     mPipelineLayout = mDevice->GetVkDevice().createPipelineLayout
     (
@@ -325,7 +202,7 @@ vks::Pipeline::Impl::InitializePipeline()
         &theColorBlendStateCreateInfo,
         &theDynamicStateCreateInfo,
         mPipelineLayout,
-        mRenderPass->GetVkRenderPass(),
+        mPipelineCreateInfo.mRenderPass,
         0,
         nullptr,
         -1
@@ -338,16 +215,13 @@ vks::Pipeline::Impl::InitializePipeline()
             thePipelineCreateInfo
         ).value
     ).release();
-
-    mDevice->GetVkDevice().destroy( theVertexShader );
-    mDevice->GetVkDevice().destroy( theFragmentShader );
 }
 
-// =====================================================================================================================
+//======================================================================================================================
 
-vks::Pipeline::Pipeline( vks::DevicePtr inDevice, vks::RenderPassPtr inRenderPass )
+vks::Pipeline::Pipeline( vks::DevicePtr inDevice, vks::Pipeline::PipelineCreateInfo inPipelineCreateInfo, vks::Pipeline::PipelineConfigInfo inPipelineConfigInfo )
 :
-    mImpl( new Impl( inDevice, inRenderPass ) )
+    mImpl( new Impl( inDevice, inPipelineCreateInfo, inPipelineConfigInfo ) )
 {
 
 }
@@ -357,20 +231,41 @@ vks::Pipeline::~Pipeline()
 
 }
 
-void
-vks::Pipeline::UpdatePipelineUniforms( glm::mat4 inCamera )
+vks::Pipeline::PipelineConfigInfo
+vks::Pipeline::GetDefaultConfig()
 {
-    UniformBufferObject theUniform;
-    theUniform.mView = inCamera;
+    return
+    {
 
-    void * theData = mImpl->mDevice->MapMemory( mImpl->mUniformBuffer );
-    std::memcpy( theData, &theUniform, sizeof( UniformBufferObject ) );
-    mImpl->mDevice->UnmapMemory( mImpl->mUniformBuffer );
+    };
+}
+
+vk::Pipeline
+vks::Pipeline::GetVkPipeline()
+{
+    return mImpl->mPipeline;
+}
+
+vk::PipelineLayout
+vks::Pipeline::GetVkPipelineLayout()
+{
+    return mImpl->mPipelineLayout;
 }
 
 void
 vks::Pipeline::Bind( vk::CommandBuffer inCommandBuffer )
 {
-    inCommandBuffer.bindDescriptorSets( vk::PipelineBindPoint::eGraphics, mImpl->mPipelineLayout, 0, mImpl->mDescriptorSet, nullptr );
     inCommandBuffer.bindPipeline( vk::PipelineBindPoint::eGraphics, mImpl->mPipeline );
 }
+
+void
+vks::Pipeline::BindDescriptorSets( vk::CommandBuffer inCommandBuffer, std::vector< vks::DescriptorSet > inDescriptorSets )
+{
+    std::vector< vk::DescriptorSet > theVkDescriptorSets;
+    for( vks::DescriptorSet theDescriptorSet : inDescriptorSets )
+    {
+        theVkDescriptorSets.push_back( theDescriptorSet.GetVkDescriptorSet() );
+    }
+    inCommandBuffer.bindDescriptorSets( vk::PipelineBindPoint::eGraphics, mImpl->mPipelineLayout, 0, theVkDescriptorSets, nullptr );
+}
+
