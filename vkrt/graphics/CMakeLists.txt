@@ -1,13 +1,11 @@
 set(
     SOURCE_FILES
-        Source/LinePipeline.cpp
         Source/MeshPipeline.cpp
         Source/Renderer.cpp
 )
 
 set(
     HEADER_FILES
-        LinePipeline.h
         MeshPipeline.h
         Renderer.h
 )

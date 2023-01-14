@@ -18,13 +18,15 @@
 #include <memory>
 #include <unordered_map>
 
-vkrt::Renderer::Renderer( vks::VulkanSessionPtr inSession, vks::WindowPtr inWindow )
+vkrt::Renderer::Renderer( vks::VulkanSessionPtr inSession, vks::WindowPtr inWindow, vkrt::RendererConfig inConfig )
 :
     mWindow( inWindow ),
     mDevice( inSession->GetDevice() ),
+    mConfig( inConfig ),
     mSwapChain( std::make_shared< vks::Swapchain >( mDevice, mWindow->GetVkSurface() ) ),
     mRenderPass( std::make_shared< vks::RenderPass >( mSwapChain ) ),
-    mMeshPipeline( std::make_unique< vkrt::MeshPipeline >( mDevice, mRenderPass ) )
+    mMeshPipeline( std::make_unique< vkrt::MeshPipeline >( mDevice, mRenderPass, vk::PrimitiveTopology::eTriangleList ) ),
+    mMeshLinePipeline( std::make_unique< vkrt::MeshPipeline >( mDevice, mRenderPass, vk::PrimitiveTopology::eLineList ) )
 {
     InitializeCommandBuffers();
     mGui = std::make_shared<vks::GuiPass>( mDevice, mWindow, mRenderPass, mSwapChain );
@@ -76,8 +78,17 @@ vkrt::Renderer::RenderFrame( vks::Mesh & inMesh )
             theCommandBuffer.setScissor( 0, 1, & theScissors );
 
             // Draw commands
-            mMeshPipeline->UpdatePipelineUniforms( mCamera->GetMVP() );
-            mMeshPipeline->Bind( theCommandBuffer );
+            switch( mConfig.topology )
+            {
+                case RendererConfig::TRIANGLES:
+                    mMeshPipeline->UpdatePipelineUniforms( mCamera->GetMVP() );
+                    mMeshPipeline->Bind( theCommandBuffer );
+                    break;
+                case RendererConfig::LINES:
+                    mMeshLinePipeline->UpdatePipelineUniforms( mCamera->GetMVP() );
+                    mMeshLinePipeline->Bind( theCommandBuffer );
+                    break;
+            }
             inMesh.Draw( theCommandBuffer );
 
             // Gui
@@ -101,4 +112,16 @@ ImGuiContext *
 vkrt::Renderer::GetImGuiContext()
 {
     return mGui->GetImGuiContext();
+}
+
+void
+vkrt::Renderer::SetConfig( vkrt::RendererConfig inConfig )
+{
+    mConfig = inConfig;
+}
+
+vkrt::RendererConfig
+vkrt::Renderer::GetConfig()
+{
+    return mConfig;
 }

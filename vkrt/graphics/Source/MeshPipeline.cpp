@@ -28,34 +28,34 @@ struct UniformBufferObject
 class vkrt::MeshPipeline::Impl
 {
     public:
-        Impl( vks::DevicePtr inDevice, vks::RenderPassPtr inRenderPass );
+        Impl( vks::DevicePtr inDevice, vks::RenderPassPtr inRenderPass, vk::PrimitiveTopology inTopology );
         ~Impl();
 
     private:
         void CreateBuffers();
         void InitializeDescriptors();
-        void InitializePipeline();
+        void InitializePipeline( vk::PrimitiveTopology inTopology );
 
     public:
         vks::DevicePtr mDevice;
         vks::RenderPassPtr mRenderPass;
-
         vks::PipelinePtr mPipeline;
 
+        // Descriptors
         vk::DescriptorPool mDescriptorPool;
         std::vector< vk::DescriptorSetLayout > mDescriptorSetLayouts;
         std::vector< vks::DescriptorSet > mDescriptorSets;
         vks::Buffer mUniformBuffer;
 };
 
-vkrt::MeshPipeline::Impl::Impl( vks::DevicePtr inDevice, vks::RenderPassPtr inRenderPass )
-    :
+vkrt::MeshPipeline::Impl::Impl( vks::DevicePtr inDevice, vks::RenderPassPtr inRenderPass, vk::PrimitiveTopology inTopology )
+:
     mDevice( inDevice ),
     mRenderPass( inRenderPass )
 {
     CreateBuffers();
     InitializeDescriptors();
-    InitializePipeline();
+    InitializePipeline( inTopology );
 }
 
 vkrt::MeshPipeline::Impl::~Impl()
@@ -117,7 +117,7 @@ vkrt::MeshPipeline::Impl::InitializeDescriptors()
 }
 
 void
-vkrt::MeshPipeline::Impl::InitializePipeline()
+vkrt::MeshPipeline::Impl::InitializePipeline( vk::PrimitiveTopology inTopology )
 {
     auto theVertexShader = vks::Utils::CreateVkShaderModule( mDevice, "shaders/RenderShader.vert.spv" );
     auto theFragmentShader = vks::Utils::CreateVkShaderModule( mDevice, "shaders/RenderShader.frag.spv" );
@@ -132,7 +132,7 @@ vkrt::MeshPipeline::Impl::InitializePipeline()
     };
     vks::Pipeline::PipelineConfigInfo theConfigInfo =
     {
-        vk::PrimitiveTopology::eTriangleList
+        inTopology
     };
     mPipeline = std::make_unique< vks::Pipeline >( mDevice, theCreateInfo, theConfigInfo );
 
@@ -142,9 +142,9 @@ vkrt::MeshPipeline::Impl::InitializePipeline()
 
 // =====================================================================================================================
 
-vkrt::MeshPipeline::MeshPipeline( vks::DevicePtr inDevice, vks::RenderPassPtr inRenderPass )
+vkrt::MeshPipeline::MeshPipeline( vks::DevicePtr inDevice, vks::RenderPassPtr inRenderPass, vk::PrimitiveTopology inTopology )
 :
-    mImpl( new Impl( inDevice, inRenderPass ) )
+    mImpl( new Impl( inDevice, inRenderPass, inTopology ) )
 {
 
 }

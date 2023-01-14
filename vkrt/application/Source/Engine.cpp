@@ -11,7 +11,7 @@ Engine::Engine()
 :
     mWindow( std::make_shared< vks::Window >( WIDTH, HEIGHT, TITLE ) ),
     mVulkanSession( vks::VulkanSession::GetInstance() ),
-    mRenderer( mVulkanSession, mWindow ),
+    mRenderer( mVulkanSession, mWindow, { vkrt::RendererConfig::TRIANGLES } ),
     mInputState( mWindow ),
     mCamera( std::make_shared< vkrt::Camera >( 45, float( WIDTH ) / float( HEIGHT ), 0.1f, 100.0f ) ),
     mAssetLoader()
@@ -58,6 +58,20 @@ void Engine::Update()
         glm::vec2 theMouseDelta = mInputState.GetMouseDelta() / 1000.0f;
         mCamera->RotatePitch( theMouseDelta.y );
         mCamera->RotateYaw( theMouseDelta.x );
+
+        // Switch render mode
+        if( mInputState.IsKeyDown( GLFW_KEY_T ) )
+        {
+            auto theConfig = mRenderer.GetConfig();
+            theConfig.topology = vkrt::RendererConfig::LINES;
+            mRenderer.SetConfig( theConfig );
+        }
+        if( mInputState.IsKeyDown( GLFW_KEY_Y ) )
+        {
+            auto theConfig = mRenderer.GetConfig();
+            theConfig.topology = vkrt::RendererConfig::TRIANGLES;
+            mRenderer.SetConfig( theConfig );
+        }
 
         if( mInputState.IsKeyDown( GLFW_KEY_Q ) )
         {

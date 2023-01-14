@@ -18,7 +18,7 @@ namespace vkrt
     class MeshPipeline
     {
         public:
-            MeshPipeline( vks::DevicePtr inDevice, vks::RenderPassPtr inRenderPass );
+            MeshPipeline( vks::DevicePtr inDevice, vks::RenderPassPtr inRenderPass, vk::PrimitiveTopology inTopology );
             ~MeshPipeline();
 
         public:

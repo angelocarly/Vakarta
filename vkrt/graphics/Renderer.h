@@ -24,10 +24,19 @@
 
 namespace vkrt
 {
+    class RendererConfig
+    {
+        public:
+            enum Topology { TRIANGLES, LINES };
+
+        public:
+            Topology topology;
+    };
+
     class Renderer
     {
         public:
-            Renderer( vks::VulkanSessionPtr inSession, vks::WindowPtr inWindow );
+            Renderer( vks::VulkanSessionPtr inSession, vks::WindowPtr inWindow, RendererConfig inConfig );
             ~Renderer();
 
             ImGuiContext * GetImGuiContext();
@@ -35,10 +44,13 @@ namespace vkrt
         public:
             void RenderFrame( vks::Mesh & inMesh );
             void SetCamera( vkrt::CameraPtr inCamera );
+            RendererConfig GetConfig();
+            void SetConfig( RendererConfig inConfig );
 
         private:
             vks::VulkanSessionPtr mSession;
             vks::DevicePtr mDevice;
+            vkrt::RendererConfig mConfig;
 
             // Display
             vks::WindowPtr mWindow;
@@ -51,6 +63,7 @@ namespace vkrt
             // Pipeline
             vks::RenderPassPtr mRenderPass;
             std::unique_ptr< vkrt::MeshPipeline > mMeshPipeline;
+            std::unique_ptr< vkrt::MeshPipeline > mMeshLinePipeline;
 
             // Scene
             vkrt::CameraPtr mCamera;
