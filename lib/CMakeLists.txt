@@ -2,7 +2,7 @@ set( CMAKE_CXX_STANDARD 11 )
 
 ## IMGUI
 
-set( IMGUI_DIR ${CMAKE_CURRENT_SOURCE_DIR}/Imgui )
+set( IMGUI_DIR ${CMAKE_CURRENT_SOURCE_DIR}/imgui )
 add_library( Imgui STATIC )
 set_target_properties( Imgui PROPERTIES POSITION_INDEPENDENT_CODE ON )
 

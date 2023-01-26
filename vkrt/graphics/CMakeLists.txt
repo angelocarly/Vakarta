@@ -1,13 +1,15 @@
 set(
-    SOURCE_FILES
-        Source/MeshPipeline.cpp
-        Source/Renderer.cpp
+    HEADER_FILES
+        GeoGenPipeline.h
+        MeshPipeline.h
+        Renderer.h
 )
 
 set(
-    HEADER_FILES
-        MeshPipeline.h
-        Renderer.h
+    SOURCE_FILES
+        Source/GeoGenPipeline.cpp
+        Source/MeshPipeline.cpp
+        Source/Renderer.cpp
 )
 
 add_library(
