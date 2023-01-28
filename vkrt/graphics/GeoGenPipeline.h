@@ -22,8 +22,8 @@ namespace vkrt
             ~GeoGenPipeline();
 
         public:
-            void UpdatePipelineUniforms( glm::mat4 inCamera );
             void Bind( vk::CommandBuffer inCommandBuffer );
+            void Dispatch( vk::CommandBuffer inCommandBuffer, vks::Buffer inOutputBuffer, std::uint32_t inVertexCount );
 
         private:
             class Impl;

@@ -117,7 +117,7 @@ vks::ComputePipeline::GetVkPipelineLayout()
 void
 vks::ComputePipeline::Bind( vk::CommandBuffer inCommandBuffer )
 {
-    inCommandBuffer.bindPipeline( vk::PipelineBindPoint::eGraphics, mImpl->mPipeline );
+    inCommandBuffer.bindPipeline( vk::PipelineBindPoint::eCompute, mImpl->mPipeline );
 }
 
 void
@@ -131,3 +131,8 @@ vks::ComputePipeline::BindDescriptorSets( vk::CommandBuffer inCommandBuffer, std
     inCommandBuffer.bindDescriptorSets( vk::PipelineBindPoint::eCompute, mImpl->mPipelineLayout, 0, theVkDescriptorSets, nullptr );
 }
 
+void
+vks::ComputePipeline::PushConstants( vk::CommandBuffer inCommandBuffer, vk::DeviceSize theSize, const void * theMemory )
+{
+    inCommandBuffer.pushConstants( mImpl->mPipelineLayout, vk::ShaderStageFlagBits::eCompute, 0, theSize, theMemory );
+}

@@ -11,6 +11,7 @@
 #include "vks/render/RenderPass.h"
 #include "vks/render/Swapchain.h"
 #include "vks/render/Window.h"
+#include "vkrt/graphics/GeoGenPipeline.h"
 
 #include <spdlog/spdlog.h>
 
@@ -26,10 +27,12 @@ vkrt::Renderer::Renderer( vks::VulkanSessionPtr inSession, vks::WindowPtr inWind
     mSwapChain( std::make_shared< vks::Swapchain >( mDevice, mWindow->GetVkSurface() ) ),
     mRenderPass( std::make_shared< vks::RenderPass >( mSwapChain ) ),
     mMeshPipeline( std::make_unique< vkrt::MeshPipeline >( mDevice, mRenderPass, vk::PrimitiveTopology::eTriangleList ) ),
-    mMeshLinePipeline( std::make_unique< vkrt::MeshPipeline >( mDevice, mRenderPass, vk::PrimitiveTopology::eLineList ) )
+    mMeshLinePipeline( std::make_unique< vkrt::MeshPipeline >( mDevice, mRenderPass, vk::PrimitiveTopology::eLineList ) ),
+    mGeoGenPipeline( std::make_unique< vkrt::GeoGenPipeline >( mDevice, mRenderPass ) )
 {
     InitializeCommandBuffers();
     mGui = std::make_shared<vks::GuiPass>( mDevice, mWindow, mRenderPass, mSwapChain );
+    InitializeBuffers();
 }
 
 vkrt::Renderer::~Renderer()
@@ -51,6 +54,25 @@ vkrt::Renderer::InitializeCommandBuffers()
     }
 }
 
+void
+vkrt::Renderer::InitializeBuffers()
+{
+    vma::AllocationCreateInfo theUniformBufferAllocationInfo;
+    theUniformBufferAllocationInfo.usage = vma::MemoryUsage::eAuto;
+    theUniformBufferAllocationInfo.flags = vma::AllocationCreateFlagBits::eHostAccessSequentialWrite;
+
+    mVertexBuffer = mDevice->CreateBuffer
+    (
+        vk::BufferCreateInfo
+        (
+            vk::BufferCreateFlags(),
+            mVertexCount * sizeof( glm::vec3 ),
+            vk::BufferUsageFlagBits::eStorageBuffer
+        ),
+        theUniformBufferAllocationInfo
+    );
+}
+
 // ---------------------------------------------------------------------------------------------------------------------
 
 void
@@ -61,6 +83,9 @@ vkrt::Renderer::RenderFrame( vks::Mesh & inMesh )
     auto theCommandBuffer = mCommandBuffers[ theImageIndex ];
     theCommandBuffer.begin( vk::CommandBufferBeginInfo( vk::CommandBufferUsageFlags() ) );
     {
+        mGeoGenPipeline->Bind( theCommandBuffer );
+        mGeoGenPipeline->Dispatch( theCommandBuffer,  );
+
         theCommandBuffer.beginRenderPass( mRenderPass->GetVkBeginInfo( theImageIndex ), vk::SubpassContents::eInline );
         {
             // Set viewport and scissor

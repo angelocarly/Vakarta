@@ -21,6 +21,7 @@
 #include "vks/render/VulkanSession.h"
 #include "imgui_internal.h"
 #include "MeshPipeline.h"
+#include "GeoGenPipeline.h"
 
 namespace vkrt
 {
@@ -64,12 +65,18 @@ namespace vkrt
             vks::RenderPassPtr mRenderPass;
             std::unique_ptr< vkrt::MeshPipeline > mMeshPipeline;
             std::unique_ptr< vkrt::MeshPipeline > mMeshLinePipeline;
+            std::unique_ptr< vkrt::GeoGenPipeline > mGeoGenPipeline;
 
             // Scene
             vkrt::CameraPtr mCamera;
 
+            // Render data
+            int mVertexCount = 10;
+            vks::Buffer mVertexBuffer;
+
         private:
             void InitializeCommandBuffers();
+            void InitializeBuffers();
     };
 }
 

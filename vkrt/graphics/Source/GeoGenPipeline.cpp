@@ -21,9 +21,12 @@
 #include <memory>
 #include <vulkan/vulkan.hpp>
 
-struct UniformBufferObject
+namespace
 {
-    glm::mat4 mView;
+    struct PushConstantUniformObject
+    {
+        int mInvocationCount;
+    };
 };
 
 class vkrt::GeoGenPipeline::Impl
@@ -33,7 +36,6 @@ class vkrt::GeoGenPipeline::Impl
         ~Impl();
 
     private:
-        void CreateBuffers();
         void InitializeDescriptors();
         void InitializePipeline();
 
@@ -46,7 +48,7 @@ class vkrt::GeoGenPipeline::Impl
         vk::DescriptorPool mDescriptorPool;
         std::vector< vk::DescriptorSetLayout > mDescriptorSetLayouts;
         std::vector< vks::DescriptorSet > mDescriptorSets;
-        vks::Buffer mUniformBuffer;
+        vks::Buffer mOutputBuffer;
 };
 
 vkrt::GeoGenPipeline::Impl::Impl( vks::DevicePtr inDevice, vks::RenderPassPtr inRenderPass )
@@ -61,7 +63,7 @@ vkrt::GeoGenPipeline::Impl::Impl( vks::DevicePtr inDevice, vks::RenderPassPtr in
 
 vkrt::GeoGenPipeline::Impl::~Impl()
 {
-    mDevice->DestroyBuffer( mUniformBuffer );
+    mDevice->DestroyBuffer( mOutputBuffer );
 
     for( auto theDescriptorSetLayout : mDescriptorSetLayouts )
     {
@@ -71,30 +73,11 @@ vkrt::GeoGenPipeline::Impl::~Impl()
 }
 
 void
-vkrt::GeoGenPipeline::Impl::CreateBuffers()
-{
-    // Pipeline uniform buffer
-    vma::AllocationCreateInfo theUniformBufferAllocationInfo;
-    theUniformBufferAllocationInfo.usage = vma::MemoryUsage::eAuto;
-    theUniformBufferAllocationInfo.flags = vma::AllocationCreateFlagBits::eHostAccessSequentialWrite;
-    mUniformBuffer = mDevice->CreateBuffer
-    (
-        vk::BufferCreateInfo
-        (
-            vk::BufferCreateFlags(),
-            sizeof( UniformBufferObject ),
-            vk::BufferUsageFlagBits::eUniformBuffer
-        ),
-        theUniformBufferAllocationInfo
-    );
-}
-
-void
 vkrt::GeoGenPipeline::Impl::InitializeDescriptors()
 {
     // Pool
     std::array< vk::DescriptorPoolSize, 1 > thePoolSizes = {};
-    thePoolSizes[ 0 ].setType( vk::DescriptorType::eUniformBuffer );
+    thePoolSizes[ 0 ].setType( vk::DescriptorType::eStorageBuffer );
     thePoolSizes[ 0 ].setDescriptorCount( 1 );
 
     vk::DescriptorPoolCreateInfo const theDescriptorPoolCreateInfo
@@ -107,13 +90,12 @@ vkrt::GeoGenPipeline::Impl::InitializeDescriptors()
     mDescriptorPool = mDevice->GetVkDevice().createDescriptorPool( theDescriptorPoolCreateInfo );
 
     // Layout
-    auto theDescriptorLayoutBuilder = vks::DescriptorLayoutBuilder();
-    theDescriptorLayoutBuilder.AddLayoutBinding( 0, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eVertex );
-    mDescriptorSetLayouts = theDescriptorLayoutBuilder.Build( mDevice );
+    mDescriptorSetLayouts = vks::DescriptorLayoutBuilder()
+        .AddLayoutBinding( 0, vk::DescriptorType::eStorageBuffer, vk::ShaderStageFlagBits::eCompute )
+        .Build( mDevice );
 
     // Descriptor set
     auto theDescriptorSet = vks::DescriptorSet( mDevice, mDescriptorPool, mDescriptorSetLayouts.front() );
-    theDescriptorSet.BindBuffer( 0, vk::DescriptorType::eUniformBuffer, mUniformBuffer );
     mDescriptorSets = { theDescriptorSet };
 }
 
@@ -122,12 +104,22 @@ vkrt::GeoGenPipeline::Impl::InitializePipeline()
 {
     auto theComputeShader = vks::Utils::CreateVkShaderModule( mDevice, "shaders/GeoGen.comp.spv" );
 
+    std::vector< vk::PushConstantRange > thePushConstants =
+    {
+        vk::PushConstantRange
+        (
+            vk::ShaderStageFlagBits::eCompute,
+            0,
+            sizeof( PushConstantUniformObject )
+        )
+    };
+
     vks::ComputePipeline::ComputePipelineCreateInfo theCreateInfo =
     {
         mRenderPass->GetVkRenderPass(),
         theComputeShader,
         mDescriptorSetLayouts,
-        {}
+        thePushConstants
     };
     mPipeline = std::make_unique< vks::ComputePipeline >( mDevice, theCreateInfo );
 
@@ -149,19 +141,21 @@ vkrt::GeoGenPipeline::~GeoGenPipeline()
 }
 
 void
-vkrt::GeoGenPipeline::UpdatePipelineUniforms( glm::mat4 inCamera )
-{
-    UniformBufferObject theUniform;
-    theUniform.mView = inCamera;
-
-    void * theData = mImpl->mDevice->MapMemory( mImpl->mUniformBuffer );
-    std::memcpy( theData, &theUniform, sizeof( UniformBufferObject ) );
-    mImpl->mDevice->UnmapMemory( mImpl->mUniformBuffer );
-}
-
-void
 vkrt::GeoGenPipeline::Bind( vk::CommandBuffer inCommandBuffer )
 {
     mImpl->mPipeline->BindDescriptorSets( inCommandBuffer, mImpl->mDescriptorSets );
     mImpl->mPipeline->Bind( inCommandBuffer );
+}
+
+void
+vkrt::GeoGenPipeline::Dispatch( vk::CommandBuffer inCommandBuffer, vks::Buffer inOutputBuffer, std::uint32_t inVertexCount )
+{
+    // Bind output buffer
+    mImpl->mDescriptorSets.at( 0 ).BindBuffer( 0, vk::DescriptorType::eStorageBuffer, inOutputBuffer );
+
+    PushConstantUniformObject thePushConstants;
+    thePushConstants.mInvocationCount = inVertexCount;
+    mImpl->mPipeline->PushConstants( inCommandBuffer, sizeof( PushConstantUniformObject ), &thePushConstants );
+    inCommandBuffer.bindPipeline( vk::PipelineBindPoint::eCompute, mImpl->mPipeline->GetVkPipeline(), {} );
+    inCommandBuffer.dispatch( 16, 1, 1 );
 }

@@ -30,6 +30,7 @@ namespace vks
         public:
             void Bind( vk::CommandBuffer inCommandBuffer );
             void BindDescriptorSets( vk::CommandBuffer inCommandBuffer, std::vector< vks::DescriptorSet > inDescriptorSets );
+            void PushConstants( vk::CommandBuffer inCommandBuffer, vk::DeviceSize theSize, const void * theMemory );
 
             vk::Pipeline GetVkPipeline();
             vk::PipelineLayout GetVkPipelineLayout();

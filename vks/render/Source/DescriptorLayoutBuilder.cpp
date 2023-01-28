@@ -13,7 +13,7 @@ vks::DescriptorLayoutBuilder::DescriptorLayoutBuilder() = default;
 
 vks::DescriptorLayoutBuilder::~DescriptorLayoutBuilder() = default;
 
-void
+vks::DescriptorLayoutBuilder
 vks::DescriptorLayoutBuilder::AddLayoutBinding( uint32_t inBinding, vk::DescriptorType inDescriptorType, vk::ShaderStageFlags inShaderStageFlags )
 {
     auto theDescriptorSetLayoutBinding = vk::DescriptorSetLayoutBinding
@@ -25,6 +25,8 @@ vks::DescriptorLayoutBuilder::AddLayoutBinding( uint32_t inBinding, vk::Descript
         nullptr
     );
     mDescriptorSetLayoutBindings.push_back( theDescriptorSetLayoutBinding );
+
+    return *this;
 }
 
 std::vector< vk::DescriptorSetLayout >
