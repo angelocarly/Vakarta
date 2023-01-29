@@ -11,7 +11,7 @@ Engine::Engine()
 :
     mWindow( std::make_shared< vks::Window >( WIDTH, HEIGHT, TITLE ) ),
     mVulkanSession( vks::VulkanSession::GetInstance() ),
-    mRenderer( mVulkanSession, mWindow, { vkrt::RendererConfig::TRIANGLES } ),
+    mRenderer( mVulkanSession, mWindow, { vkrt::RendererConfig::LINES } ),
     mInputState( mWindow ),
     mCamera( std::make_shared< vkrt::Camera >( 45, float( WIDTH ) / float( HEIGHT ), 0.1f, 100.0f ) ),
     mAssetLoader()

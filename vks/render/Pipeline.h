@@ -26,6 +26,8 @@ namespace vks
             struct PipelineConfigInfo
             {
                 vk::PrimitiveTopology topology;
+                std::vector< vk::VertexInputBindingDescription > mVertexInputBindingDescriptions;
+                std::vector< vk::VertexInputAttributeDescription > mVertexInputAttributeDescriptions;
             };
 
         public:

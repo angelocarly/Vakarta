@@ -2,8 +2,8 @@
 // Created by Angelo Carly on 18/12/2022.
 //
 
-#ifndef VKRT_GEOGENPIPELINE_H
-#define VKRT_GEOGENPIPELINE_H
+#ifndef VKRT_LINEPIPELINE_H
+#define VKRT_LINEPIPELINE_H
 
 #include "vks/core/Buffer.h"
 #include "vks/render/ForwardDecl.h"
@@ -15,16 +15,15 @@
 
 namespace vkrt
 {
-    class GeoGenPipeline
+    class LinePipeline
     {
         public:
-            GeoGenPipeline( vks::DevicePtr inDevice, vks::RenderPassPtr inRenderPass );
-            ~GeoGenPipeline();
+            LinePipeline( vks::DevicePtr inDevice, vks::RenderPassPtr inRenderPass );
+            ~LinePipeline();
 
         public:
+            void UpdatePipelineUniforms( glm::mat4 inCamera );
             void Bind( vk::CommandBuffer inCommandBuffer );
-            void UpdateDescriptorSet( vks::Buffer inVertexBuffer, vks::Buffer inIndexBuffer  );
-            void Dispatch( vk::CommandBuffer inCommandBuffer, std::uint32_t inInvocationCount );
 
         private:
             class Impl;
@@ -33,4 +32,4 @@ namespace vkrt
 }
 
 
-#endif //VKRT_GEOGENPIPELINE_H
+#endif //VKRT_LINEPIPELINE_H

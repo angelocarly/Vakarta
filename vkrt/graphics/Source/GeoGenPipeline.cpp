@@ -26,6 +26,7 @@ namespace
     struct PushConstantUniformObject
     {
         int mInvocationCount;
+        float mTime;
     };
 };
 
@@ -56,7 +57,6 @@ vkrt::GeoGenPipeline::Impl::Impl( vks::DevicePtr inDevice, vks::RenderPassPtr in
     mDevice( inDevice ),
     mRenderPass( inRenderPass )
 {
-    CreateBuffers();
     InitializeDescriptors();
     InitializePipeline();
 }
@@ -78,12 +78,12 @@ vkrt::GeoGenPipeline::Impl::InitializeDescriptors()
     // Pool
     std::array< vk::DescriptorPoolSize, 1 > thePoolSizes = {};
     thePoolSizes[ 0 ].setType( vk::DescriptorType::eStorageBuffer );
-    thePoolSizes[ 0 ].setDescriptorCount( 1 );
+    thePoolSizes[ 0 ].setDescriptorCount( 2 );
 
     vk::DescriptorPoolCreateInfo const theDescriptorPoolCreateInfo
     (
         vk::DescriptorPoolCreateFlags(),
-        1,
+        2,
         thePoolSizes.size(),
         thePoolSizes.data()
     );
@@ -92,6 +92,7 @@ vkrt::GeoGenPipeline::Impl::InitializeDescriptors()
     // Layout
     mDescriptorSetLayouts = vks::DescriptorLayoutBuilder()
         .AddLayoutBinding( 0, vk::DescriptorType::eStorageBuffer, vk::ShaderStageFlagBits::eCompute )
+        .AddLayoutBinding( 1, vk::DescriptorType::eStorageBuffer, vk::ShaderStageFlagBits::eCompute )
         .Build( mDevice );
 
     // Descriptor set
@@ -141,6 +142,15 @@ vkrt::GeoGenPipeline::~GeoGenPipeline()
 }
 
 void
+vkrt::GeoGenPipeline::UpdateDescriptorSet( vks::Buffer inVertexBuffer, vks::Buffer inIndexBuffer )
+{
+    // Bind output buffer
+    mImpl->mDescriptorSets.at( 0 )
+        .BindBuffer( 0, vk::DescriptorType::eStorageBuffer, inVertexBuffer )
+        .BindBuffer( 1, vk::DescriptorType::eStorageBuffer, inIndexBuffer );
+}
+
+void
 vkrt::GeoGenPipeline::Bind( vk::CommandBuffer inCommandBuffer )
 {
     mImpl->mPipeline->BindDescriptorSets( inCommandBuffer, mImpl->mDescriptorSets );
@@ -148,13 +158,18 @@ vkrt::GeoGenPipeline::Bind( vk::CommandBuffer inCommandBuffer )
 }
 
 void
-vkrt::GeoGenPipeline::Dispatch( vk::CommandBuffer inCommandBuffer, vks::Buffer inOutputBuffer, std::uint32_t inVertexCount )
+vkrt::GeoGenPipeline::Dispatch( vk::CommandBuffer inCommandBuffer, std::uint32_t inInvocationCount )
 {
-    // Bind output buffer
-    mImpl->mDescriptorSets.at( 0 ).BindBuffer( 0, vk::DescriptorType::eStorageBuffer, inOutputBuffer );
+
+    std::chrono::milliseconds theTime =
+        std::chrono::duration_cast<std::chrono::milliseconds>
+        (
+            std::chrono::system_clock::now().time_since_epoch()
+        );
 
     PushConstantUniformObject thePushConstants;
-    thePushConstants.mInvocationCount = inVertexCount;
+    thePushConstants.mInvocationCount = inInvocationCount;
+    thePushConstants.mTime = theTime.count() % 10000 / 1000.0f;
     mImpl->mPipeline->PushConstants( inCommandBuffer, sizeof( PushConstantUniformObject ), &thePushConstants );
     inCommandBuffer.bindPipeline( vk::PipelineBindPoint::eCompute, mImpl->mPipeline->GetVkPipeline(), {} );
     inCommandBuffer.dispatch( 16, 1, 1 );

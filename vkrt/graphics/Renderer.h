@@ -19,9 +19,11 @@
 #include "vks/render/GuiPass.h"
 #include "vks/assets/AssetLoader.h"
 #include "vks/render/VulkanSession.h"
+#include "vkrt/graphics/GeoGenPipeline.h"
+#include "vkrt/graphics/LinePipeline.h"
+#include "vkrt/graphics/MeshPipeline.h"
+
 #include "imgui_internal.h"
-#include "MeshPipeline.h"
-#include "GeoGenPipeline.h"
 
 namespace vkrt
 {
@@ -64,15 +66,16 @@ namespace vkrt
             // Pipeline
             vks::RenderPassPtr mRenderPass;
             std::unique_ptr< vkrt::MeshPipeline > mMeshPipeline;
-            std::unique_ptr< vkrt::MeshPipeline > mMeshLinePipeline;
+            std::unique_ptr< vkrt::LinePipeline > mLinePipeline;
             std::unique_ptr< vkrt::GeoGenPipeline > mGeoGenPipeline;
 
             // Scene
             vkrt::CameraPtr mCamera;
 
             // Render data
-            int mVertexCount = 10;
+            int mLineCount = 50;
             vks::Buffer mVertexBuffer;
+            vks::Buffer mIndexBuffer;
 
         private:
             void InitializeCommandBuffers();
