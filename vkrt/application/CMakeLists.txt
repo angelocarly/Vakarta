@@ -1,12 +1,14 @@
 set(
-    SOURCE_FILES
-        Source/Engine.cpp
-        Source/main.cpp
+    HEADER_FILES
+        Engine.h
+        GuiPanels.h
 )
 
 set(
-    HEADER_FILES
-        Engine.h
+    SOURCE_FILES
+        Source/Engine.cpp
+        Source/GuiPanels.cpp
+        Source/main.cpp
 )
 
 add_executable(

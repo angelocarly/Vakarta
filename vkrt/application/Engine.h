@@ -13,34 +13,48 @@
 #include "vkrt/core/ForwardDecl.h"
 #include "vkrt/graphics/Renderer.h"
 
-class Engine
+namespace vkrt
 {
+    class Engine
+    {
+        public:
+            struct Stats
+            {
+                float mFrameTime;
+                float mFps;
+            };
 
-    public:
-        Engine();
-        ~Engine();
+        public:
+            Engine();
 
-    public:
-        void Update();
-        void Render();
-        bool ShouldClose();
+            ~Engine();
 
-    private:
-        vks::WindowPtr mWindow;
-        vks::VulkanSessionPtr mVulkanSession;
-        vkrt::Renderer mRenderer;
-        vkrt::InputState mInputState;
-        vkrt::CameraPtr mCamera;
-        bool mMouseSwallowed = false;
+        public:
+            void Update( float inFrameDuration );
 
-    private:
+            void Render();
 
-        // Resources
-        vks::AssetLoader mAssetLoader;
-        std::unique_ptr< vks::Mesh > mMesh;
+            bool ShouldClose();
 
-        // Gui
-        vks::ImGuiPtr mGui;
-};
+        private:
+            vks::WindowPtr mWindow;
+            vks::VulkanSessionPtr mVulkanSession;
+            vkrt::Renderer mRenderer;
+            vkrt::InputState mInputState;
+            vkrt::CameraPtr mCamera;
+            bool mMouseSwallowed = false;
+
+        private:
+
+            Stats mStats;
+
+            // Resources
+            vks::AssetLoader mAssetLoader;
+            std::unique_ptr< vks::Mesh > mMesh;
+
+            // Gui
+            vks::ImGuiPtr mGui;
+    };
+}
 
 #endif //VKRT_ENGINE_H

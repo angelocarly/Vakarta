@@ -164,33 +164,6 @@ vks::GuiPass::Render( vk::CommandBuffer inCommandBuffer )
     ImGui_ImplVulkan_RenderDrawData( ImGui::GetDrawData(), inCommandBuffer );
 }
 
-void
-vks::GuiPass::Update()
-{
-    // Start the Dear ImGui frame
-    ImGui_ImplVulkan_NewFrame();
-    ImGui_ImplGlfw_NewFrame();
-    ImGui::NewFrame();
-
-    if( mImpl->mDemoEnabled )
-    {
-        ImGui::ShowDemoWindow();
-    }
-
-    if (ImGui::BeginMainMenuBar())
-    {
-        if( ImGui::BeginMenu( "Menu" ) )
-        {
-            ImGui::MenuItem("Show demo window" , nullptr, &mImpl->mDemoEnabled );
-            ImGui::EndMenu();
-        }
-        ImGui::EndMainMenuBar();
-    }
-
-    // Rendering
-    ImGui::Render();
-}
-
 ImGuiContext *
 vks::GuiPass::GetImGuiContext()
 {
