@@ -17,7 +17,7 @@ namespace vks
             ~DescriptorLayoutBuilder();
 
         public:
-            void AddLayoutBinding( std::uint32_t inBinding, vk::DescriptorType inDescriptorType, vk::ShaderStageFlags inShaderStageFlags );
+            vks::DescriptorLayoutBuilder AddLayoutBinding( std::uint32_t inBinding, vk::DescriptorType inDescriptorType, vk::ShaderStageFlags inShaderStageFlags );
             std::vector< vk::DescriptorSetLayout > Build( vks::DevicePtr inDevice );
 
         private:

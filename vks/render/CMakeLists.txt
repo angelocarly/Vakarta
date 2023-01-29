@@ -1,22 +1,6 @@
 set(
-    SOURCE_FILES
-        Source/DescriptorLayoutBuilder.cpp
-        Source/DescriptorSet.cpp
-        Source/Device.cpp
-        Source/GuiPass.cpp
-        Source/Instance.cpp
-        Source/Mesh.cpp
-        Source/PhysicalDevice.cpp
-        Source/Pipeline.cpp
-        Source/RenderPass.cpp
-        Source/Swapchain.cpp
-        Source/Utils.cpp
-        Source/VulkanSession.cpp
-        Source/Window.cpp
-)
-
-set(
     HEADER_FILES
+        ComputePipeline.h
         DescriptorLayoutBuilder.h
         DescriptorSet.h
         Device.h
@@ -31,6 +15,24 @@ set(
         Utils.h
         VulkanSession.h
         Window.h
+)
+
+set(
+    SOURCE_FILES
+        Source/ComputePipeline.cpp
+        Source/DescriptorLayoutBuilder.cpp
+        Source/DescriptorSet.cpp
+        Source/Device.cpp
+        Source/GuiPass.cpp
+        Source/Instance.cpp
+        Source/Mesh.cpp
+        Source/PhysicalDevice.cpp
+        Source/Pipeline.cpp
+        Source/RenderPass.cpp
+        Source/Swapchain.cpp
+        Source/Utils.cpp
+        Source/VulkanSession.cpp
+        Source/Window.cpp
 )
 
 add_library(

@@ -2,8 +2,8 @@
 // Created by Angelo Carly on 11/01/2023.
 //
 
-#ifndef VKRT_PIPELINE_H
-#define VKRT_PIPELINE_H
+#ifndef VKRT_COMPUTEPIPELINE_H
+#define VKRT_COMPUTEPIPELINE_H
 
 #include "vks/render/ForwardDecl.h"
 #include "DescriptorSet.h"
@@ -12,35 +12,28 @@
 
 namespace vks
 {
-    class Pipeline
+    class ComputePipeline
     {
         public:
-            struct PipelineCreateInfo
+            struct ComputePipelineCreateInfo
             {
                 vk::RenderPass mRenderPass;
-                vk::ShaderModule mVertexShaderModule;
-                vk::ShaderModule mFragmentShaderModule;
+                vk::ShaderModule mComputeShaderModule;
                 std::vector< vk::DescriptorSetLayout > mDescriptorSetLayouts;
                 std::vector< vk::PushConstantRange > mPushConstants;
             };
-            struct PipelineConfigInfo
-            {
-                vk::PrimitiveTopology topology;
-                std::vector< vk::VertexInputBindingDescription > mVertexInputBindingDescriptions;
-                std::vector< vk::VertexInputAttributeDescription > mVertexInputAttributeDescriptions;
-            };
 
         public:
-            Pipeline( vks::DevicePtr inDevice, PipelineCreateInfo inPipelineCreateInfo, PipelineConfigInfo inPipelineConfigInfo );
-            ~Pipeline();
+            ComputePipeline( vks::DevicePtr inDevice, ComputePipelineCreateInfo inPipelineCreateInfo );
+            ~ComputePipeline();
 
         public:
             void Bind( vk::CommandBuffer inCommandBuffer );
             void BindDescriptorSets( vk::CommandBuffer inCommandBuffer, std::vector< vks::DescriptorSet > inDescriptorSets );
+            void PushConstants( vk::CommandBuffer inCommandBuffer, vk::DeviceSize theSize, const void * theMemory );
 
             vk::Pipeline GetVkPipeline();
             vk::PipelineLayout GetVkPipelineLayout();
-            PipelineConfigInfo GetDefaultConfig();
 
         private:
             class Impl;
@@ -49,4 +42,4 @@ namespace vks
 }
 
 
-#endif //VKRT_PIPELINE_H
+#endif //VKRT_COMPUTEPIPELINE_H

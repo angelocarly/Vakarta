@@ -66,15 +66,13 @@ vks::Pipeline::Impl::InitializePipeline()
     );
 
     // Vertex binding
-    auto theVertexInputBindingDescriptions = vks::Vertex::GetVkVertexInputBindingDescriptions();
-    auto theVertexInputAttributeDescriptions = vks::Vertex::GetVkVertexInputAttributeDescriptions();
     auto const theVertexInputStateCreateInfo = vk::PipelineVertexInputStateCreateInfo
     (
         vk::PipelineVertexInputStateCreateFlags(),
-        theVertexInputBindingDescriptions.size(),
-        theVertexInputBindingDescriptions.data(),
-        theVertexInputAttributeDescriptions.size(),
-        theVertexInputAttributeDescriptions.data()
+        mPipelineConfigInfo.mVertexInputBindingDescriptions.size(),
+        mPipelineConfigInfo.mVertexInputBindingDescriptions.data(),
+        mPipelineConfigInfo.mVertexInputAttributeDescriptions.size(),
+        mPipelineConfigInfo.mVertexInputAttributeDescriptions.data()
     );
 
     // Input assembly

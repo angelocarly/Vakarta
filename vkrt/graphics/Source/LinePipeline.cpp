@@ -2,7 +2,7 @@
 // Created by Angelo Carly on 18/12/2022.
 //
 
-#include "vkrt/graphics/MeshPipeline.h"
+#include "vkrt/graphics/LinePipeline.h"
 
 #include "vks/core/Vertex.h"
 #include "vks/render/ForwardDecl.h"
@@ -25,16 +25,16 @@ struct UniformBufferObject
     glm::mat4 mView;
 };
 
-class vkrt::MeshPipeline::Impl
+class vkrt::LinePipeline::Impl
 {
     public:
-        Impl( vks::DevicePtr inDevice, vks::RenderPassPtr inRenderPass, vk::PrimitiveTopology inTopology );
+        Impl( vks::DevicePtr inDevice, vks::RenderPassPtr inRenderPass );
         ~Impl();
 
     private:
         void CreateBuffers();
         void InitializeDescriptors();
-        void InitializePipeline( vk::PrimitiveTopology inTopology );
+        void InitializePipeline();
 
     public:
         vks::DevicePtr mDevice;
@@ -48,17 +48,17 @@ class vkrt::MeshPipeline::Impl
         vks::Buffer mUniformBuffer;
 };
 
-vkrt::MeshPipeline::Impl::Impl( vks::DevicePtr inDevice, vks::RenderPassPtr inRenderPass, vk::PrimitiveTopology inTopology )
+vkrt::LinePipeline::Impl::Impl( vks::DevicePtr inDevice, vks::RenderPassPtr inRenderPass )
 :
     mDevice( inDevice ),
     mRenderPass( inRenderPass )
 {
     CreateBuffers();
     InitializeDescriptors();
-    InitializePipeline( inTopology );
+    InitializePipeline();
 }
 
-vkrt::MeshPipeline::Impl::~Impl()
+vkrt::LinePipeline::Impl::~Impl()
 {
     mDevice->DestroyBuffer( mUniformBuffer );
 
@@ -70,7 +70,7 @@ vkrt::MeshPipeline::Impl::~Impl()
 }
 
 void
-vkrt::MeshPipeline::Impl::CreateBuffers()
+vkrt::LinePipeline::Impl::CreateBuffers()
 {
     // Pipeline uniform buffer
     vma::AllocationCreateInfo theUniformBufferAllocationInfo;
@@ -89,7 +89,7 @@ vkrt::MeshPipeline::Impl::CreateBuffers()
 }
 
 void
-vkrt::MeshPipeline::Impl::InitializeDescriptors()
+vkrt::LinePipeline::Impl::InitializeDescriptors()
 {
     // Pool
     std::array< vk::DescriptorPoolSize, 1 > thePoolSizes = {};
@@ -117,10 +117,10 @@ vkrt::MeshPipeline::Impl::InitializeDescriptors()
 }
 
 void
-vkrt::MeshPipeline::Impl::InitializePipeline( vk::PrimitiveTopology inTopology )
+vkrt::LinePipeline::Impl::InitializePipeline()
 {
-    auto theVertexShader = vks::Utils::CreateVkShaderModule( mDevice, "shaders/RenderShader.vert.spv" );
-    auto theFragmentShader = vks::Utils::CreateVkShaderModule( mDevice, "shaders/RenderShader.frag.spv" );
+    auto theVertexShader = vks::Utils::CreateVkShaderModule( mDevice, "shaders/LineShader.vert.spv" );
+    auto theFragmentShader = vks::Utils::CreateVkShaderModule( mDevice, "shaders/LineShader.frag.spv" );
 
     vks::Pipeline::PipelineCreateInfo theCreateInfo =
     {
@@ -132,9 +132,24 @@ vkrt::MeshPipeline::Impl::InitializePipeline( vk::PrimitiveTopology inTopology )
     };
     vks::Pipeline::PipelineConfigInfo theConfigInfo =
     {
-        inTopology,
-        vks::Vertex::GetVkVertexInputBindingDescriptions(),
-        vks::Vertex::GetVkVertexInputAttributeDescriptions()
+        vk::PrimitiveTopology::eLineList,
+        {
+            vk::VertexInputBindingDescription
+            (
+                0,
+                sizeof( glm::vec4 ),
+                vk::VertexInputRate::eVertex
+            )
+        },
+        {
+            vk::VertexInputAttributeDescription
+            (
+                0,
+                0,
+                vk::Format::eR32G32B32A32Sfloat,
+                0
+            )
+        }
     };
     mPipeline = std::make_unique< vks::Pipeline >( mDevice, theCreateInfo, theConfigInfo );
 
@@ -144,20 +159,20 @@ vkrt::MeshPipeline::Impl::InitializePipeline( vk::PrimitiveTopology inTopology )
 
 // =====================================================================================================================
 
-vkrt::MeshPipeline::MeshPipeline( vks::DevicePtr inDevice, vks::RenderPassPtr inRenderPass, vk::PrimitiveTopology inTopology )
+vkrt::LinePipeline::LinePipeline( vks::DevicePtr inDevice, vks::RenderPassPtr inRenderPass )
 :
-    mImpl( new Impl( inDevice, inRenderPass, inTopology ) )
+    mImpl( new Impl( inDevice, inRenderPass ) )
 {
 
 }
 
-vkrt::MeshPipeline::~MeshPipeline()
+vkrt::LinePipeline::~LinePipeline()
 {
 
 }
 
 void
-vkrt::MeshPipeline::UpdatePipelineUniforms( glm::mat4 inCamera )
+vkrt::LinePipeline::UpdatePipelineUniforms( glm::mat4 inCamera )
 {
     UniformBufferObject theUniform;
     theUniform.mView = inCamera;
@@ -168,7 +183,7 @@ vkrt::MeshPipeline::UpdatePipelineUniforms( glm::mat4 inCamera )
 }
 
 void
-vkrt::MeshPipeline::Bind( vk::CommandBuffer inCommandBuffer )
+vkrt::LinePipeline::Bind( vk::CommandBuffer inCommandBuffer )
 {
     mImpl->mPipeline->BindDescriptorSets( inCommandBuffer, mImpl->mDescriptorSets );
     mImpl->mPipeline->Bind( inCommandBuffer );

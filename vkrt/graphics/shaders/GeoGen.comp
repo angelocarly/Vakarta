@@ -1,0 +1,55 @@
+#version 450
+#extension GL_ARB_separate_shader_objects : enable
+
+#define WORKGROUP_SIZE 16
+
+layout (local_size_x = WORKGROUP_SIZE, local_size_y = 1, local_size_z = 1) in;
+
+layout( push_constant ) uniform constants
+{
+    int mInvocationCount;
+    float mTime;
+} PushConstants;
+
+layout (std430, set = 0, binding = 0 ) writeonly buffer OutVertexData {
+    vec4[] vertices;
+} outVertexData;
+
+layout (std430, set = 0, binding = 1 ) writeonly buffer OutIndexData {
+    int[] indices;
+} outIndexData;
+
+float randFloat( vec2 co )
+{
+    return fract(sin(dot(co, vec2(12.9898, 78.233))) * 43758.5453);
+}
+
+vec3 randVec3( float seed )
+{
+    vec3 rand = vec3( 0 );
+    rand.x = randFloat( vec2( seed, seed ) );
+    rand.y = randFloat( vec2( rand.x * seed, seed ) );
+    rand.z = randFloat( vec2( rand.y * seed, seed ) );
+    return rand;
+}
+
+void main()
+{
+    if( gl_GlobalInvocationID.x >= PushConstants.mInvocationCount ) return;
+    int instanceId = int( floor( gl_GlobalInvocationID.x ) );
+    int outVertexId = 2 * instanceId;
+    int outIndexId = 2 * instanceId;
+
+    float time = PushConstants.mTime;
+    time = floor( time * 10 );
+    vec3 randpos = randVec3( instanceId + .2435f + time / 100.0f );
+    randpos = normalize( randpos * 2. - vec3( 1. ) );
+    outVertexData.vertices[ outVertexId ] = vec4( randpos, 0.f );
+
+    randpos = randVec3( instanceId * 3000 + .435f + time / 100.0f );
+    randpos = normalize( randpos * 2. - vec3( 1. ) );
+    outVertexData.vertices[ outVertexId + 1 ] = vec4( randpos, 0.f );
+
+    outIndexData.indices[ outIndexId ] = outIndexId;
+    outIndexData.indices[ outIndexId + 1 ] = outIndexId + 1;
+}
