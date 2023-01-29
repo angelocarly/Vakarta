@@ -20,9 +20,7 @@ namespace vks
 
         public:
             void Render( vk::CommandBuffer inCommandBuffer );
-            void Update();
             ImGuiContext * GetImGuiContext();
-
 
         private:
             class Impl;

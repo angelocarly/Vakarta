@@ -182,7 +182,6 @@ vkrt::Renderer::RenderFrame( vks::Mesh & inMesh )
             theCommandBuffer.drawIndexed( mLineCount * 2, 1, 0, 0, 0 );
 
             // Gui
-            mGui->Update();
             mGui->Render( theCommandBuffer );
         }
         theCommandBuffer.endRenderPass();

@@ -73,7 +73,7 @@ namespace vkrt
             vkrt::CameraPtr mCamera;
 
             // Render data
-            int mLineCount = 50;
+            int mLineCount = 8000;
             vks::Buffer mVertexBuffer;
             vks::Buffer mIndexBuffer;
 

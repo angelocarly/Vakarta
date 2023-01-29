@@ -1,4 +1,5 @@
 #include "vkrt/application/Engine.h"
+#include "vkrt/application/GuiPanels.h"
 
 #include <imgui/imgui.h>
 #include <spdlog/spdlog.h>
@@ -7,7 +8,7 @@
 #define HEIGHT 900
 #define TITLE "VKRT"
 
-Engine::Engine()
+vkrt::Engine::Engine()
 :
     mWindow( std::make_shared< vks::Window >( WIDTH, HEIGHT, TITLE ) ),
     mVulkanSession( vks::VulkanSession::GetInstance() ),
@@ -25,15 +26,22 @@ Engine::Engine()
     ImGui::SetCurrentContext( mRenderer.GetImGuiContext() );
 }
 
-Engine::~Engine()
+vkrt::Engine::~Engine()
 {
     mVulkanSession->GetDevice()->GetVkDevice().waitIdle();
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
 
-void Engine::Update()
+void vkrt::Engine::Update( float inFrameDuration )
 {
+    // Render Gui
+    vkrt::GuiPanels::Begin();
+    mStats.mFps = 1.0f / inFrameDuration;
+    mStats.mFrameTime = inFrameDuration;
+    vkrt::GuiPanels::Stats( mStats );
+    vkrt::GuiPanels::End();
+
     mWindow->Poll();
 
     ImGuiIO &io = ImGui::GetIO();
@@ -108,12 +116,12 @@ void Engine::Update()
     }
 }
 
-void Engine::Render()
+void vkrt::Engine::Render()
 {
     mRenderer.RenderFrame( * mMesh );
 }
 
-bool Engine::ShouldClose()
+bool vkrt::Engine::ShouldClose()
 {
     return mWindow->ShouldClose();
 }

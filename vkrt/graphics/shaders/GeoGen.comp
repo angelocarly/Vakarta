@@ -40,14 +40,16 @@ void main()
     int outVertexId = 2 * instanceId;
     int outIndexId = 2 * instanceId;
 
-    float time = PushConstants.mTime;
-    time = floor( time * 10 );
+    float time = PushConstants.mTime * 100;
+//    time = floor( time;
     vec3 randpos = randVec3( instanceId + .2435f + time / 100.0f );
-    randpos = normalize( randpos * 2. - vec3( 1. ) );
+    float scale = randFloat( randpos.yz );
+    randpos = normalize( randpos * 2. - vec3( 1. ) ) * scale;
     outVertexData.vertices[ outVertexId ] = vec4( randpos, 0.f );
 
     randpos = randVec3( instanceId * 3000 + .435f + time / 100.0f );
     randpos = normalize( randpos * 2. - vec3( 1. ) );
+    scale = randFloat( randpos.yz );
     outVertexData.vertices[ outVertexId + 1 ] = vec4( randpos, 0.f );
 
     outIndexData.indices[ outIndexId ] = outIndexId;

@@ -172,5 +172,5 @@ vkrt::GeoGenPipeline::Dispatch( vk::CommandBuffer inCommandBuffer, std::uint32_t
     thePushConstants.mTime = theTime.count() % 10000 / 1000.0f;
     mImpl->mPipeline->PushConstants( inCommandBuffer, sizeof( PushConstantUniformObject ), &thePushConstants );
     inCommandBuffer.bindPipeline( vk::PipelineBindPoint::eCompute, mImpl->mPipeline->GetVkPipeline(), {} );
-    inCommandBuffer.dispatch( 16, 1, 1 );
+    inCommandBuffer.dispatch( inInvocationCount, 1, 1 );
 }
