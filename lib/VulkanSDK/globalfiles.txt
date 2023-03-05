@@ -1,0 +1,3 @@
+Binaries. libraries, and headers are installed in /usr/local
+This includes MoltenVK as an ICD, the Vulkan Validation Layers,
+and other libraries and headers.

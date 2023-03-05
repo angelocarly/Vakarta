@@ -83,9 +83,6 @@
             echo "Removing /usr/local/lib/libSPIRV-Tools-diff.a" | tee -a /tmp/VULKAN_UNINSTALL.log
             rm -rf /usr/local/lib/libSPIRV-Tools-diff.a
             
-            echo "Removing /usr/local/lib/libspirv-cross-c-shared.0.50.0.dylib" | tee -a /tmp/VULKAN_UNINSTALL.log
-            rm -rf /usr/local/lib/libspirv-cross-c-shared.0.50.0.dylib
-            
             echo "Removing /usr/local/lib/libdxcompiler.dylib" | tee -a /tmp/VULKAN_UNINSTALL.log
             rm -rf /usr/local/lib/libdxcompiler.dylib
             
@@ -100,6 +97,9 @@
             
             echo "Removing /usr/local/lib/libVkLayer_api_dump.dylib" | tee -a /tmp/VULKAN_UNINSTALL.log
             rm -rf /usr/local/lib/libVkLayer_api_dump.dylib
+            
+            echo "Removing /usr/local/lib/libvulkan.1.3.239.dylib" | tee -a /tmp/VULKAN_UNINSTALL.log
+            rm -rf /usr/local/lib/libvulkan.1.3.239.dylib
             
             echo "Removing /usr/local/lib/libVkLayer_khronos_profiles.dylib" | tee -a /tmp/VULKAN_UNINSTALL.log
             rm -rf /usr/local/lib/libVkLayer_khronos_profiles.dylib
@@ -140,9 +140,6 @@
             echo "Removing /usr/local/lib/libspirv-cross-c.a" | tee -a /tmp/VULKAN_UNINSTALL.log
             rm -rf /usr/local/lib/libspirv-cross-c.a
             
-            echo "Removing /usr/local/lib/libvulkan.1.3.231.dylib" | tee -a /tmp/VULKAN_UNINSTALL.log
-            rm -rf /usr/local/lib/libvulkan.1.3.231.dylib
-            
             echo "Removing /usr/local/lib/libshaderc.a" | tee -a /tmp/VULKAN_UNINSTALL.log
             rm -rf /usr/local/lib/libshaderc.a
             
@@ -182,6 +179,9 @@
             echo "Removing /usr/local/lib/libshaderc_util.a" | tee -a /tmp/VULKAN_UNINSTALL.log
             rm -rf /usr/local/lib/libshaderc_util.a
             
+            echo "Removing /usr/local/lib/libspirv-cross-c-shared.0.54.0.dylib" | tee -a /tmp/VULKAN_UNINSTALL.log
+            rm -rf /usr/local/lib/libspirv-cross-c-shared.0.54.0.dylib
+            
             echo "Removing /usr/local/lib/libSPVRemapper.a" | tee -a /tmp/VULKAN_UNINSTALL.log
             rm -rf /usr/local/lib/libSPVRemapper.a
             
@@ -214,6 +214,9 @@
             
             echo "Removing /usr/local/include/vulkan" | tee -a /tmp/VULKAN_UNINSTALL.log
             rm -rf /usr/local/include/vulkan
+            
+            echo "Removing /usr/local/lib/cmake/vulkan/SPIRV-Tools-tools" | tee -a /tmp/VULKAN_UNINSTALL.log
+            rm -rf /usr/local/lib/cmake/vulkan/SPIRV-Tools-tools
             
             echo "Removing /usr/local/lib/cmake/vulkan/SPIRV-Tools" | tee -a /tmp/VULKAN_UNINSTALL.log
             rm -rf /usr/local/lib/cmake/vulkan/SPIRV-Tools
@@ -286,9 +289,6 @@
             
             echo "Removing /Applications/vkconfig.app" | tee -a /tmp/VULKAN_UNINSTALL.log
             rm -rf /Applications/vkconfig.app
-            
-            echo "Removing /Applications/vulkaninfo.app" | tee -a /tmp/VULKAN_UNINSTALL.log
-            rm -rf /Applications/vulkaninfo.app
             
             echo "Removing /Applications/vkcubepp.app" | tee -a /tmp/VULKAN_UNINSTALL.log
             rm -rf /Applications/vkcubepp.app

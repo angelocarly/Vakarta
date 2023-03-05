@@ -14,10 +14,12 @@ namespace vkrt
         public:
             static void Begin();
             static void Stats( vkrt::Engine::Stats & inStats );
+            static void Tools( vkrt::Renderer & inRenderer );
             static void End();
 
         public:
             inline static bool mShowStats = true;
+            inline static bool mShowTools = true;
             inline static bool mShowDemoWindow = false;
     };
 }

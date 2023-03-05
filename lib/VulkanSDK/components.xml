@@ -6,9 +6,9 @@
         <Title>Vulkan SDK</Title>
         <Description>Install the Vulkan SDK</Description>
         <TreeName></TreeName>
-        <Version>1.3.231.1</Version>
+        <Version>1.3.239.0</Version>
         <LastUpdateDate></LastUpdateDate>
-        <InstallDate>2022-11-17</InstallDate>
+        <InstallDate>2023-02-14</InstallDate>
         <Size>0</Size>
         <ForcedInstallation>true</ForcedInstallation>
     </Package>
@@ -17,10 +17,10 @@
         <Title>The Vulkan SDK Core (Always Installed)</Title>
         <Description>These components make up the core Vulkan SDK. This includes the Vulkan Loader, Layers, VkConfig, and other essential shader development tools.</Description>
         <TreeName></TreeName>
-        <Version>1.3.231.1</Version>
+        <Version>1.3.239.0</Version>
         <LastUpdateDate></LastUpdateDate>
-        <InstallDate>2022-11-17</InstallDate>
-        <Size>2155274564</Size>
+        <InstallDate>2023-02-14</InstallDate>
+        <Size>2183780910</Size>
         <ForcedInstallation>true</ForcedInstallation>
     </Package>
     <Package>
@@ -28,9 +28,9 @@
         <Title>GLM Headers.</Title>
         <Description>This installs the GLM headers.</Description>
         <TreeName></TreeName>
-        <Version>1.3.231.1</Version>
+        <Version>1.3.239.0</Version>
         <LastUpdateDate></LastUpdateDate>
-        <InstallDate>2022-11-17</InstallDate>
+        <InstallDate>2023-02-14</InstallDate>
         <Size>2052164</Size>
         <Checkable>true</Checkable>
     </Package>
@@ -39,10 +39,10 @@
         <Title>SDL2 libraries and headers.</Title>
         <Description>This installs the SDL2 libraries and headers.</Description>
         <TreeName></TreeName>
-        <Version>1.3.231.1</Version>
+        <Version>1.3.239.0</Version>
         <LastUpdateDate></LastUpdateDate>
-        <InstallDate>2022-11-17</InstallDate>
-        <Size>10919518</Size>
+        <InstallDate>2023-02-14</InstallDate>
+        <Size>7959034</Size>
         <Checkable>true</Checkable>
     </Package>
     <Package>
@@ -50,10 +50,10 @@
         <Title>System Global Installation</Title>
         <Description>Install system wide ICD, layers, and SDK tools to /usr/local</Description>
         <TreeName></TreeName>
-        <Version>1.3.231.1</Version>
+        <Version>1.3.239.0</Version>
         <LastUpdateDate></LastUpdateDate>
-        <InstallDate>2022-11-17</InstallDate>
-        <Size>0</Size>
+        <InstallDate>2023-02-14</InstallDate>
+        <Size>197</Size>
         <Checkable>true</Checkable>
     </Package>
     <Package>
@@ -61,9 +61,9 @@
         <Title>Vulkan Memory Allocator header.</Title>
         <Description>This installs the VMA header file.</Description>
         <TreeName></TreeName>
-        <Version>1.3.231.1</Version>
+        <Version>1.3.239.0</Version>
         <LastUpdateDate></LastUpdateDate>
-        <InstallDate>2022-11-17</InstallDate>
+        <InstallDate>2023-02-14</InstallDate>
         <Size>757661</Size>
         <Checkable>true</Checkable>
     </Package>

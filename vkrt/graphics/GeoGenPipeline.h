@@ -23,8 +23,8 @@ namespace vkrt
 
         public:
             void Bind( vk::CommandBuffer inCommandBuffer );
-            void UpdateDescriptorSet( vks::Buffer inVertexBuffer, vks::Buffer inIndexBuffer  );
-            void Dispatch( vk::CommandBuffer inCommandBuffer, std::uint32_t inInvocationCount );
+            void UpdateDescriptorSet( vks::Buffer inVertexBuffer, vks::Buffer inIndexBuffer );
+            void Dispatch( vk::CommandBuffer inCommandBuffer, std::uint32_t inInvocationCount, bool inReset );
 
         private:
             class Impl;

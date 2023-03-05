@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 #
-# Copyright (c) 2021-2022 LunarG, Inc.
+# Copyright (c) 2021-2023 LunarG, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License")
 # you may not use this file except in compliance with the License.
@@ -25,9 +25,49 @@ from typing import OrderedDict
 import xml.etree.ElementTree as etree
 import json
 import jsonschema
+from collections import deque
+
+def apiNameMatch(str, supported):
+    """Return whether a required api name matches a pattern specified for an
+    XML <feature> 'api' attribute or <extension> 'supported' attribute.
+    - str - API name such as 'vulkan' or 'openxr'. May be None, in which
+        case it never matches (this should not happen).
+    - supported - comma-separated list of XML API names. May be None, in
+        which case str always matches (this is the usual case)."""
+
+    if str is not None:
+        return supported is None or str in supported.split(',')
+
+    # Fallthrough case - either str is None or the test failed
+    return False
+
+def stripNonmatchingAPIs(tree, apiName, actuallyDelete = True):
+    """Remove tree Elements with 'api' attributes matching apiName.
+        tree - Element at the root of the hierarchy to strip. Only its
+            children can actually be removed, not the tree itself.
+        apiName - string which much match a command-separated component of
+            the 'api' attribute.
+        actuallyDelete - only delete matching elements if True."""
+
+    stack = deque()
+    stack.append(tree)
+
+    while len(stack) > 0:
+        parent = stack.pop()
+
+        for child in parent.findall('*'):
+            api = child.get('api')
+
+            if apiNameMatch(apiName, api):
+                # Add child to the queue
+                stack.append(child)
+            elif not apiNameMatch(apiName, api):
+                # Child does not match requested api. Remove it.
+                if actuallyDelete:
+                    parent.remove(child)
 
 COPYRIGHT_HEADER = '''/**
- * Copyright (c) 2021-2022 LunarG, Inc.
+ * Copyright (c) 2021-2023 LunarG, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -1393,6 +1433,8 @@ class VulkanRegistry():
     def __init__(self, registryFile):
         Log.i("Loading registry file: '{0}'".format(registryFile))
         xml = etree.parse(registryFile)
+        stripNonmatchingAPIs(xml.getroot(), 'vulkan', actuallyDelete = True)
+
         self.parsePlatformInfo(xml)
         self.parseVersionInfo(xml)
         self.parseExtensionInfo(xml)
@@ -2148,11 +2190,14 @@ class VulkanProfileCapabilities():
         self.formats = dict()
         self.queueFamiliesProperties = []
         for capName in data['capabilities']:
-            if capName in caps:
+            # When we have multiple possible capabilities blocks, we load them all but effectively the API library can't effectively implement this behavior.
+            if type(capName).__name__ == 'list':
+                for capNameCase in capName:
+                    self.mergeCaps(registry, caps[capNameElement])
+            elif capName in caps:
                 self.mergeCaps(registry, caps[capName])
             else:
                 Log.f("Capability '{0}' needed by profile '{1}' is missing".format(capName, data['name']))
-
 
     def mergeCaps(self, registry, caps):
         self.mergeProfileExtensions(registry, caps)
@@ -3478,7 +3523,7 @@ class VulkanProfilesSchemaGenerator():
 DOC_MD_HEADER = '''
 <!-- markdownlint-disable MD041 -->
 <p align="left"><img src="https://vulkan.lunarg.com/img/NewLunarGLogoBlack.png" alt="LunarG" width=263 height=113 /></p>
-<p align="left">Copyright (c) 2021-2022 LunarG, Inc.</p>
+<p align="left">Copyright (c) 2021-2023 LunarG, Inc.</p>
 
 <p align="center"><img src="./images/logo.png" width=400 /></p>
 

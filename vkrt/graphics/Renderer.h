@@ -49,6 +49,7 @@ namespace vkrt
             void SetCamera( vkrt::CameraPtr inCamera );
             RendererConfig GetConfig();
             void SetConfig( RendererConfig inConfig );
+            void Recompute();
 
         private:
             vks::VulkanSessionPtr mSession;
@@ -73,7 +74,9 @@ namespace vkrt
             vkrt::CameraPtr mCamera;
 
             // Render data
-            int mLineCount = 8000;
+            int mInstanceCount = 100000;
+            int mVerticesPerInstance = 8;
+            int mIndicesPerInstance = 16;
             vks::Buffer mVertexBuffer;
             vks::Buffer mIndexBuffer;
 

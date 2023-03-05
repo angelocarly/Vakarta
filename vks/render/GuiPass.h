@@ -8,6 +8,8 @@
 #include "ForwardDecl.h"
 #include "imgui_internal.h"
 
+#include <vulkan/vulkan.hpp>
+
 #include <memory>
 
 namespace vks

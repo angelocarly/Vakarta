@@ -9,13 +9,14 @@ layout( push_constant ) uniform constants
 {
     int mInvocationCount;
     float mTime;
+    bool mReset;
 } PushConstants;
 
-layout (std430, set = 0, binding = 0 ) writeonly buffer OutVertexData {
+layout (std430, set = 0, binding = 0 ) buffer OutVertexData {
     vec4[] vertices;
 } outVertexData;
 
-layout (std430, set = 0, binding = 1 ) writeonly buffer OutIndexData {
+layout (std430, set = 0, binding = 1 ) buffer OutIndexData {
     int[] indices;
 } outIndexData;
 
@@ -37,21 +38,42 @@ void main()
 {
     if( gl_GlobalInvocationID.x >= PushConstants.mInvocationCount ) return;
     int instanceId = int( floor( gl_GlobalInvocationID.x ) );
-    int outVertexId = 2 * instanceId;
-    int outIndexId = 2 * instanceId;
+    int verticesPerInstance = 8;
+    int indicesPerInstance = 16;
+    int outVertexId = verticesPerInstance * instanceId;
+    int outIndexId = indicesPerInstance * instanceId;
 
-    float time = PushConstants.mTime * 100;
-//    time = floor( time;
-    vec3 randpos = randVec3( instanceId + .2435f + time / 100.0f );
-    float scale = randFloat( randpos.yz );
-    randpos = normalize( randpos * 2. - vec3( 1. ) ) * scale;
-    outVertexData.vertices[ outVertexId ] = vec4( randpos, 0.f );
+    vec3 pos = vec3( instanceId % 64, 0, floor( instanceId / 64 ) );
+    if( PushConstants.mReset ) pos = randVec3( instanceId + PushConstants.mTime ) * 100.f;
 
-    randpos = randVec3( instanceId * 3000 + .435f + time / 100.0f );
-    randpos = normalize( randpos * 2. - vec3( 1. ) );
-    scale = randFloat( randpos.yz );
-    outVertexData.vertices[ outVertexId + 1 ] = vec4( randpos, 0.f );
+    float scale = .1f;
 
-    outIndexData.indices[ outIndexId ] = outIndexId;
-    outIndexData.indices[ outIndexId + 1 ] = outIndexId + 1;
+    outVertexData.vertices[ outVertexId + 0 ] = vec4( pos + vec3( -scale, 0, -scale), 1.f );
+    outVertexData.vertices[ outVertexId + 1 ] = vec4( pos + vec3( -scale, 0, scale ), 1.f );
+    outVertexData.vertices[ outVertexId + 2 ] = vec4( pos + vec3( scale, 0, scale ), 1.f );
+    outVertexData.vertices[ outVertexId + 3 ] = vec4( pos + vec3( scale, 0, -scale), 1.f );
+
+    outVertexData.vertices[ outVertexId + 4 ] = vec4( pos + vec3( -scale, scale, -scale ), 1.f );
+    outVertexData.vertices[ outVertexId + 5 ] = vec4( pos + vec3( -scale, scale, scale ), 1.f );
+    outVertexData.vertices[ outVertexId + 6 ] = vec4( pos + vec3( scale, scale, scale ), 1.f );
+    outVertexData.vertices[ outVertexId + 7 ] = vec4( pos + vec3( scale, scale, -scale ), 1.f );
+
+    outIndexData.indices[ outIndexId + 0 ] = outVertexId + 0;
+    outIndexData.indices[ outIndexId + 1 ] = outVertexId + 1;
+    outIndexData.indices[ outIndexId + 2 ] = outVertexId + 1;
+    outIndexData.indices[ outIndexId + 3 ] = outVertexId + 2;
+    outIndexData.indices[ outIndexId + 4 ] = outVertexId + 2;
+    outIndexData.indices[ outIndexId + 5 ] = outVertexId + 3;
+    outIndexData.indices[ outIndexId + 6 ] = outVertexId + 3;
+    outIndexData.indices[ outIndexId + 7 ] = outVertexId + 0;
+
+    outIndexData.indices[ outIndexId + 8 ] = outVertexId + 4;
+    outIndexData.indices[ outIndexId + 9 ] = outVertexId + 5;
+    outIndexData.indices[ outIndexId + 10 ] = outVertexId + 5;
+    outIndexData.indices[ outIndexId + 11 ] = outVertexId + 6;
+    outIndexData.indices[ outIndexId + 12 ] = outVertexId + 6;
+    outIndexData.indices[ outIndexId + 13 ] = outVertexId + 7;
+    outIndexData.indices[ outIndexId + 14 ] = outVertexId + 7;
+    outIndexData.indices[ outIndexId + 15 ] = outVertexId + 4;
+
 }

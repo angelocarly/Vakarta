@@ -2,7 +2,7 @@
             message(WARNING "Using `glslangTargets.cmake` is deprecated: use `find_package(glslang)` to find glslang CMake targets.")
 
             if (NOT TARGET glslang::glslang)
-                include("${CMAKE_CURRENT_LIST_DIR}/../../lib/glslang/glslang-targets.cmake")
+                include("${CMAKE_CURRENT_LIST_DIR}/../../lib/cmake/glslang/glslang-targets.cmake")
             endif()
 
             if(OFF)

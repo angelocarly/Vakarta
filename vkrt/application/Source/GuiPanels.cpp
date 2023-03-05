@@ -28,6 +28,7 @@ vkrt::GuiPanels::Begin()
         if( ImGui::BeginMenu( "Menu" ) )
         {
             ImGui::MenuItem("Show stats" , nullptr, &mShowStats );
+            ImGui::MenuItem("Show tools" , nullptr, &mShowTools );
             ImGui::MenuItem("Show demo window" , nullptr, &mShowDemoWindow );
             ImGui::EndMenu();
         }
@@ -55,15 +56,36 @@ vkrt::GuiPanels::Stats( vkrt::Engine::Stats & inStats )
     window_pos.y += 10.0f;
     ImGui::SetNextWindowPos(window_pos, ImGuiCond_Always, window_pos_pivot);
 
-    // Window
+    // Stats
     bool pOpen = false;
     ImGui::SetNextWindowBgAlpha(0.35f); // Transparent background
-    if (ImGui::Begin("Overlay", &pOpen, window_flags))
+    ImGui::Begin("Overlay", &pOpen, window_flags );
     {
         ImGui::Text("Stats" );
         ImGui::Separator();
         ImGui::Text("frametime: %.2f ms", inStats.mFrameTime * 1000.0f );
         ImGui::Text("fps: %.1f (frames/second)", inStats.mFps );
+    }
+    ImGui::End();
+}
+
+void
+vkrt::GuiPanels::Tools( vkrt::Renderer & inRenderer )
+{
+    if( !mShowTools ) return;
+
+    // Stats
+//    ImGui::SetNextWindowBgAlpha(0.35f); // Transparent background
+    bool pOpen = false;
+    ImGuiWindowFlags window_flags = 0;
+    ImGui::Begin("Tools", &pOpen, window_flags );
+    {
+        ImGui::Text("Stats" );
+        ImGui::Separator();
+        if( ImGui::Button( "Reload mesh" ) )
+        {
+            inRenderer.Recompute();
+        }
     }
     ImGui::End();
 }

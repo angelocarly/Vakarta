@@ -69,7 +69,7 @@ vkrt::Renderer::InitializeBuffers()
         vk::BufferCreateInfo
         (
             vk::BufferCreateFlags(),
-            mLineCount * sizeof( glm::vec3 ) * 2,
+            mInstanceCount * sizeof( glm::vec4 ) * mVerticesPerInstance,
             vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eVertexBuffer
         ),
         theUniformBufferAllocationInfo
@@ -84,13 +84,20 @@ vkrt::Renderer::InitializeBuffers()
         vk::BufferCreateInfo
         (
             vk::BufferCreateFlags(),
-            mLineCount * sizeof( std::uint32_t ) * 2,
+            mInstanceCount * sizeof( std::uint32_t ) * mIndicesPerInstance,
             vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eIndexBuffer
         ),
         theIndexUniformBufferAllocationInfo
     );
+    spdlog::info( "Created vertex buffer of size: {}", mVertexBuffer.GetSize() );
+    spdlog::info( "Created index buffer of size: {}", mIndexBuffer.GetSize() );
 
     mGeoGenPipeline->UpdateDescriptorSet( mVertexBuffer, mIndexBuffer );
+
+    auto compBuffer = mDevice->BeginSingleTimeCommands();
+    mGeoGenPipeline->Bind( compBuffer );
+    mGeoGenPipeline->Dispatch( compBuffer, mInstanceCount, true );
+    mDevice->EndSingleTimeCommands( compBuffer );
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -99,54 +106,55 @@ void
 vkrt::Renderer::RenderFrame( vks::Mesh & inMesh )
 {
     uint32_t theImageIndex = mSwapChain->RetrieveNextImage();
+    mDevice->GetVkDevice().waitIdle();
 
     auto theCommandBuffer = mCommandBuffers[ theImageIndex ];
     theCommandBuffer.begin( vk::CommandBufferBeginInfo( vk::CommandBufferUsageFlags() ) );
     {
-        mGeoGenPipeline->Bind( theCommandBuffer );
-        mGeoGenPipeline->Dispatch( theCommandBuffer, mLineCount );
 
-        auto theIndexBufferMemoryBarrier = vk::BufferMemoryBarrier
-        (
-            vk::AccessFlagBits::eMemoryWrite,
-            vk::AccessFlagBits::eMemoryRead,
-            VK_QUEUE_FAMILY_IGNORED,
-            VK_QUEUE_FAMILY_IGNORED,
-            mIndexBuffer.GetVkBuffer(),
-            0,
-            mIndexBuffer.GetSize()
-        );
+        {
+            auto theIndexBufferMemoryBarrier = vk::BufferMemoryBarrier
+            (
+                vk::AccessFlagBits::eShaderWrite,
+                vk::AccessFlagBits::eMemoryRead,
+                VK_QUEUE_FAMILY_IGNORED,
+                VK_QUEUE_FAMILY_IGNORED,
+                mIndexBuffer.GetVkBuffer(),
+                0,
+                mIndexBuffer.GetSize()
+            );
 
-        theCommandBuffer.pipelineBarrier
-        (
-            vk::PipelineStageFlagBits::eComputeShader,
-            vk::PipelineStageFlagBits::eVertexInput,
-            {},
-            nullptr,
-            theIndexBufferMemoryBarrier,
-            nullptr
-        );
+            theCommandBuffer.pipelineBarrier
+            (
+                vk::PipelineStageFlagBits::eComputeShader,
+                vk::PipelineStageFlagBits::eVertexInput,
+                {},
+                nullptr,
+                theIndexBufferMemoryBarrier,
+                nullptr
+            );
 
-        auto theBufferMemoryBarrier = vk::BufferMemoryBarrier
-        (
-            vk::AccessFlagBits::eMemoryWrite,
-            vk::AccessFlagBits::eMemoryRead,
-            VK_QUEUE_FAMILY_IGNORED,
-            VK_QUEUE_FAMILY_IGNORED,
-            mVertexBuffer.GetVkBuffer(),
-            0,
-            mVertexBuffer.GetSize()
-        );
+            auto theVertexBufferMemoryBarrier = vk::BufferMemoryBarrier
+            (
+                vk::AccessFlagBits::eShaderWrite,
+                vk::AccessFlagBits::eMemoryRead,
+                VK_QUEUE_FAMILY_IGNORED,
+                VK_QUEUE_FAMILY_IGNORED,
+                mVertexBuffer.GetVkBuffer(),
+                0,
+                mVertexBuffer.GetSize()
+            );
 
-        theCommandBuffer.pipelineBarrier
-        (
-            vk::PipelineStageFlagBits::eComputeShader,
-            vk::PipelineStageFlagBits::eVertexInput,
-            {},
-            nullptr,
-            theBufferMemoryBarrier,
-            nullptr
-        );
+            theCommandBuffer.pipelineBarrier
+            (
+                vk::PipelineStageFlagBits::eComputeShader,
+                vk::PipelineStageFlagBits::eVertexInput,
+                {},
+                nullptr,
+                theVertexBufferMemoryBarrier,
+                nullptr
+            );
+        }
 
         theCommandBuffer.beginRenderPass( mRenderPass->GetVkBeginInfo( theImageIndex ), vk::SubpassContents::eInline );
         {
@@ -179,7 +187,7 @@ vkrt::Renderer::RenderFrame( vks::Mesh & inMesh )
 //            inMesh.Draw( theCommandBuffer );
             theCommandBuffer.bindVertexBuffers( 0, { mVertexBuffer.GetVkBuffer() }, { 0 } );
             theCommandBuffer.bindIndexBuffer( mIndexBuffer.GetVkBuffer(), 0, vk::IndexType::eUint32 );
-            theCommandBuffer.drawIndexed( mLineCount * 2, 1, 0, 0, 0 );
+            theCommandBuffer.drawIndexed( mInstanceCount * mIndicesPerInstance, 1, 0, 0, 0 );
 
             // Gui
             mGui->Render( theCommandBuffer );
@@ -213,4 +221,13 @@ vkrt::RendererConfig
 vkrt::Renderer::GetConfig()
 {
     return mConfig;
+}
+
+void
+vkrt::Renderer::Recompute()
+{
+    auto compBuffer = mDevice->BeginSingleTimeCommands();
+    mGeoGenPipeline->Bind( compBuffer );
+    mGeoGenPipeline->Dispatch( compBuffer, mInstanceCount, false );
+    mDevice->EndSingleTimeCommands( compBuffer );
 }

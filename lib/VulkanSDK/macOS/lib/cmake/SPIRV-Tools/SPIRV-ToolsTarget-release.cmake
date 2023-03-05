@@ -19,7 +19,7 @@ list(APPEND _IMPORT_CHECK_FILES_FOR_SPIRV-Tools-static "${_IMPORT_PREFIX}/lib/li
 set_property(TARGET SPIRV-Tools-shared APPEND PROPERTY IMPORTED_CONFIGURATIONS RELEASE)
 set_target_properties(SPIRV-Tools-shared PROPERTIES
   IMPORTED_LOCATION_RELEASE "${_IMPORT_PREFIX}/lib/libSPIRV-Tools-shared.dylib"
-  IMPORTED_SONAME_RELEASE "libSPIRV-Tools-shared.dylib"
+  IMPORTED_SONAME_RELEASE "@rpath/libSPIRV-Tools-shared.dylib"
   )
 
 list(APPEND _IMPORT_CHECK_TARGETS SPIRV-Tools-shared )

@@ -9,7 +9,7 @@ includedir=${prefix}/include/spirv_cross
 
 Name: spirv-cross-c-shared
 Description: C API for SPIRV-Cross
-Version: 0.50.0
+Version: 0.54.0
 
 Requires:
 Libs: -L${libdir} -L${sharedlibdir} -lspirv-cross-c-shared

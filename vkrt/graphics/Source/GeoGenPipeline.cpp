@@ -27,6 +27,7 @@ namespace
     {
         int mInvocationCount;
         float mTime;
+        bool mReset;
     };
 };
 
@@ -158,7 +159,7 @@ vkrt::GeoGenPipeline::Bind( vk::CommandBuffer inCommandBuffer )
 }
 
 void
-vkrt::GeoGenPipeline::Dispatch( vk::CommandBuffer inCommandBuffer, std::uint32_t inInvocationCount )
+vkrt::GeoGenPipeline::Dispatch( vk::CommandBuffer inCommandBuffer, std::uint32_t inInvocationCount, bool inReset )
 {
 
     std::chrono::milliseconds theTime =
@@ -170,7 +171,9 @@ vkrt::GeoGenPipeline::Dispatch( vk::CommandBuffer inCommandBuffer, std::uint32_t
     PushConstantUniformObject thePushConstants;
     thePushConstants.mInvocationCount = inInvocationCount;
     thePushConstants.mTime = theTime.count() % 10000 / 1000.0f;
+    thePushConstants.mReset = inReset;
     mImpl->mPipeline->PushConstants( inCommandBuffer, sizeof( PushConstantUniformObject ), &thePushConstants );
     inCommandBuffer.bindPipeline( vk::PipelineBindPoint::eCompute, mImpl->mPipeline->GetVkPipeline(), {} );
-    inCommandBuffer.dispatch( inInvocationCount, 1, 1 );
+    int workgroupSize = 16;
+    inCommandBuffer.dispatch( ceil( inInvocationCount / ( float ) workgroupSize ), 1, 1 );
 }

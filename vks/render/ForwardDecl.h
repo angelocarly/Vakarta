@@ -6,8 +6,6 @@
 #define VKS_FORWARDDECL_H
 
 #include <memory>
-#include <vulkan/vulkan.hpp>
-#include <vulkan/vulkan_beta.h>
 
 namespace vks
 {

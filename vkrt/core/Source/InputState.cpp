@@ -66,14 +66,16 @@ void
 vkrt::InputState::Impl::key_callback( GLFWwindow *window, int key, int scancode, int action, int mods )
 {
     ImGui_ImplGlfw_KeyCallback( window, key, scancode, action, mods );
-    mKeys[key] = action != GLFW_RELEASE;
+
+    if (key >= 0 && key < GLFW_KEY_LAST) mKeys[key] = action != GLFW_RELEASE;
 }
 
 void
 vkrt::InputState::Impl::mouse_button_callback( GLFWwindow *window, int button, int action, int mods )
 {
     ImGui_ImplGlfw_MouseButtonCallback( window, button, action, mods );
-    mButtonsBuffer[button] = action;
+
+    if (button >= 0 && button < GLFW_MOUSE_BUTTON_LAST) mButtonsBuffer[button] = action;
 }
 
 void

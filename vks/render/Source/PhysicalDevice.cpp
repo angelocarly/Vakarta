@@ -9,6 +9,8 @@
 #include "vks/render/Instance.h"
 
 #include <spdlog/spdlog.h>
+#include <vulkan/vulkan.hpp>
+#include <vulkan/vulkan_beta.h>
 
 namespace
 {

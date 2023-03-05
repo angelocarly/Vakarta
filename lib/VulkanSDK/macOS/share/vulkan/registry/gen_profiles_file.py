@@ -25,8 +25,6 @@ import os
 import collections
 
 class ProfileMerger():
-
-
     def __init__(self, registry):
         self.registry = registry
 
@@ -161,15 +159,17 @@ class ProfileMerger():
                         if (format not in merged_formats) and (self.mode == 'union' or self.first):
                             merged_formats[format] = dict()
                             merged_formats[format]['VkFormatProperties'] = dict()
+                            merged_formats[format]['VkFormatProperties3'] = dict()
+                            merged_formats[format]['VkFormatProperties3KHR'] = dict()
 
                         if (format in merged_formats):
-                            self.merge_format_features(merged_formats, format, capability, 'linearTilingFeatures')
-                            self.merge_format_features(merged_formats, format, capability, 'optimalTilingFeatures')
-                            self.merge_format_features(merged_formats, format, capability, 'bufferFeatures')
+                            for prop_name in ['VkFormatProperties', 'VkFormatProperties3', 'VkFormatProperties3KHR']:
+                                for features in ['linearTilingFeatures', 'optimalTilingFeatures', 'bufferFeatures']:
+                                    self.merge_format_features(merged_formats, format, capability, prop_name, features)
 
                             # Remove empty entries (can occur when using intersect)
-                            if not dict(merged_formats[format]['VkFormatProperties']):
-                                del merged_formats[format]
+                            #if not dict(merged_formats[format]['VkFormatProperties']) and not dict(merged_formats[format]['VkFormatProperties3']) and not dict(merged_formats[format]['VkFormatProperties3KHR']):
+                            #    del merged_formats[format]
 
                 if 'queueFamiliesProperties' in capability:
                     if self.mode == 'intersection':
@@ -254,6 +254,25 @@ class ProfileMerger():
         if merged_formats:
             sorted_formats = collections.OrderedDict(sorted(merged_formats.items()))
             capabilities['baseline']['formats'] = dict(sorted_formats)
+
+            # remove all empty elements
+            formatsToRemove = list()
+
+            for format in capabilities['baseline']['formats']:
+                for prop_name in ['VkFormatProperties', 'VkFormatProperties3', 'VkFormatProperties3KHR']:
+                    for features in ['linearTilingFeatures', 'optimalTilingFeatures', 'bufferFeatures']:
+                        if features in capabilities['baseline']['formats'][format][prop_name]:
+                            if not capabilities['baseline']['formats'][format][prop_name][features]:
+                                del capabilities['baseline']['formats'][format][prop_name][features]
+                    if prop_name in capabilities['baseline']['formats'][format]:
+                        if not capabilities['baseline']['formats'][format][prop_name]:
+                            del capabilities['baseline']['formats'][format][prop_name]
+                if not capabilities['baseline']['formats'][format]:
+                    formatsToRemove.append(format)
+
+            for format in formatsToRemove:
+                del capabilities['baseline']['formats'][format]
+
         if merged_qfp:
             capabilities['baseline']['queueFamiliesProperties'] = merged_qfp
 
@@ -262,7 +281,7 @@ class ProfileMerger():
     def compareList(self, l1, l2):
         return collections.Counter(l1) == collections.Counter(l2)
 
-    def merge_format_features(self, merged_formats, format, capability, features):
+    def merge_format_features(self, merged_formats, format, capability, prop_name, features):
         # Remove all format features not in current json if intersect is used
         if self.mode == 'intersection' and self.first is False:
             for mformat in dict(merged_formats):
@@ -270,27 +289,28 @@ class ProfileMerger():
                     del merged_formats[mformat]
 
             # Remove format features not in intersect
-            for feature in list(merged_formats[format]['VkFormatProperties']):
-                if feature not in capability['formats'][format]['VkFormatProperties']:
-                    merged_formats[format]['VkFormatProperties'].remove(feature)
+            for feature in list(merged_formats[format][prop_name]):
+                if feature not in capability['formats'][format][prop_name]:
+                    merged_formats[format][prop_name].remove(feature)
 
         # Iterate all format features in current json
-        if features in capability['formats'][format]['VkFormatProperties']:
-            # If mode is union or this is the first json when using intersect add the features if not already in merged features
-            if features not in merged_formats[format]['VkFormatProperties']:
-                if self.mode == 'union' or self.first == True:
-                    merged_formats[format]['VkFormatProperties'][features] = capability['formats'][format]['VkFormatProperties'][features]
-            else:
-                # In union add all aditional features
-                if self.mode == 'union':
-                    for feature in capability['formats'][format]['VkFormatProperties'][features]:
-                        if feature not in merged_formats[format]['VkFormatProperties'][features]:
-                            merged_formats[format]['VkFormatProperties'][features].append(feature)
-                # In intersect removed features which are not set in the current json
+        if prop_name in capability['formats'][format]:
+            if features in capability['formats'][format][prop_name]:
+                # If mode is union or this is the first json when using intersect add the features if not already in merged features
+                if features not in merged_formats[format][prop_name]:
+                    if self.mode == 'union' or self.first == True:
+                        merged_formats[format][prop_name][features] = capability['formats'][format][prop_name][features]
                 else:
-                    for feature in list(merged_formats[format]['VkFormatProperties'][features]):
-                        if feature not in capability['formats'][format]['VkFormatProperties'][features]:
-                            merged_formats[format]['VkFormatProperties'][features].remove(feature)
+                    # In union add all aditional features
+                    if self.mode == 'union':
+                        for feature in capability['formats'][format][prop_name][features]:
+                            if feature not in merged_formats[format][prop_name][features]:
+                                merged_formats[format][prop_name][features].append(feature)
+                    # In intersect removed features which are not set in the current json
+                    else:
+                        for feature in list(merged_formats[format][prop_name][features]):
+                            if feature not in capability['formats'][format][prop_name][features]:
+                                merged_formats[format][prop_name][features].remove(feature)
 
     def promote_structs(self, promoted, merged, feature):
         for struct in dict(merged):
