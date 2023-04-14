@@ -268,13 +268,15 @@ void
 vks::Swapchain::SubmitCommandBuffer( uint32_t inImageIndex, vk::CommandBuffer inCommandBuffer )
 {
     mImpl->mDevice->GetVkDevice().resetFences( mImpl->mCommandBufferExecutedFence[ mImpl->mCurrentFrame ] );
+
+    vk::PipelineStageFlags theDstStageFlags = vk::PipelineStageFlagBits::eColorAttachmentOutput;
     mImpl->mDevice->GetVkQueue().submit
     (
         vk::SubmitInfo
         (
             1,
             &mImpl->mImageAcquiredSemaphores[ mImpl->mCurrentFrame ],
-            nullptr,
+            &theDstStageFlags,
             1,
             &inCommandBuffer,
             1,

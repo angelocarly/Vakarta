@@ -160,8 +160,8 @@ vks::Pipeline::Impl::InitializePipeline()
     // Dynamic states
     std::vector< vk::DynamicState > theDynamicStates =
     {
-        vk::DynamicState( VK_DYNAMIC_STATE_VIEWPORT ),
-        vk::DynamicState( VK_DYNAMIC_STATE_SCISSOR ),
+        vk::DynamicState( vk::DynamicState::eViewportWithCount ),
+        vk::DynamicState( vk::DynamicState::eScissorWithCount )
     };
     auto const theDynamicStateCreateInfo = vk::PipelineDynamicStateCreateInfo
     (

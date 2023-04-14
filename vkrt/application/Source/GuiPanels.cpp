@@ -102,6 +102,7 @@ vkrt::GuiPanels::ImageTest( vkrt::Presenter & inPresenter )
     ImGui::Begin("ImageTest" );
     {
         ImVec2 wsize = ImGui::GetContentRegionMax();
+        wsize.y -= 20;
         ImGui::Image( inPresenter.GetImage(), wsize );
     }
     ImGui::End();

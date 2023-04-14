@@ -105,7 +105,7 @@ vkrt::ReflectionPresenter::ReflectionPresenter( vks::VulkanSessionPtr inSession 
             (
                 vk::BufferCreateFlags(),
                 imageSize,
-                vk::BufferUsageFlagBits::eStorageBuffer
+                vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eTransferSrc
             ),
             theVertexAllocationInfo
         );
@@ -143,9 +143,9 @@ vkrt::ReflectionPresenter::ReflectionPresenter( vks::VulkanSessionPtr inSession 
         (
             theCommandBuffer,
             * mImage,
-            vk::AccessFlagBits::eNone,
+            vk::AccessFlagBits::eTransferWrite,
             vk::AccessFlagBits::eShaderRead,
-            vk::PipelineStageFlagBits::eNone,
+            vk::PipelineStageFlagBits::eTransfer,
             vk::PipelineStageFlagBits::eFragmentShader,
             vk::ImageLayout::eTransferDstOptimal,
             vk::ImageLayout::eShaderReadOnlyOptimal,
