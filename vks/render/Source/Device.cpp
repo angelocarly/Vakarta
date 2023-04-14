@@ -219,6 +219,51 @@ vks::Device::DestroyImage( vks::Image inImage )
     mImpl->mAllocator.destroyImage( inImage.GetVkImage(), inImage.GetAllocation() );
 }
 
+void
+vks::Device::ImageMemoryBarrier
+(
+    vk::CommandBuffer inCommandBuffer,
+    vks::Image inImage,
+    vk::Flags< vk::AccessFlagBits > inSrcAccessMask,
+    vk::Flags< vk::AccessFlagBits > inDstAccessMask,
+    vk::Flags< vk::PipelineStageFlagBits > inSrcStageMask,
+    vk::Flags< vk::PipelineStageFlagBits > inDstStageMask,
+    vk::ImageLayout inOldLayout,
+    vk::ImageLayout inNewLayout,
+    vk::DependencyFlags inDependencyFlags
+)
+{
+    vk::ImageSubresourceRange theImageSubResourceRange
+    (
+        vk::ImageAspectFlagBits::eColor,
+        0,
+        1,
+        0,
+        1
+    );
+    vk::ImageMemoryBarrier theImageMemoryBarrier
+    (
+        inSrcAccessMask,
+        inDstAccessMask,
+        inOldLayout,
+        inNewLayout,
+        VK_QUEUE_FAMILY_IGNORED,
+        VK_QUEUE_FAMILY_IGNORED,
+        inImage.GetVkImage(),
+        theImageSubResourceRange,
+        nullptr
+    );
+    inCommandBuffer.pipelineBarrier
+    (
+        inSrcStageMask,
+        inDstStageMask,
+        inDependencyFlags,
+        nullptr,
+        nullptr,
+        theImageMemoryBarrier
+    );
+}
+
 void *
 vks::Device::MapMemory( vks::Buffer inBuffer )
 {

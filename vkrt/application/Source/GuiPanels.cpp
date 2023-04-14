@@ -80,14 +80,32 @@ vkrt::GuiPanels::Tools( vkrt::Renderer & inRenderer )
     ImGuiWindowFlags window_flags = 0;
     ImGui::Begin("Tools", &pOpen, window_flags );
     {
-        ImGui::Text("Stats" );
-        ImGui::Separator();
-        if( ImGui::Button( "Reload mesh" ) )
+        if( ImGui::Button( "Reset mesh" ) )
         {
-            inRenderer.Recompute();
+            inRenderer.Recompute( true );
+        }
+
+        static bool pCompute = false;
+        ImGui::Checkbox( "Continuous compute", & pCompute );
+        if( pCompute )
+        {
+            inRenderer.Recompute( false );
         }
     }
     ImGui::End();
+}
+
+void
+vkrt::GuiPanels::ImageTest( vkrt::Presenter & inPresenter )
+{
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0,0));
+    ImGui::Begin("ImageTest" );
+    {
+        ImVec2 wsize = ImGui::GetContentRegionMax();
+        ImGui::Image( inPresenter.GetImage(), wsize );
+    }
+    ImGui::End();
+    ImGui::PopStyleVar();
 }
 
 void

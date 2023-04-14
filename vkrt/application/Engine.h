@@ -12,6 +12,7 @@
 
 #include "vkrt/core/ForwardDecl.h"
 #include "vkrt/graphics/Renderer.h"
+#include "vkrt/graphics/ReflectionPresenter.h"
 
 namespace vkrt
 {
@@ -47,6 +48,7 @@ namespace vkrt
         private:
 
             Stats mStats;
+            vkrt::ReflectionPresenter mReflectionPresenter;
 
             // Resources
             vks::AssetLoader mAssetLoader;

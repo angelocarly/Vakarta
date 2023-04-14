@@ -49,7 +49,7 @@ namespace vkrt
             void SetCamera( vkrt::CameraPtr inCamera );
             RendererConfig GetConfig();
             void SetConfig( RendererConfig inConfig );
-            void Recompute();
+            void Recompute( bool inReset );
 
         private:
             vks::VulkanSessionPtr mSession;

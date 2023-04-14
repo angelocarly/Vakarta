@@ -4,6 +4,9 @@ set(
         LinePipeline.h
         MeshPipeline.h
         Renderer.h
+        ReflectionPresenter.h
+        Presenter.h
+        ImageFactory.h
 )
 
 set(
@@ -12,6 +15,9 @@ set(
         Source/LinePipeline.cpp
         Source/MeshPipeline.cpp
         Source/Renderer.cpp
+        Source/ReflectionPresenter.cpp
+        Source/Presenter.cpp
+        Source/ImageFactory.cpp
 )
 
 set(

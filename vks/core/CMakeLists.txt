@@ -1,6 +1,7 @@
 set(
     HEADER_FILES
         Buffer.h
+        ForwardDecl.h
         Image.h
         Line.h
         Vertex.h

@@ -34,6 +34,18 @@ namespace vks
             void DestroyBuffer( vks::Buffer inBuffer );
             vks::Image CreateImage( vk::ImageCreateInfo inImageCreateInfo, vma::AllocationCreateInfo inAllocationCreateInfo );
             void DestroyImage( vks::Image inImage );
+            void ImageMemoryBarrier
+            (
+                vk::CommandBuffer inCommandBuffer,
+                vks::Image inImage,
+                vk::Flags< vk::AccessFlagBits > inSrcAccessMask,
+                vk::Flags< vk::AccessFlagBits > inDstAccessMask,
+                vk::Flags< vk::PipelineStageFlagBits > inSrcStageMask,
+                vk::Flags< vk::PipelineStageFlagBits > inDstStageMask,
+                vk::ImageLayout inOldLayout,
+                vk::ImageLayout inNewLayout,
+                vk::DependencyFlags inDependencyFlags
+            );
             void * MapMemory( vks::Buffer inBuffer );
             void UnmapMemory( vks::Buffer inBuffer );
 

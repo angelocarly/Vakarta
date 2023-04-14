@@ -37,6 +37,7 @@ set(
         teapot.obj
         bunny.obj
         mine.obj
+        image.png
 )
 add_custom_command(
         TARGET ${PROJECT_NAME} POST_BUILD

@@ -6,6 +6,7 @@
 #define VKRT_GUIPANELS_H
 
 #include "Engine.h"
+#include "vkrt/graphics/Presenter.h"
 
 namespace vkrt
 {
@@ -15,6 +16,7 @@ namespace vkrt
             static void Begin();
             static void Stats( vkrt::Engine::Stats & inStats );
             static void Tools( vkrt::Renderer & inRenderer );
+            static void ImageTest( vkrt::Presenter & inPresenter );
             static void End();
 
         public:

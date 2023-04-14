@@ -111,7 +111,6 @@ vkrt::Renderer::RenderFrame( vks::Mesh & inMesh )
     auto theCommandBuffer = mCommandBuffers[ theImageIndex ];
     theCommandBuffer.begin( vk::CommandBufferBeginInfo( vk::CommandBufferUsageFlags() ) );
     {
-
         {
             auto theIndexBufferMemoryBarrier = vk::BufferMemoryBarrier
             (
@@ -224,10 +223,10 @@ vkrt::Renderer::GetConfig()
 }
 
 void
-vkrt::Renderer::Recompute()
+vkrt::Renderer::Recompute( bool inReset )
 {
     auto compBuffer = mDevice->BeginSingleTimeCommands();
     mGeoGenPipeline->Bind( compBuffer );
-    mGeoGenPipeline->Dispatch( compBuffer, mInstanceCount, false );
+    mGeoGenPipeline->Dispatch( compBuffer, mInstanceCount, inReset );
     mDevice->EndSingleTimeCommands( compBuffer );
 }

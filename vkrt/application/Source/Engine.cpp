@@ -15,7 +15,8 @@ vkrt::Engine::Engine()
     mRenderer( mVulkanSession, mWindow, { vkrt::RendererConfig::LINES } ),
     mInputState( mWindow ),
     mCamera( std::make_shared< vkrt::Camera >( 45, float( WIDTH ) / float( HEIGHT ), 0.1f, 250.0f ) ),
-    mAssetLoader()
+    mAssetLoader(),
+    mReflectionPresenter( mVulkanSession )
 {
     mCamera->SetPosition( glm::vec3( 0, 0, 5 ));
     mRenderer.SetCamera( mCamera );
@@ -41,6 +42,7 @@ void vkrt::Engine::Update( float inFrameDuration )
     mStats.mFrameTime = inFrameDuration;
     vkrt::GuiPanels::Tools( mRenderer );
     vkrt::GuiPanels::Stats( mStats );
+    vkrt::GuiPanels::ImageTest( mReflectionPresenter );
     vkrt::GuiPanels::End();
 
     mWindow->Poll();

@@ -34,22 +34,21 @@ vec3 randVec3( float seed )
     return rand;
 }
 
-void main()
+void initialize()
 {
-    if( gl_GlobalInvocationID.x >= PushConstants.mInvocationCount ) return;
     int instanceId = int( floor( gl_GlobalInvocationID.x ) );
     int verticesPerInstance = 8;
     int indicesPerInstance = 16;
     int outVertexId = verticesPerInstance * instanceId;
     int outIndexId = indicesPerInstance * instanceId;
 
-    vec3 pos = vec3( instanceId % 64, 0, floor( instanceId / 64 ) );
-    if( PushConstants.mReset ) pos = randVec3( instanceId + PushConstants.mTime ) * 100.f;
+    vec3 pos = normalize( randVec3( instanceId + PushConstants.mTime ) * 2 - 1 ) * 30.f;
+    vec3 rpos = randVec3( instanceId + PushConstants.mTime + .4 );
 
     float scale = .1f;
 
-    outVertexData.vertices[ outVertexId + 0 ] = vec4( pos + vec3( -scale, 0, -scale), 1.f );
-    outVertexData.vertices[ outVertexId + 1 ] = vec4( pos + vec3( -scale, 0, scale ), 1.f );
+    outVertexData.vertices[ outVertexId + 0 ] = vec4( pos + ( rpos * 2 - 1), 1.f );
+    outVertexData.vertices[ outVertexId + 1 ] = vec4( pos, 1.f );
     outVertexData.vertices[ outVertexId + 2 ] = vec4( pos + vec3( scale, 0, scale ), 1.f );
     outVertexData.vertices[ outVertexId + 3 ] = vec4( pos + vec3( scale, 0, -scale), 1.f );
 
@@ -65,7 +64,7 @@ void main()
     outIndexData.indices[ outIndexId + 4 ] = outVertexId + 2;
     outIndexData.indices[ outIndexId + 5 ] = outVertexId + 3;
     outIndexData.indices[ outIndexId + 6 ] = outVertexId + 3;
-    outIndexData.indices[ outIndexId + 7 ] = outVertexId + 0;
+    outIndexData.indices[ outIndexId + 7 ] = outVertexId + 4;
 
     outIndexData.indices[ outIndexId + 8 ] = outVertexId + 4;
     outIndexData.indices[ outIndexId + 9 ] = outVertexId + 5;
@@ -74,6 +73,42 @@ void main()
     outIndexData.indices[ outIndexId + 12 ] = outVertexId + 6;
     outIndexData.indices[ outIndexId + 13 ] = outVertexId + 7;
     outIndexData.indices[ outIndexId + 14 ] = outVertexId + 7;
-    outIndexData.indices[ outIndexId + 15 ] = outVertexId + 4;
+    outIndexData.indices[ outIndexId + 15 ] = outVertexId + 7;
+}
 
+void main()
+{
+    if( gl_GlobalInvocationID.x >= PushConstants.mInvocationCount ) return;
+    int instanceId = int( floor( gl_GlobalInvocationID.x ) );
+    int verticesPerInstance = 8;
+    int indicesPerInstance = 16;
+    int outVertexId = verticesPerInstance * instanceId;
+    int outIndexId = indicesPerInstance * instanceId;
+
+    vec3 pos = vec3( instanceId % 64, 0, floor( instanceId / 64 ) );
+    if( PushConstants.mReset )
+    {
+        initialize();
+        return;
+    }
+
+    vec3 dir = outVertexData.vertices[ outVertexId + 0 ].xyz - outVertexData.vertices[ outVertexId + 1 ].xyz;
+    dir = normalize( dir );
+    vec3 newpos = outVertexData.vertices[ outVertexId + 0 ].xyz + dir * 0.1f;
+//    if( length( newpos ) > 5.f )
+//    {
+//        for( int i = 7; i > 1; i-- )
+//        {
+//            outVertexData.vertices[ outVertexId + i ] = outVertexData.vertices[ outVertexId + i - 1 ];
+//        }
+//        outVertexData.vertices[ outVertexId + 1 ] =
+//        outVertexData.vertices[ outVertexId + 0 ] =
+//        return;
+//    }
+
+    for( int i = 7; i > 0; i-- )
+    {
+        outVertexData.vertices[ outVertexId + i ] = outVertexData.vertices[ outVertexId + i - 1 ];
+    }
+    outVertexData.vertices[ outVertexId + 0 ] = vec4( newpos, 1 );
 }
