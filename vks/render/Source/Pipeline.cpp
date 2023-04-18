@@ -84,13 +84,15 @@ vks::Pipeline::Impl::InitializePipeline()
     );
 
     // Viewport
+    auto const theViewport = vk::Viewport();
+    auto const theScissor = vk::Rect2D();
     auto const theViewportStateCreateInfo = vk::PipelineViewportStateCreateInfo
     (
         vk::PipelineViewportStateCreateFlags(),
-        0,
-        nullptr,
-        0,
-        nullptr
+        1,
+        &theViewport,
+        1,
+        &theScissor
     );
 
     // Rasterization
@@ -160,8 +162,8 @@ vks::Pipeline::Impl::InitializePipeline()
     // Dynamic states
     std::vector< vk::DynamicState > theDynamicStates =
     {
-        vk::DynamicState( vk::DynamicState::eViewportWithCount ),
-        vk::DynamicState( vk::DynamicState::eScissorWithCount )
+        vk::DynamicState( vk::DynamicState::eViewport ),
+        vk::DynamicState( vk::DynamicState::eScissor )
     };
     auto const theDynamicStateCreateInfo = vk::PipelineDynamicStateCreateInfo
     (

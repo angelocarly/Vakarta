@@ -70,6 +70,29 @@ vkrt::ReflectionPresenter::ReflectionPresenter( vks::VulkanSessionPtr inSession 
     );
     mImageView = mDevice->GetVkDevice().createImageView( imageViewCreateInfo );
 
+    mSampler = mDevice->GetVkDevice().createSampler
+    (
+        vk::SamplerCreateInfo
+        (
+            vk::SamplerCreateFlags(),
+            vk::Filter::eLinear,
+            vk::Filter::eLinear,
+            vk::SamplerMipmapMode::eLinear,
+            vk::SamplerAddressMode::eRepeat,
+            vk::SamplerAddressMode::eRepeat,
+            vk::SamplerAddressMode::eRepeat,
+            0.0f,
+            VK_FALSE,
+            16.0f,
+            VK_FALSE,
+            vk::CompareOp::eAlways,
+            0.0f,
+            0.0f,
+            vk::BorderColor::eIntOpaqueBlack,
+            VK_FALSE
+        )
+    );
+
     vks::Buffer theStagingBuffer;
     auto theCommandBuffer = mDevice->BeginSingleTimeCommands();
     {

@@ -7,6 +7,9 @@ A generative art sandbox using the Vulkan API.
 ## Structure
 The project consists of a `vkrt` and a `vks` namespace. `vkrt` contains logic for the generative art whilst 'vks' contains abstractions around Vulkan. The abbreviations have no meaning yet.
 
+## Documentation
+- [Docs](./DOCS.md)
+
 ## Building
 VKRT requires the following packages to be available on your system:
 - [Vulkan](https://www.vulkan.org)

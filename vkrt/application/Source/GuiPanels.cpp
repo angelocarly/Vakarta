@@ -10,12 +10,47 @@
 #include <imgui_impl_vulkan.h>
 #include <imgui_impl_glfw.h>
 
+#define ZEP_SINGLE_HEADER_BUILD
+
+#include <zep.h>
+
+    struct ZepWrapper : public Zep::IZepComponent
+    {
+        ZepWrapper()
+        :
+            mEditor( Zep::fs::path( "." ), Zep::NVec2f( 1, 1) )
+        {
+
+        }
+
+        virtual Zep::ZepEditor& GetEditor() const override
+        {
+            return ( Zep::ZepEditor& ) mEditor;
+        }
+
+        Zep::ZepEditor_ImGui mEditor;
+        std::function<void(Zep::ZepMessage)> Callback;
+    };
+
+bool z_init = false;
+std::shared_ptr<ZepWrapper> zepWrapper;
+
+void zep_init()
+{
+    zepWrapper = std::make_shared<ZepWrapper>();
+    zepWrapper->mEditor.InitWithFileOrDir( "./test.md");
+}
+
 void
 vkrt::GuiPanels::Begin()
 {
     // Start the Dear ImGui frame
     ImGui_ImplVulkan_NewFrame();
     ImGui_ImplGlfw_NewFrame();
+
+    ImGuiIO& io = ImGui::GetIO();
+    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+
     ImGui::NewFrame();
 
     if( mShowDemoWindow )
@@ -34,6 +69,42 @@ vkrt::GuiPanels::Begin()
         }
         ImGui::EndMainMenuBar();
     }
+
+    if( !z_init )
+    {
+        z_init = true;
+        zep_init();
+    }
+
+    bool show = true;
+    ImGui::SetNextWindowSize(ImVec2( 200, 200 ), ImGuiCond_FirstUseEver);
+    if (!ImGui::Begin("Zep", &show, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_MenuBar))
+    {
+        ImGui::End();
+        return;
+    }
+
+    auto min = ImGui::GetCursorScreenPos();
+    auto max = ImGui::GetContentRegionAvail();
+    if (max.x <= 0)
+        max.x = 1;
+    if (max.y <= 0)
+        max.y = 1;
+    ImGui::InvisibleButton("ZepContainer", max);
+
+    // Fill the window
+    max.x = min.x + max.x;
+    max.y = min.y + max.y;
+
+    zepWrapper->GetEditor().SetDisplayRegion(Zep::NVec2f(min.x, min.y), Zep::NVec2f(max.x, max.y));
+    zepWrapper->GetEditor().Display();
+    bool zep_focused = ImGui::IsWindowFocused();
+    if (zep_focused)
+    {
+        zepWrapper->mEditor.HandleInput();
+    }
+
+    ImGui::End();
 }
 
 

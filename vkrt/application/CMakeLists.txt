@@ -82,6 +82,16 @@ include_directories( ${STB_DIR} )
 set( VMA "${LIB_DIR}/VulkanMemoryAllocator/include" )
 include_directories( ${VMA} )
 
+# zep
+target_include_directories(
+    ${PROJECT_NAME}
+        PUBLIC
+        ${LIB_DIR}/zep/include
+)
+add_definitions(-DZEP_SINGLE_HEADER=1)
+# Set this to get the default file system
+add_definitions(-DZEP_FEATURE_CPP_FILE_SYSTEM)
+
 # vma
 if(LINUX)
     set( VMA_HPP "${LIB_DIR}/VulkanMemoryAllocator-Hpp/linux/include" )

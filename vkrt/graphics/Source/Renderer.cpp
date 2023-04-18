@@ -184,9 +184,9 @@ vkrt::Renderer::RenderFrame( vks::Mesh & inMesh )
                     break;
             }
 //            inMesh.Draw( theCommandBuffer );
-            theCommandBuffer.bindVertexBuffers( 0, { mVertexBuffer.GetVkBuffer() }, { 0 } );
-            theCommandBuffer.bindIndexBuffer( mIndexBuffer.GetVkBuffer(), 0, vk::IndexType::eUint32 );
-            theCommandBuffer.drawIndexed( mInstanceCount * mIndicesPerInstance, 1, 0, 0, 0 );
+//            theCommandBuffer.bindVertexBuffers( 0, { mVertexBuffer.GetVkBuffer() }, { 0 } );
+//            theCommandBuffer.bindIndexBuffer( mIndexBuffer.GetVkBuffer(), 0, vk::IndexType::eUint32 );
+//            theCommandBuffer.drawIndexed( mInstanceCount * mIndicesPerInstance, 1, 0, 0, 0 );
 
             // Gui
             mGui->Render( theCommandBuffer );
