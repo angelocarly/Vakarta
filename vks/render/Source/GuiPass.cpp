@@ -14,6 +14,7 @@
 #include <imgui_impl_vulkan.h>
 #include <imgui_impl_glfw.h>
 #include <imgui.h>
+#include <imnodes.h>
 #include <vulkan/vulkan.hpp>
 
 class vks::GuiPass::Impl
@@ -60,6 +61,7 @@ vks::GuiPass::Impl::~Impl()
 
     ImGui_ImplVulkan_Shutdown();
     ImGui_ImplGlfw_Shutdown();
+    ImNodes::DestroyContext();
     ::ImGui::DestroyContext();
 }
 
@@ -97,6 +99,7 @@ vks::GuiPass::Impl::InitializeImGui()
 {
     ::IMGUI_CHECKVERSION();
     ::ImGui::CreateContext();
+    ImNodes::CreateContext();
     ImGuiIO& io = ::ImGui::GetIO();
     (void) io;
 

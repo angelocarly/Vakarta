@@ -23,3 +23,6 @@ Building happens with CMake:
 
 ## Running
 - `build/vkrt/Debug/VKRT`
+
+## Libraries
+- [imnodes](https://github.com/Nelarius/imnodes)

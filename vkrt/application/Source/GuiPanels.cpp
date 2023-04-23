@@ -5,7 +5,9 @@
 #include "vkrt/application/GuiPanels.h"
 
 #include "vkrt/application/Engine.h"
+#include "imnodes/imnodes.h"
 
+#define IMGUI_DEFINE_MATH_OPERATORS
 #include <imgui.h>
 #include <imgui_impl_vulkan.h>
 #include <imgui_impl_glfw.h>
@@ -178,6 +180,12 @@ vkrt::GuiPanels::ImageTest( vkrt::Presenter & inPresenter )
     }
     ImGui::End();
     ImGui::PopStyleVar();
+}
+
+void
+vkrt::GuiPanels::NodesTest()
+{
+    mGuiNodes.Draw();
 }
 
 void

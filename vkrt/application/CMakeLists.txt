@@ -2,12 +2,14 @@ set(
     HEADER_FILES
         Engine.h
         GuiPanels.h
+        GuiNodes.h
 )
 
 set(
     SOURCE_FILES
         Source/Engine.cpp
         Source/GuiPanels.cpp
+        Source/GuiNodes.cpp
         Source/main.cpp
 )
 

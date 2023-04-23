@@ -43,6 +43,7 @@ void vkrt::Engine::Update( float inFrameDuration )
     vkrt::GuiPanels::Tools( mRenderer );
     vkrt::GuiPanels::Stats( mStats );
     vkrt::GuiPanels::ImageTest( mReflectionPresenter );
+    vkrt::GuiPanels::NodesTest();
     vkrt::GuiPanels::End();
 
     mWindow->Poll();

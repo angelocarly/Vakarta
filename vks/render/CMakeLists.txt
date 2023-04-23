@@ -71,6 +71,9 @@ else()
 endif()
 include_directories( ${VMA_HPP} )
 
+# Imnodes
+target_link_libraries( VksRender PUBLIC Imnodes )
+
 # GLFW
 find_package(glfw3 3.3 REQUIRED)
 target_link_libraries( VksRender PUBLIC glfw)

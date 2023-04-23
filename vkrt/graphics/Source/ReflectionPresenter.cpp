@@ -185,6 +185,7 @@ vkrt::ReflectionPresenter::ReflectionPresenter( vks::VulkanSessionPtr inSession 
 
 vkrt::ReflectionPresenter::~ReflectionPresenter()
 {
+    mDevice->GetVkDevice().destroySampler( mSampler );
     mDevice->GetVkDevice().destroyImageView( mImageView );
     mDevice->DestroyImage( *mImage );
 }
