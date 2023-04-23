@@ -213,6 +213,36 @@ vks::Device::CreateImage( vk::ImageCreateInfo inImageCreateInfo, vma::Allocation
     return { theImageResult.first, theImageResult.second };
 }
 
+vks::Image
+vks::Device::CreateImage( vk::Format inFormat, std::size_t inWidth, std::size_t inHeight, vk::ImageUsageFlags inUsage, vma::MemoryUsage inMemoryUsage )
+{
+    auto theImageResult = mImpl->mAllocator.createImage
+    (
+        vk::ImageCreateInfo
+        (
+            vk::ImageCreateFlags(),
+            vk::ImageType::e2D,
+            inFormat,
+            vk::Extent3D( inWidth, inHeight, 1 ),
+            1,
+            1,
+            vk::SampleCountFlagBits::e1,
+            vk::ImageTiling::eOptimal,
+            vk::ImageUsageFlagBits::eSampled | vk::ImageUsageFlagBits::eTransferDst,
+            vk::SharingMode::eExclusive,
+            1,
+            0,
+            vk::ImageLayout::eUndefined
+        ),
+        vma::AllocationCreateInfo
+        (
+            vma::AllocationCreateFlagBits::eDedicatedMemory,
+            inMemoryUsage
+        )
+    );
+    return { theImageResult.first, theImageResult.second };
+}
+
 void
 vks::Device::DestroyImage( vks::Image inImage )
 {

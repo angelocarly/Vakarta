@@ -13,17 +13,12 @@
 #include "vkrt/core/ForwardDecl.h"
 #include "vkrt/graphics/Renderer.h"
 #include "vkrt/graphics/ReflectionPresenter.h"
+#include "vkrt/gui/GuiLayer.h"
 
 namespace vkrt
 {
     class Engine
     {
-        public:
-            struct Stats
-            {
-                float mFrameTime;
-                float mFps;
-            };
 
         public:
             Engine();
@@ -41,13 +36,13 @@ namespace vkrt
             vks::WindowPtr mWindow;
             vks::VulkanSessionPtr mVulkanSession;
             vkrt::Renderer mRenderer;
-            vkrt::InputState mInputState;
+            vkrt::InputStatePtr mInputState;
             vkrt::CameraPtr mCamera;
+            vkrt::GuiLayer mGuiLayer;
+            vkrt::GuiLayer::StatsInfo mStats;
             bool mMouseSwallowed = false;
 
         private:
-
-            Stats mStats;
             vkrt::ReflectionPresenter mReflectionPresenter;
 
             // Resources

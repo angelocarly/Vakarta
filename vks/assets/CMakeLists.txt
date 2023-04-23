@@ -2,12 +2,14 @@ set(
     HEADER_FILES
         AssetLoader.h
         MeshResource.h
+        ImageResource.h
 )
 
 set(
     SOURCE_FILES
         Source/AssetLoader.cpp
         Source/MeshResource.cpp
+        Source/ImageResource.cpp
 )
 
 add_library(
@@ -15,7 +17,7 @@ add_library(
     ${SOURCE_FILES}
     ${HEADER_FILES}
 )
-set_property( TARGET VksAssets PROPERTY CXX_STANDARD 17 )
+set_property( TARGET VksAssets PROPERTY CXX_STANDARD 20 )
 
 target_include_directories( VksAssets PUBLIC ${PROJECT_ROOT_DIR} )
 target_include_directories( VksAssets PUBLIC ${LIB_DIR} )

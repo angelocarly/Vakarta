@@ -1,15 +1,11 @@
 set(
     HEADER_FILES
         Engine.h
-        GuiPanels.h
-        GuiNodes.h
 )
 
 set(
     SOURCE_FILES
         Source/Engine.cpp
-        Source/GuiPanels.cpp
-        Source/GuiNodes.cpp
         Source/main.cpp
 )
 
@@ -26,10 +22,12 @@ set_property( TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 17 )
 ## Project libraries
 target_link_libraries(
     ${PROJECT_NAME} PUBLIC
+        VkrtCore
         VkrtGraphics
+        VkrtGui
         VksAssets
-        VksRender
         VksCore
+        VksRender
         Imgui
 )
 
@@ -40,6 +38,9 @@ set(
         bunny.obj
         mine.obj
         image.png
+        fonts/Roboto-Regular.ttf
+        fonts/DroidSans.ttf
+        fonts/Hack-Regular.ttf
 )
 add_custom_command(
         TARGET ${PROJECT_NAME} POST_BUILD
@@ -58,7 +59,7 @@ endforeach( RESOURCE )
 
 # Vulkan
 find_package( Vulkan REQUIRED )
-target_link_libraries( VKRT PUBLIC Vulkan::Vulkan )
+target_link_libraries( ${PROJECT_NAME} PUBLIC Vulkan::Vulkan )
 set( ENV{VK_ICD_FILENAMES} "${SRC_DIR}/../lib/VulkanSDK/macOS/etc/vulkan/icd.d/MoltenVK_icd.json" )
 set( ENV{VULKAN_SDK} "${SRC_DIR}/../lib/VulkanSDK/macOS/" )
 

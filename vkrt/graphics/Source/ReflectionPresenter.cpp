@@ -9,41 +9,25 @@
 
 #include "vkrt/graphics/ReflectionPresenter.h"
 
+#include "vks/assets/AssetLoader.h"
 #include "vks/render/Device.h"
 #include "vks/render/VulkanSession.h"
 #include "imgui_impl_vulkan.h"
-
-// TODO: put in loader class
-#define STB_IMAGE_IMPLEMENTATION
-#include <stb_image.h>
 
 vkrt::ReflectionPresenter::ReflectionPresenter( vks::VulkanSessionPtr inSession )
 :
     mDevice( inSession->GetDevice() )
 {
+
+    auto theImage = vks::AssetLoader::LoadImageResource( "resources/image.png" );
+
     mImage = std::make_shared< vks::Image >( mDevice->CreateImage
     (
-        vk::ImageCreateInfo
-        (
-            vk::ImageCreateFlags(),
-            vk::ImageType::e2D,
-            vk::Format::eR8G8B8A8Unorm,
-            vk::Extent3D( 2048, 2048, 1 ),
-            1,
-            1,
-            vk::SampleCountFlagBits::e1,
-            vk::ImageTiling::eOptimal,
-            vk::ImageUsageFlagBits::eSampled | vk::ImageUsageFlagBits::eTransferDst,
-            vk::SharingMode::eExclusive,
-            1,
-            0,
-            vk::ImageLayout::eUndefined
-        ),
-        vma::AllocationCreateInfo
-        (
-            vma::AllocationCreateFlagBits::eDedicatedMemory,
-            vma::MemoryUsage::eAuto
-        )
+        vk::Format::eR8G8B8A8Unorm,
+        theImage.GetWidth(),
+        theImage.GetHeight(),
+        vk::ImageUsageFlagBits::eSampled | vk::ImageUsageFlagBits::eTransferDst,
+        vma::MemoryUsage::eGpuOnly
     ) );
 
     auto imageViewCreateInfo = vk::ImageViewCreateInfo
@@ -109,14 +93,7 @@ vkrt::ReflectionPresenter::ReflectionPresenter( vks::VulkanSessionPtr inSession 
             vk::DependencyFlagBits::eByRegion
         );
 
-        int texWidth, texHeight, texChannels;
-        stbi_uc * pixels = stbi_load( "resources/image.png", & texWidth, & texHeight, & texChannels, STBI_rgb_alpha );
-        VkDeviceSize imageSize = texWidth * texHeight * 4;
-
-        if( !pixels )
-        {
-            throw std::runtime_error( "failed to load texture image!" );
-        }
+        // Load image
 
         // Staging buffer
         vma::AllocationCreateInfo theVertexAllocationInfo;
@@ -127,7 +104,7 @@ vkrt::ReflectionPresenter::ReflectionPresenter( vks::VulkanSessionPtr inSession 
             vk::BufferCreateInfo
             (
                 vk::BufferCreateFlags(),
-                imageSize,
+                theImage.GetDataSize(),
                 vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eTransferSrc
             ),
             theVertexAllocationInfo
@@ -135,7 +112,7 @@ vkrt::ReflectionPresenter::ReflectionPresenter( vks::VulkanSessionPtr inSession 
 
         // Copy image to staging buffer
         void* theMemory = mDevice->MapMemory( theStagingBuffer );
-        memcpy(theMemory, pixels, static_cast<size_t>( imageSize ) );
+        std::memcpy(theMemory, theImage.GetData().data(), theImage.GetDataSize() );
         mDevice->UnmapMemory( theStagingBuffer );
 
         // Copy staging buffer to image memory
@@ -157,7 +134,7 @@ vkrt::ReflectionPresenter::ReflectionPresenter( vks::VulkanSessionPtr inSession 
                     1
                 ),
                 vk::Offset3D( 0, 0, 0 ),
-                vk::Extent3D( texWidth, texHeight, 1 )
+                vk::Extent3D( theImage.GetWidth(), theImage.GetHeight(), 1 )
             )
         );
 
@@ -174,9 +151,6 @@ vkrt::ReflectionPresenter::ReflectionPresenter( vks::VulkanSessionPtr inSession 
             vk::ImageLayout::eShaderReadOnlyOptimal,
             vk::DependencyFlagBits::eByRegion
         );
-
-        // Free buffer
-        stbi_image_free( pixels );
     }
     mDevice->EndSingleTimeCommands( theCommandBuffer );
 

@@ -16,6 +16,7 @@
 #include <imgui.h>
 #include <imnodes.h>
 #include <vulkan/vulkan.hpp>
+#include <filesystem>
 
 class vks::GuiPass::Impl
 {
@@ -105,6 +106,12 @@ vks::GuiPass::Impl::InitializeImGui()
 
     ImGui::StyleColorsDark();
     SetStyle();
+
+    // Load fonts
+    // TODO: Load fonts dynamically
+    auto fontPath = std::filesystem::path( "./" ) / "resources" / "fonts" / "Hack-Regular.ttf";
+    io.Fonts->AddFontDefault();
+    io.Fonts->AddFontFromFileTTF( fontPath.string().c_str(), 16.0f );
 
     // Setup Vulkan bindings
     ImGui_ImplGlfw_InitForVulkan( mWindow->GetGLFWWindow(), true);

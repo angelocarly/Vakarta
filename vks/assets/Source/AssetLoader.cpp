@@ -3,9 +3,14 @@
 //
 
 #include "vks/assets/AssetLoader.h"
+#include "vks/assets/ImageResource.h"
+#include "stb/stb_image.h"
 
 #define TINYOBJLOADER_IMPLEMENTATION
 #include <tiny_obj_loader.h>
+
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb/stb_image.h>
 
 #include <unordered_map>
 #include <spdlog/spdlog.h>
@@ -112,4 +117,26 @@ vks::AssetLoader::LoadMeshResource( std::filesystem::path inPath )
     }
 
     return { vertices, indices };
+}
+
+vks::ImageResource
+vks::AssetLoader::LoadImageResource( std::filesystem::path inPath )
+{
+    int texWidth, texHeight, texChannels;
+    int alphaChannels = 1;
+    stbi_uc * pixels = stbi_load( inPath.c_str(), & texWidth, & texHeight, & texChannels, STBI_rgb_alpha );
+
+    if( !pixels )
+    {
+        throw std::runtime_error( "failed to load texture image!" );
+    }
+
+    int totalChannels = texChannels + alphaChannels;
+    std::vector< std::uint8_t > thePixels = std::vector< std::uint8_t >( pixels, pixels + texWidth * texHeight * totalChannels );
+    vks::ImageResource theImage = { ( std::size_t ) texWidth, ( std::size_t ) texHeight, ( std::size_t ) totalChannels, std::move( thePixels ) };
+
+    // Free buffer
+    stbi_image_free( pixels );
+
+    return theImage;
 }

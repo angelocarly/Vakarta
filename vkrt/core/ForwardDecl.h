@@ -11,6 +11,9 @@ namespace vkrt
 {
     class Camera;
     typedef std::shared_ptr< vkrt::Camera > CameraPtr;
+
+    class InputState;
+    typedef std::shared_ptr< vkrt::InputState > InputStatePtr;
 }
 
 #endif //VKRT_FORWARDDECL_H

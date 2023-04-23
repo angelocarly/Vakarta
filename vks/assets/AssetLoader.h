@@ -6,6 +6,7 @@
 #define VKRT_ASSETLOADER_H
 
 #include "MeshResource.h"
+#include "ImageResource.h"
 
 #include <filesystem>
 #include <memory>
@@ -19,6 +20,7 @@ namespace vks
             ~AssetLoader();
 
             vks::MeshResource LoadMeshResource( std::filesystem::path inPath );
+            static vks::ImageResource LoadImageResource( std::filesystem::path inPath );
 
         private:
             class Impl;

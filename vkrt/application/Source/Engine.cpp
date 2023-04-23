@@ -1,5 +1,4 @@
 #include "vkrt/application/Engine.h"
-#include "vkrt/application/GuiPanels.h"
 
 #include <imgui/imgui.h>
 #include <spdlog/spdlog.h>
@@ -13,10 +12,11 @@ vkrt::Engine::Engine()
     mWindow( std::make_shared< vks::Window >( WIDTH, HEIGHT, TITLE ) ),
     mVulkanSession( vks::VulkanSession::GetInstance() ),
     mRenderer( mVulkanSession, mWindow, { vkrt::RendererConfig::LINES } ),
-    mInputState( mWindow ),
+    mInputState( std::make_shared< InputState >( mWindow ) ),
     mCamera( std::make_shared< vkrt::Camera >( 45, float( WIDTH ) / float( HEIGHT ), 0.1f, 250.0f ) ),
     mAssetLoader(),
-    mReflectionPresenter( mVulkanSession )
+    mReflectionPresenter( mVulkanSession ),
+    mGuiLayer( mInputState )
 {
     mCamera->SetPosition( glm::vec3( 0, 0, 5 ));
     mRenderer.SetCamera( mCamera );
@@ -34,86 +34,87 @@ vkrt::Engine::~Engine()
 
 // ---------------------------------------------------------------------------------------------------------------------
 
-void vkrt::Engine::Update( float inFrameDuration )
+void
+vkrt::Engine::Update( float inFrameDuration )
 {
     // Render Gui
-    vkrt::GuiPanels::Begin();
+    mGuiLayer.Begin();
     mStats.mFps = 1.0f / inFrameDuration;
     mStats.mFrameTime = inFrameDuration;
-    vkrt::GuiPanels::Tools( mRenderer );
-    vkrt::GuiPanels::Stats( mStats );
-    vkrt::GuiPanels::ImageTest( mReflectionPresenter );
-    vkrt::GuiPanels::NodesTest();
-    vkrt::GuiPanels::End();
+//    vkrt::GuiPanels::Tools( mRenderer );
+//    vkrt::GuiPanels::Stats( mStats );
+    mGuiLayer.ImageTest( mReflectionPresenter );
+    mGuiLayer.NodesTest( mReflectionPresenter );
+    mGuiLayer.End();
 
     mWindow->Poll();
 
     ImGuiIO &io = ImGui::GetIO();
     if( io.WantCaptureMouse ) return;
 
-    mInputState.Sync();
+    mInputState->Sync();
 
-    if( mInputState.IsButtonClicked( GLFW_MOUSE_BUTTON_1 ) )
+    if( mInputState->IsButtonClicked( GLFW_MOUSE_BUTTON_1 ) )
     {
-        mInputState.SwallowMouse();
+        mInputState->SwallowMouse();
         mMouseSwallowed = true;
     }
-    if( mInputState.IsKeyDown( GLFW_KEY_ESCAPE ) )
+    if( mInputState->IsKeyDown( GLFW_KEY_ESCAPE ) )
     {
-        mInputState.ReleaseMouse();
+        mInputState->ReleaseMouse();
         mMouseSwallowed = false;
     }
 
     if( mMouseSwallowed )
     {
 
-        glm::vec2 theMouseDelta = mInputState.GetMouseDelta() / 1000.0f;
+        glm::vec2 theMouseDelta = mInputState->GetMouseDelta() / 1000.0f;
         mCamera->RotatePitch( theMouseDelta.y );
         mCamera->RotateYaw( theMouseDelta.x );
 
         // Switch render mode
-        if( mInputState.IsKeyDown( GLFW_KEY_T ) )
+        if( mInputState->IsKeyDown( GLFW_KEY_T ) )
         {
             auto theConfig = mRenderer.GetConfig();
             theConfig.topology = vkrt::RendererConfig::LINES;
             mRenderer.SetConfig( theConfig );
         }
-        if( mInputState.IsKeyDown( GLFW_KEY_Y ) )
+        if( mInputState->IsKeyDown( GLFW_KEY_Y ) )
         {
             auto theConfig = mRenderer.GetConfig();
             theConfig.topology = vkrt::RendererConfig::TRIANGLES;
             mRenderer.SetConfig( theConfig );
         }
 
-        if( mInputState.IsKeyDown( GLFW_KEY_Q ) )
+        if( mInputState->IsKeyDown( GLFW_KEY_Q ) )
         {
             mCamera->RotateRoll( -0.1f );
         }
-        if( mInputState.IsKeyDown( GLFW_KEY_E ) )
+        if( mInputState->IsKeyDown( GLFW_KEY_E ) )
         {
             mCamera->RotateRoll( 0.1f );
         }
-        if( mInputState.IsKeyDown( GLFW_KEY_W ) )
+        if( mInputState->IsKeyDown( GLFW_KEY_W ) )
         {
             mCamera->Forward( 0.1f );
         }
-        if( mInputState.IsKeyDown( GLFW_KEY_S ) )
+        if( mInputState->IsKeyDown( GLFW_KEY_S ) )
         {
             mCamera->Backward( 0.1f );
         }
-        if( mInputState.IsKeyDown( GLFW_KEY_D ) )
+        if( mInputState->IsKeyDown( GLFW_KEY_D ) )
         {
             mCamera->Right( 0.1f );
         }
-        if( mInputState.IsKeyDown( GLFW_KEY_A ) )
+        if( mInputState->IsKeyDown( GLFW_KEY_A ) )
         {
             mCamera->Left( 0.1f );
         }
-        if( mInputState.IsKeyDown( GLFW_KEY_SPACE ) )
+        if( mInputState->IsKeyDown( GLFW_KEY_SPACE ) )
         {
             mCamera->Up( 0.1f );
         }
-        if( mInputState.IsKeyDown( GLFW_KEY_LEFT_SHIFT ) )
+        if( mInputState->IsKeyDown( GLFW_KEY_LEFT_SHIFT ) )
         {
             mCamera->Down( 0.1f );
         }

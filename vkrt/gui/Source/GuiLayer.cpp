@@ -2,7 +2,7 @@
 // Created by magnias on 1/29/23.
 //
 
-#include "vkrt/application/GuiPanels.h"
+#include "vkrt/gui/GuiLayer.h"
 
 #include "vkrt/application/Engine.h"
 #include "imnodes/imnodes.h"
@@ -16,35 +16,23 @@
 
 #include <zep.h>
 
-    struct ZepWrapper : public Zep::IZepComponent
-    {
-        ZepWrapper()
-        :
-            mEditor( Zep::fs::path( "." ), Zep::NVec2f( 1, 1) )
-        {
+vkrt::GuiLayer::GuiLayer( vkrt::InputStatePtr inInputState )
+:
+    mGuiNodes( GuiNodes( inInputState ) )
+{
+}
 
-        }
+vkrt::GuiLayer::~GuiLayer()
+{
 
-        virtual Zep::ZepEditor& GetEditor() const override
-        {
-            return ( Zep::ZepEditor& ) mEditor;
-        }
-
-        Zep::ZepEditor_ImGui mEditor;
-        std::function<void(Zep::ZepMessage)> Callback;
-    };
-
-bool z_init = false;
-std::shared_ptr<ZepWrapper> zepWrapper;
+}
 
 void zep_init()
 {
-    zepWrapper = std::make_shared<ZepWrapper>();
-    zepWrapper->mEditor.InitWithFileOrDir( "./test.md");
 }
 
 void
-vkrt::GuiPanels::Begin()
+vkrt::GuiLayer::Begin()
 {
     // Start the Dear ImGui frame
     ImGui_ImplVulkan_NewFrame();
@@ -52,8 +40,11 @@ vkrt::GuiPanels::Begin()
 
     ImGuiIO& io = ImGui::GetIO();
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+    io.ConfigDockingWithShift = true;
 
     ImGui::NewFrame();
+
+    ImGui::DockSpaceOverViewport();
 
     if( mShowDemoWindow )
     {
@@ -72,46 +63,10 @@ vkrt::GuiPanels::Begin()
         ImGui::EndMainMenuBar();
     }
 
-    if( !z_init )
-    {
-        z_init = true;
-        zep_init();
-    }
-
-    bool show = true;
-    ImGui::SetNextWindowSize(ImVec2( 200, 200 ), ImGuiCond_FirstUseEver);
-    if (!ImGui::Begin("Zep", &show, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_MenuBar))
-    {
-        ImGui::End();
-        return;
-    }
-
-    auto min = ImGui::GetCursorScreenPos();
-    auto max = ImGui::GetContentRegionAvail();
-    if (max.x <= 0)
-        max.x = 1;
-    if (max.y <= 0)
-        max.y = 1;
-    ImGui::InvisibleButton("ZepContainer", max);
-
-    // Fill the window
-    max.x = min.x + max.x;
-    max.y = min.y + max.y;
-
-    zepWrapper->GetEditor().SetDisplayRegion(Zep::NVec2f(min.x, min.y), Zep::NVec2f(max.x, max.y));
-    zepWrapper->GetEditor().Display();
-    bool zep_focused = ImGui::IsWindowFocused();
-    if (zep_focused)
-    {
-        zepWrapper->mEditor.HandleInput();
-    }
-
-    ImGui::End();
 }
 
-
 void
-vkrt::GuiPanels::Stats( vkrt::Engine::Stats & inStats )
+vkrt::GuiLayer::Stats( vkrt::GuiLayer::StatsInfo & inStats )
 {
     if( !mShowStats ) return;
 
@@ -143,7 +98,7 @@ vkrt::GuiPanels::Stats( vkrt::Engine::Stats & inStats )
 }
 
 void
-vkrt::GuiPanels::Tools( vkrt::Renderer & inRenderer )
+vkrt::GuiLayer::Tools( vkrt::Renderer & inRenderer )
 {
     if( !mShowTools ) return;
 
@@ -169,7 +124,7 @@ vkrt::GuiPanels::Tools( vkrt::Renderer & inRenderer )
 }
 
 void
-vkrt::GuiPanels::ImageTest( vkrt::Presenter & inPresenter )
+vkrt::GuiLayer::ImageTest( vkrt::Presenter & inPresenter )
 {
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0,0));
     ImGui::Begin("ImageTest" );
@@ -183,13 +138,13 @@ vkrt::GuiPanels::ImageTest( vkrt::Presenter & inPresenter )
 }
 
 void
-vkrt::GuiPanels::NodesTest()
+vkrt::GuiLayer::NodesTest( vkrt::Presenter & inPresenter )
 {
-    mGuiNodes.Draw();
+    mGuiNodes.Draw( inPresenter );
 }
 
 void
-vkrt::GuiPanels::End()
+vkrt::GuiLayer::End()
 {
     // Rendering
     ImGui::Render();

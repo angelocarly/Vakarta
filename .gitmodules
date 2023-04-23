@@ -1,9 +1,10 @@
-[submodule "lib/zep"]
-	path = lib/zep
-	url = https://github.com/Rezonality/zep.git
 [submodule "lib/imgui"]
 	path = lib/imgui
 	url = git@github.com:ocornut/imgui.git
+	branch = docking
+[submodule "lib/zep"]
+	path = lib/zep
+	url = https://github.com/Rezonality/zep
 [submodule "lib/imnodes"]
 	path = lib/imnodes
 	url = https://github.com/Nelarius/imnodes
