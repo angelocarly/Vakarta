@@ -10,7 +10,7 @@ vkrt::gui::ImageGenNode::ImageGenNode( vkrt::gui::NodeContextPtr inContext )
 :
     Node( inContext )
 {
-
+    mOutputId = inContext->AddAttribute();
 }
 
 vkrt::gui::ImageGenNode::~ImageGenNode()

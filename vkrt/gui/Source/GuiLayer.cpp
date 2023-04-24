@@ -16,10 +16,10 @@
 
 #include <zep.h>
 
-vkrt::GuiLayer::GuiLayer( vkrt::InputStatePtr inInputState )
-:
-    mGuiNodes( GuiNodes( inInputState ) )
+vkrt::GuiLayer::GuiLayer( vkrt::InputStatePtr inInputState, ImGuiContext * inContext )
 {
+    ImGui::SetCurrentContext( inContext );
+    mGuiNodes = std::make_shared< GuiNodes >( inInputState );
 }
 
 vkrt::GuiLayer::~GuiLayer()
@@ -140,7 +140,7 @@ vkrt::GuiLayer::ImageTest( vkrt::Presenter & inPresenter )
 void
 vkrt::GuiLayer::NodesTest( vkrt::Presenter & inPresenter )
 {
-    mGuiNodes.Draw( inPresenter );
+    mGuiNodes->Draw( inPresenter );
 }
 
 void

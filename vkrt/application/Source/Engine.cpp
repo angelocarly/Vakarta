@@ -16,7 +16,7 @@ vkrt::Engine::Engine()
     mCamera( std::make_shared< vkrt::Camera >( 45, float( WIDTH ) / float( HEIGHT ), 0.1f, 250.0f ) ),
     mAssetLoader(),
     mReflectionPresenter( mVulkanSession ),
-    mGuiLayer( mInputState )
+    mGuiLayer( mInputState, mRenderer.GetImGuiContext() )
 {
     mCamera->SetPosition( glm::vec3( 0, 0, 5 ));
     mRenderer.SetCamera( mCamera );
@@ -24,7 +24,6 @@ vkrt::Engine::Engine()
     auto theMesh = mAssetLoader.LoadMeshResource( "resources/bunny.obj" );
     mMesh = std::make_unique< vks::Mesh >( mVulkanSession->GetDevice(), theMesh.GetVertices(), theMesh.GetIndices() );
 
-    ImGui::SetCurrentContext( mRenderer.GetImGuiContext() );
 }
 
 vkrt::Engine::~Engine()

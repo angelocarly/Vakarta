@@ -8,11 +8,7 @@ set(PROJECT_ROOT_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
 set(LIB_DIR "${CMAKE_CURRENT_SOURCE_DIR}/lib")
 
 ### PATH
-if(LINUX)
-    set( VKRT_BIN_PATH ${CMAKE_CURRENT_BINARY_DIR}/vkrt/application )
-else()
-    set( VKRT_BIN_PATH ${CMAKE_CURRENT_BINARY_DIR}/vkrt/application/Debug )
-endif()
+set( VKRT_BIN_PATH ${CMAKE_CURRENT_BINARY_DIR}/vkrt/application )
 
 ### Libraries
 # glad

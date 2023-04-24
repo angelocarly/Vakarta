@@ -57,10 +57,9 @@ vkrt::GuiNodes::Draw( vkrt::Presenter & inPresenter )
             theNode->Draw();
         }
 
-        for( int i = 0; i < mNodeContext->GetLinks().size(); i++ )
+        for( auto theLink : mNodeContext->GetLinks() )
         {
-            auto link = mNodeContext->GetLinks()[ i ];
-            ImNodes::Link( i, link.mA, link.mB );
+            ImNodes::Link( theLink.first, theLink.second.mA, theLink.second.mB );
         }
 
         ImNodes::PopColorStyle();
@@ -80,7 +79,7 @@ vkrt::GuiNodes::Draw( vkrt::Presenter & inPresenter )
     for( auto theLink : mNodeContext->GetLinks() )
     {
         if( !ImNodes::IsLinkSelected( theLink.first ) ) continue;
-        if( mInputState->IsKeyDown( GLFW_KEY_DELETE ) )
+        if( mInputState->IsKeyDown( GLFW_KEY_DELETE ) || mInputState->IsKeyDown( GLFW_KEY_BACKSPACE ) )
         {
             linksToRemove.push_back( theLink.first );
             break;

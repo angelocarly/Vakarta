@@ -39,6 +39,8 @@ target_link_libraries(
         Imgui
 )
 
+set_property( TARGET VkrtGui PROPERTY CXX_STANDARD 17 )
+
 ### External dependencies
 
 # Vulkan

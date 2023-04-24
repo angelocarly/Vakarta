@@ -22,7 +22,7 @@ namespace vkrt
             };
 
         public:
-            GuiLayer( InputStatePtr inInputState );
+            GuiLayer( vkrt::InputStatePtr inInputState, ImGuiContext * inContext );
             ~GuiLayer();
 
             void Begin();
@@ -38,7 +38,7 @@ namespace vkrt
             bool mShowDemoWindow = false;
 
         private:
-            GuiNodes mGuiNodes;
+            std::shared_ptr< GuiNodes > mGuiNodes;
     };
 }
 
