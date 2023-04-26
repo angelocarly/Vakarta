@@ -4,9 +4,10 @@
 
 #include "vkrt/gui/Node.h"
 
-vkrt::gui::Node::Node( vkrt::gui::NodeContextPtr inContext )
-    :
-    mId( inContext->AddNode() )
+vkrt::gui::Node::Node( vkrt::gui::NodeContextPtr inContext, Type mType )
+:
+    mId( inContext->AddNode( this ) ),
+    mType( mType )
 {
 }
 

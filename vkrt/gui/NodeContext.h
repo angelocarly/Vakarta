@@ -9,6 +9,7 @@
 #include <vector>
 #include <map>
 #include "IdCache.h"
+#include "ForwardDecl.h"
 
 namespace vkrt::gui
 {
@@ -26,17 +27,20 @@ namespace vkrt::gui
             ~NodeContext();
 
             std::size_t GetNextLinkId() { return mLinks.size(); }
-            std::size_t AddNode();
+            std::size_t AddNode( Node * inNode );
+            NodePtr GetNode( std::size_t inIndex ) { return mNodes[ inIndex ]; };
             std::size_t AddAttribute();
             std::size_t AddLink( std::size_t a, std::size_t b );
             [[nodiscard]] std::map< std::size_t, Link > GetLinks() const { return mLinks; }
+            [[nodiscard]] std::map< std::size_t, NodePtr > GetNodes() const { return mNodes; }
             void RemoveLink( std::size_t inId );
 
         private:
 
             std::map< std::size_t, Link > mLinks;
+            std::map< std::size_t, NodePtr > mNodes;
             vkrt::gui::IdCache mLinkIdCache;
-            vkrt::gui::IdCache mNodes;
+            vkrt::gui::IdCache mNodeIdCache;
             vkrt::gui::IdCache mAttributes;
     };
 

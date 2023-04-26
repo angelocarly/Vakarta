@@ -4,11 +4,14 @@
 
 #include "vkrt/gui/ImageGenNode.h"
 
+#include "vks/render/VulkanSession.h"
+
 #include <imnodes.h>
 
 vkrt::gui::ImageGenNode::ImageGenNode( vkrt::gui::NodeContextPtr inContext )
 :
-    Node( inContext )
+    Node( inContext, Node::Type::ImageGen ),
+    mReflectionPresenter( vks::VulkanSession::GetInstance() )
 {
     mOutputId = inContext->AddAttribute();
 }
@@ -42,5 +45,11 @@ vkrt::gui::ImageGenNode::Draw()
     }
     ImNodes::EndNode();
 
+}
+
+vk::DescriptorSet
+vkrt::gui::ImageGenNode::ProvideImage()
+{
+    return mReflectionPresenter.GetImage();
 }
 

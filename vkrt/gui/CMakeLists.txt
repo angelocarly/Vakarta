@@ -5,6 +5,7 @@ set(
         GuiNodes.h
         ImageNode.h
         ImageGenNode.h
+        ImageProvider.h
         IdCache.h
         ShaderEditor.h
         Node.h

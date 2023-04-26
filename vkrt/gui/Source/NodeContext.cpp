@@ -3,6 +3,7 @@
 //
 
 #include "vkrt/gui/NodeContext.h"
+#include "vkrt/gui/Node.h"
 
 vkrt::gui::NodeContext::NodeContext()
 {
@@ -15,9 +16,11 @@ vkrt::gui::NodeContext::~NodeContext()
 }
 
 std::size_t
-vkrt::gui::NodeContext::AddNode()
+vkrt::gui::NodeContext::AddNode( Node * inNode )
 {
-    return mNodes.AddId();
+    auto theId = mNodeIdCache.AddId();
+    mNodes[ theId ] = std::shared_ptr< Node >( inNode );
+    return theId;
 }
 
 std::size_t

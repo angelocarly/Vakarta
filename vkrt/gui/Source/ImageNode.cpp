@@ -9,10 +9,9 @@
 
 vkrt::gui::ImageNode::ImageNode( vkrt::gui::NodeContextPtr inContext )
 :
-    vkrt::gui::Node( inContext )
+    vkrt::gui::Node( inContext, vkrt::gui::Node::Type::ImageOutput )
 {
     mInputId = inContext->AddAttribute();
-    mOutputId = inContext->AddAttribute();
 }
 
 vkrt::gui::ImageNode::~ImageNode()
@@ -26,18 +25,29 @@ vkrt::gui::ImageNode::Draw()
     ImNodes::BeginNode( GetId() );
     {
         ImNodes::BeginNodeTitleBar();
-        ImGui::TextUnformatted( "simple node :)" );
+        ImGui::TextUnformatted( "Image output" );
         ImNodes::EndNodeTitleBar();
 
         ImNodes::BeginInputAttribute( mInputId );
-        ImGui::Text( "input" );
         ImNodes::EndInputAttribute();
 
-        ImNodes::BeginOutputAttribute( mOutputId );
-        ImGui::Indent( 40 );
-        ImGui::Text( "output I" );
-        ImNodes::EndOutputAttribute();
+        if( !mImageProvider )
+        {
+            ImGui::Text( "No image provider" );
+        }
+        else
+        {
+            ImVec2 wsize = ImVec2( 200, 200 );
+            ImGui::Image( mImageProvider->ProvideImage(), wsize );
+        }
+
     }
     ImNodes::EndNode();
 
+}
+
+void
+vkrt::gui::ImageNode::SetImageProvider( std::shared_ptr< vkrt::gui::ImageProvider > inImageProvider )
+{
+    mImageProvider = inImageProvider;
 }

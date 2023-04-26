@@ -86,8 +86,48 @@ vkrt::GuiNodes::Draw( vkrt::Presenter & inPresenter )
         }
     }
 
-    for( auto theLink : linksToRemove )
+    for( auto theLinkId : linksToRemove )
     {
-        mNodeContext->RemoveLink( theLink );
+        auto theLink = mNodeContext->GetLinks()[ theLinkId ];
+        auto theNodeB = mNodeContext->GetNode( theLink.mB );
+        switch( theNodeB->GetType() )
+        {
+            case vkrt::gui::Node::Type::ImageOutput:
+            {
+                auto theImageNode = std::dynamic_pointer_cast< vkrt::gui::ImageNode >( theNodeB );
+                theImageNode->SetImageProvider( nullptr );
+                break;
+            }
+            case vkrt::gui::Node::Type::ImageGen:
+            {
+                break;
+            }
+        }
+
+        mNodeContext->RemoveLink( theLinkId );
+    }
+
+    // Compute the node graph
+    for( auto theLink : mNodeContext->GetLinks() )
+    {
+        auto theNodeA = mNodeContext->GetNode( theLink.second.mA );
+        auto theNodeB = mNodeContext->GetNode( theLink.second.mB );
+        switch( theNodeB->GetType() )
+        {
+            case vkrt::gui::Node::Type::ImageOutput:
+            {
+                auto theImageNode = std::dynamic_pointer_cast< vkrt::gui::ImageNode >( theNodeB );
+                if( theNodeA->GetType() == vkrt::gui::Node::Type::ImageGen )
+                {
+                    auto theImageGenNode = std::dynamic_pointer_cast< vkrt::gui::ImageGenNode >( theNodeA );
+                    theImageNode->SetImageProvider( theImageGenNode );
+                }
+                break;
+            }
+            case vkrt::gui::Node::Type::ImageGen:
+            {
+                break;
+            }
+        }
     }
 }
