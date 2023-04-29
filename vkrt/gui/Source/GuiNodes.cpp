@@ -14,6 +14,7 @@
 #include "vkrt/gui/NodeContext.h"
 #include "vkrt/gui/ImageNode.h"
 #include "vkrt/gui/ImageGenNode.h"
+#include "vkrt/gui/BufferNode.h"
 
 #include <GLFW/glfw3.h>
 #include <imnodes.h>
@@ -26,6 +27,8 @@ vkrt::GuiNodes::GuiNodes( vkrt::InputStatePtr inInputState )
     mNodes.push_back( std::make_shared< vkrt::gui::ImageNode >( mNodeContext ) );
     mNodes.push_back( std::make_shared< vkrt::gui::ImageNode >( mNodeContext ) );
     mNodes.push_back( std::make_shared< vkrt::gui::ImageNode >( mNodeContext ) );
+    mNodes.push_back( std::make_shared< vkrt::gui::BufferNode >( mNodeContext ) );
+    mNodes.push_back( std::make_shared< vkrt::gui::BufferNode >( mNodeContext ) );
     mNodes.push_back( std::make_shared< vkrt::gui::ImageGenNode >( mNodeContext ) );
 }
 
@@ -59,7 +62,7 @@ vkrt::GuiNodes::Draw( vkrt::Presenter & inPresenter )
 
         for( auto theLink : mNodeContext->GetLinks() )
         {
-            ImNodes::Link( theLink.first, theLink.second.mA, theLink.second.mB );
+            ImNodes::Link( theLink.first, theLink.second->mSource->mId, theLink.second->mDestination->mId );
         }
 
         ImNodes::PopColorStyle();
@@ -72,9 +75,12 @@ vkrt::GuiNodes::Draw( vkrt::Presenter & inPresenter )
     int start_attr, end_attr;
     if ( ImNodes::IsLinkCreated( &start_attr, &end_attr ) )
     {
-        mNodeContext->AddLink( start_attr, end_attr );
+        auto theSource = mNodeContext->GetOutputAttribute( start_attr );
+        auto theDestination = mNodeContext->GetInputAttribute( end_attr );
+        mNodeContext->AddLink( theSource, theDestination );
     }
 
+    // Delete links
     std::vector< std::size_t > linksToRemove;
     for( auto theLink : mNodeContext->GetLinks() )
     {
@@ -88,46 +94,6 @@ vkrt::GuiNodes::Draw( vkrt::Presenter & inPresenter )
 
     for( auto theLinkId : linksToRemove )
     {
-        auto theLink = mNodeContext->GetLinks()[ theLinkId ];
-        auto theNodeB = mNodeContext->GetNode( theLink.mB );
-        switch( theNodeB->GetType() )
-        {
-            case vkrt::gui::Node::Type::ImageOutput:
-            {
-                auto theImageNode = std::dynamic_pointer_cast< vkrt::gui::ImageNode >( theNodeB );
-                theImageNode->SetImageProvider( nullptr );
-                break;
-            }
-            case vkrt::gui::Node::Type::ImageGen:
-            {
-                break;
-            }
-        }
-
         mNodeContext->RemoveLink( theLinkId );
-    }
-
-    // Compute the node graph
-    for( auto theLink : mNodeContext->GetLinks() )
-    {
-        auto theNodeA = mNodeContext->GetNode( theLink.second.mA );
-        auto theNodeB = mNodeContext->GetNode( theLink.second.mB );
-        switch( theNodeB->GetType() )
-        {
-            case vkrt::gui::Node::Type::ImageOutput:
-            {
-                auto theImageNode = std::dynamic_pointer_cast< vkrt::gui::ImageNode >( theNodeB );
-                if( theNodeA->GetType() == vkrt::gui::Node::Type::ImageGen )
-                {
-                    auto theImageGenNode = std::dynamic_pointer_cast< vkrt::gui::ImageGenNode >( theNodeA );
-                    theImageNode->SetImageProvider( theImageGenNode );
-                }
-                break;
-            }
-            case vkrt::gui::Node::Type::ImageGen:
-            {
-                break;
-            }
-        }
     }
 }

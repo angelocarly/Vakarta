@@ -12,7 +12,7 @@
 struct vkrt::gui::ShaderEditor::ZepWrapper : public Zep::IZepComponent
 {
     ZepWrapper()
-        :
+    :
         mEditor( Zep::fs::path( "." ), Zep::NVec2f( 1, 1) )
     {
 
@@ -30,7 +30,8 @@ struct vkrt::gui::ShaderEditor::ZepWrapper : public Zep::IZepComponent
 vkrt::gui::ShaderEditor::ShaderEditor()
 {
     zepWrapper = std::make_shared< vkrt::gui::ShaderEditor::ZepWrapper >();
-    zepWrapper->mEditor.InitWithFileOrDir( "./test.md");
+//    zepWrapper->mEditor.InitWithFileOrDir( "./test.md");
+    zepWrapper->mEditor.InitWithText( "Hello World", "Hello world" );
 
     // TODO: Add custom theme
 //    auto theTheme = std::make_shared<Zep::ZepTheme>();

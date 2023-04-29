@@ -10,10 +10,10 @@
 
 vkrt::gui::ImageGenNode::ImageGenNode( vkrt::gui::NodeContextPtr inContext )
 :
-    Node( inContext, Node::Type::ImageGen ),
-    mReflectionPresenter( vks::VulkanSession::GetInstance() )
+    Node( inContext ),
+    mReflectionPresenter( vks::VulkanSession::GetInstance() ),
+    mOutput( inContext->AddOutputAttribute( [ this ](){ return mReflectionPresenter.GetImage(); } ) )
 {
-    mOutputId = inContext->AddAttribute();
 }
 
 vkrt::gui::ImageGenNode::~ImageGenNode()
@@ -30,7 +30,7 @@ vkrt::gui::ImageGenNode::Draw()
         ImGui::TextUnformatted( "Image gen" );
         ImNodes::EndNodeTitleBar();
 
-        ImNodes::BeginOutputAttribute( mOutputId );
+        ImNodes::BeginOutputAttribute( mOutput->mId );
         ImGui::Indent( 40 );
         ImGui::Text( "output" );
         ImNodes::EndOutputAttribute();
@@ -46,10 +46,3 @@ vkrt::gui::ImageGenNode::Draw()
     ImNodes::EndNode();
 
 }
-
-vk::DescriptorSet
-vkrt::gui::ImageGenNode::ProvideImage()
-{
-    return mReflectionPresenter.GetImage();
-}
-

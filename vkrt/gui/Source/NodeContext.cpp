@@ -26,21 +26,33 @@ vkrt::gui::NodeContext::AddNode( Node * inNode )
 std::size_t
 vkrt::gui::NodeContext::AddAttribute()
 {
-    return mAttributes.AddId();
+    return mAttributeIdCache.AddId();
 }
 
 
 std::size_t
-vkrt::gui::NodeContext::AddLink( std::size_t a, std::size_t b )
+vkrt::gui::NodeContext::AddLink
+(
+    std::shared_ptr< vkrt::gui::OutputAttribute< vk::DescriptorSet > > a,
+    std::shared_ptr< vkrt::gui::InputAttribute< vk::DescriptorSet > > b
+)
 {
     std::size_t theId = mLinkIdCache.AddId();
-    mLinks[ theId ] = { a, b };
+    auto theLink = std::make_shared< vkrt::gui::Link< vk::DescriptorSet > >( theId, a, b );
+    mLinks[ theId ] = theLink;
+
+    b->Connect( theLink );
+
     return theId;
 }
 
 void
 vkrt::gui::NodeContext::RemoveLink( std::size_t inId )
 {
+    auto theLink = mLinks[ inId ];
+
+    theLink->mDestination->ResetConnection();
+
     mLinkIdCache.RemoveId( inId );
     mLinks.erase( inId );
 }

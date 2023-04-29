@@ -14,8 +14,7 @@ namespace vkrt::gui
 {
     class ImageGenNode
     :
-        public vkrt::gui::Node,
-        public vkrt::gui::ImageProvider
+        public vkrt::gui::Node
     {
         public:
             ImageGenNode( vkrt::gui::NodeContextPtr inContext );
@@ -23,10 +22,10 @@ namespace vkrt::gui
 
         public:
             void Draw() override;
-            vk::DescriptorSet ProvideImage() override;
 
         private:
-            std::size_t mOutputId;
+            std::shared_ptr< vkrt::gui::OutputAttribute< vk::DescriptorSet > > mOutput;
+
             bool mShowEditor = false;
             vkrt::gui::ShaderEditor mEditor;
 

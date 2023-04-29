@@ -1,12 +1,18 @@
 set(
     HEADER_FILES
+        BufferNode.h
         ForwardDecl.h
         GuiLayer.h
         GuiNodes.h
+        GuiAttribute.h
         ImageNode.h
         ImageGenNode.h
         ImageProvider.h
+        InputAttribute.h
         IdCache.h
+        Link.h
+        OutputAttribute.h
+        ResourceProvider.h
         ShaderEditor.h
         Node.h
         ZepTheme.h

@@ -23,13 +23,9 @@ namespace vkrt::gui
 
         public:
             void Draw() override;
-            void SetImageProvider( std::shared_ptr< vkrt::gui::ImageProvider > inImageProvider );
 
         private:
-            std::size_t mInputId;
-            std::size_t mOutputId;
-
-            std::shared_ptr< vkrt::gui::ImageProvider > mImageProvider;
+            std::shared_ptr< vkrt::gui::InputAttribute< vk::DescriptorSet > > mInput;
     };
 }
 
