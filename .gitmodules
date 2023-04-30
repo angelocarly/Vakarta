@@ -8,3 +8,7 @@
 [submodule "lib/imnodes"]
 	path = lib/imnodes
 	url = https://github.com/Nelarius/imnodes
+[submodule "lib/ImGuiFileDialog"]
+	path = lib/ImGuiFileDialog
+	url = git@github.com:aiekick/ImGuiFileDialog.git
+	branch = Lib_Only

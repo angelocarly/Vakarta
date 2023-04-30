@@ -9,14 +9,23 @@
 #include <cstdint>
 #include <spdlog/spdlog.h>
 
-vks::ImageResource::ImageResource( std::size_t inWidth, std::size_t inHeight, std::size_t inChannels, std::vector< std::uint8_t > inData )
+vks::ImageResource::ImageResource( std::size_t inWidth, std::size_t inHeight, Format inFormat, std::vector< std::uint8_t > inData )
 :
-    mChannels( inChannels ),
     mWidth( inWidth ),
     mHeight( inHeight ),
+    mFormat( inFormat ),
     mData( std::move( inData ) )
 {
-    if( mData.size() != inWidth * inHeight * inChannels )
+    std::size_t theChannels = 4;
+    switch( inFormat )
+    {
+        case RGBA:
+            theChannels = 4;
+            break;
+        default:
+            throw new std::runtime_error( "ImageResource::ImageResource: Unknown format" );
+    }
+    if( mData.size() != inWidth * inHeight * theChannels )
     {
         spdlog::error( "ImageResource::ImageResource: Data size does not match width, height, and channels" );
         throw new std::runtime_error( "ImageResource::ImageResource: Data size does not match width, height, and channels" );

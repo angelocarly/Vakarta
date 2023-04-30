@@ -26,16 +26,12 @@ namespace vkrt::gui
             NodeContext();
             ~NodeContext();
 
-            std::size_t GetNextLinkId() { return mLinks.size(); }
             std::size_t AddNode( Node * inNode );
-            NodePtr GetNode( std::size_t inIndex ) { return mNodes[ inIndex ]; };
             std::size_t AddLink( std::shared_ptr< vkrt::gui::OutputAttribute< vk::DescriptorSet > > a, std::shared_ptr< vkrt::gui::InputAttribute< vk::DescriptorSet > > b );
-            [[nodiscard]] std::map< std::size_t, std::shared_ptr< vkrt::gui::Link< vk::DescriptorSet > > > GetLinks() const { return mLinks; }
-            [[nodiscard]] std::map< std::size_t, NodePtr > GetNodes() const { return mNodes; }
             void RemoveLink( std::size_t inId );
 
-        private:
-            std::size_t AddAttribute();
+            [[nodiscard]] std::map< std::size_t, std::shared_ptr< vkrt::gui::Link< vk::DescriptorSet > > > GetLinks() const { return mLinks; }
+            [[nodiscard]] std::map< std::size_t, NodePtr > GetNodes() const { return mNodes; }
 
         private:
             std::map< std::size_t, std::shared_ptr< vkrt::gui::Link< vk::DescriptorSet > > > mLinks;
@@ -62,6 +58,17 @@ namespace vkrt::gui
                 auto theId = mAttributeIdCache.AddId();
                 auto t = vkrt::gui::OutputAttribute< vk::DescriptorSet >( 0, inCallback );
                 auto theAttribute = std::make_shared< vkrt::gui::OutputAttribute< vk::DescriptorSet > >( theId, inCallback );
+                mAttributes[ theId ] = theAttribute;
+                return theAttribute;
+            }
+
+            template< typename T >
+            std::shared_ptr< vkrt::gui::OutputAttribute< T > >
+            AddOutputAttribute( std::function< T( void ) > inCallback )
+            {
+                auto theId = mAttributeIdCache.AddId();
+                auto t = vkrt::gui::OutputAttribute< T >( 0, inCallback );
+                auto theAttribute = std::make_shared< vkrt::gui::OutputAttribute< T > >( theId, inCallback );
                 mAttributes[ theId ] = theAttribute;
                 return theAttribute;
             }

@@ -43,6 +43,21 @@ target_include_directories(
         PUBLIC ${IMNODES_DIR}
 )
 
+# ImGuiFileDialog
+set( IMGUIFILEDIALOG_DIR ${CMAKE_CURRENT_SOURCE_DIR}/ImGuiFileDialog )
+add_library( ImGuiFileDialog STATIC )
+target_link_libraries( ImGuiFileDialog PUBLIC Imgui )
+target_sources(
+    ImGuiFileDialog
+        PRIVATE
+        ${IMGUIFILEDIALOG_DIR}/ImGuiFileDialog.cpp
+)
+target_include_directories(
+    ImGuiFileDialog
+        PUBLIC ${IMGUIFILEDIALOG_DIR}
+)
+
+
 # Vulkan
 find_package( Vulkan REQUIRED )
 target_link_libraries( Imgui PUBLIC Vulkan::Vulkan )

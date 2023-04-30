@@ -133,7 +133,7 @@ vks::AssetLoader::LoadImageResource( std::filesystem::path inPath )
 
     int totalChannels = texChannels + alphaChannels;
     std::vector< std::uint8_t > thePixels = std::vector< std::uint8_t >( pixels, pixels + texWidth * texHeight * totalChannels );
-    vks::ImageResource theImage = { ( std::size_t ) texWidth, ( std::size_t ) texHeight, ( std::size_t ) totalChannels, std::move( thePixels ) };
+    vks::ImageResource theImage = { ( std::size_t ) texWidth, ( std::size_t ) texHeight, vks::ImageResource::Format::RGBA, std::move( thePixels ) };
 
     // Free buffer
     stbi_image_free( pixels );

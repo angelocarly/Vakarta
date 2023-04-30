@@ -16,19 +16,13 @@ vkrt::gui::NodeContext::~NodeContext()
 }
 
 std::size_t
+// This pointer might break stuff in the future
 vkrt::gui::NodeContext::AddNode( Node * inNode )
 {
     auto theId = mNodeIdCache.AddId();
     mNodes[ theId ] = std::shared_ptr< Node >( inNode );
     return theId;
 }
-
-std::size_t
-vkrt::gui::NodeContext::AddAttribute()
-{
-    return mAttributeIdCache.AddId();
-}
-
 
 std::size_t
 vkrt::gui::NodeContext::AddLink

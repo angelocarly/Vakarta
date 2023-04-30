@@ -110,7 +110,7 @@ vks::GuiPass::Impl::InitializeImGui()
     // Load fonts
     // TODO: Load fonts dynamically
     auto fontPath = std::filesystem::path( "./" ) / "resources" / "fonts" / "Hack-Regular.ttf";
-//    io.Fonts->AddFontDefault();
+    io.Fonts->AddFontDefault();
     io.Fonts->AddFontFromFileTTF( fontPath.string().c_str(), 16.0f );
 
     // Setup Vulkan bindings

@@ -9,6 +9,7 @@
 #include "vks/core/Image.h"
 #include "vks/render/ForwardDecl.h"
 #include "vks/render/Instance.h"
+#include "vks/assets/ImageResource.h"
 
 #include <vulkan/vulkan.hpp>
 
@@ -47,6 +48,7 @@ namespace vks
                 vk::ImageLayout inNewLayout,
                 vk::DependencyFlags inDependencyFlags
             );
+            vks::Image AllocateImage( vks::ImageResource inImageResource, vk::ImageLayout inLayout );
             void * MapMemory( vks::Buffer inBuffer );
             void UnmapMemory( vks::Buffer inBuffer );
 

@@ -15,6 +15,7 @@
 #include "vkrt/gui/ImageNode.h"
 #include "vkrt/gui/ImageGenNode.h"
 #include "vkrt/gui/BufferNode.h"
+#include "vkrt/gui/PNGNode.h"
 
 #include <GLFW/glfw3.h>
 #include <imnodes.h>
@@ -26,9 +27,8 @@ vkrt::GuiNodes::GuiNodes( vkrt::InputStatePtr inInputState )
     mNodeContext = std::make_shared< vkrt::gui::NodeContext >();
     mNodes.push_back( std::make_shared< vkrt::gui::ImageNode >( mNodeContext ) );
     mNodes.push_back( std::make_shared< vkrt::gui::ImageNode >( mNodeContext ) );
-    mNodes.push_back( std::make_shared< vkrt::gui::ImageNode >( mNodeContext ) );
     mNodes.push_back( std::make_shared< vkrt::gui::BufferNode >( mNodeContext ) );
-    mNodes.push_back( std::make_shared< vkrt::gui::BufferNode >( mNodeContext ) );
+    mNodes.push_back( std::make_shared< vkrt::gui::PNGNode >( mNodeContext ) );
     mNodes.push_back( std::make_shared< vkrt::gui::ImageGenNode >( mNodeContext ) );
 }
 

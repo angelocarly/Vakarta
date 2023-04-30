@@ -12,6 +12,7 @@ set(
         IdCache.h
         Link.h
         OutputAttribute.h
+        PNGNode.h
         ResourceProvider.h
         ShaderEditor.h
         Node.h
@@ -26,6 +27,7 @@ set(
         Source/ImageNode.cpp
         Source/NodeContext.cpp
         Source/Node.cpp
+        Source/PNGNode.cpp
         Source/ImageGenNode.cpp
         Source/ShaderEditor.cpp
         Source/ZepTheme.cpp
@@ -49,6 +51,7 @@ target_link_libraries(
 set_property( TARGET VkrtGui PROPERTY CXX_STANDARD 17 )
 
 ### External dependencies
+target_link_libraries( VkrtGui PUBLIC ImGuiFileDialog )
 
 # Vulkan
 find_package( Vulkan REQUIRED )

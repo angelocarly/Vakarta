@@ -8,6 +8,7 @@
 #include "vks/core/Image.h"
 #include "vks/render/PhysicalDevice.h"
 #include "vks/render/Utils.h"
+#include "vks/assets/ImageResource.h"
 
 #include <spdlog/spdlog.h>
 #include <vulkan/vulkan.hpp>
@@ -304,4 +305,108 @@ void
 vks::Device::UnmapMemory( vks::Buffer inBuffer )
 {
     mImpl->mAllocator.unmapMemory( inBuffer.GetVmaAllocation() );
+}
+
+vks::Image
+vks::Device::AllocateImage( vks::ImageResource inImageResource, vk::ImageLayout inLayout )
+{
+    vk::Format theFormat = vk::Format::eUndefined;
+    switch( inImageResource.GetFormat() )
+    {
+        case ImageResource::Format::RGBA:
+            theFormat = vk::Format::eR8G8B8A8Unorm;
+            break;
+        default:
+            throw std::runtime_error( "Unsupported image format" );
+    }
+
+    vks::Image theImage = CreateImage
+    (
+        theFormat,
+        inImageResource.GetWidth(),
+        inImageResource.GetHeight(),
+        vk::ImageUsageFlagBits::eSampled | vk::ImageUsageFlagBits::eTransferDst,
+        vma::MemoryUsage::eGpuOnly
+    );
+
+    vks::Buffer theStagingBuffer;
+    auto theCommandBuffer = BeginSingleTimeCommands();
+    {
+
+        // Image barrier for optimal image (transfer dest)
+        ImageMemoryBarrier
+        (
+            theCommandBuffer,
+            theImage,
+            vk::AccessFlagBits::eNone,
+            vk::AccessFlagBits::eTransferRead,
+            vk::PipelineStageFlagBits::eTransfer,
+            vk::PipelineStageFlagBits::eTransfer,
+            vk::ImageLayout::eUndefined,
+            vk::ImageLayout::eTransferDstOptimal,
+            vk::DependencyFlagBits::eByRegion
+        );
+
+        // Staging buffer
+        vma::AllocationCreateInfo theVertexAllocationInfo;
+        theVertexAllocationInfo.usage = vma::MemoryUsage::eAuto;
+        theVertexAllocationInfo.flags = vma::AllocationCreateFlagBits::eHostAccessSequentialWrite;
+        theStagingBuffer = CreateBuffer
+        (
+            vk::BufferCreateInfo
+            (
+                vk::BufferCreateFlags(),
+                inImageResource.GetDataSize(),
+                vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eTransferSrc
+            ),
+            theVertexAllocationInfo
+        );
+
+        // Copy image to staging buffer
+        void * theMemory = MapMemory( theStagingBuffer );
+        std::memcpy( theMemory, inImageResource.GetData().data(), inImageResource.GetDataSize() );
+        UnmapMemory( theStagingBuffer );
+
+        // Copy staging buffer to image memory
+        theCommandBuffer.copyBufferToImage
+        (
+            theStagingBuffer.GetVkBuffer(),
+            theImage.GetVkImage(),
+            vk::ImageLayout::eTransferDstOptimal,
+            vk::BufferImageCopy
+            (
+                0,
+                0,
+                0,
+                vk::ImageSubresourceLayers
+                (
+                    vk::ImageAspectFlagBits::eColor,
+                    0,
+                    0,
+                    1
+                ),
+                vk::Offset3D( 0, 0, 0 ),
+                vk::Extent3D( inImageResource.GetWidth(), inImageResource.GetHeight(), 1 )
+            )
+        );
+
+        // Transfer image layout back
+        ImageMemoryBarrier
+        (
+            theCommandBuffer,
+            theImage,
+            vk::AccessFlagBits::eTransferWrite,
+            vk::AccessFlagBits::eShaderRead,
+            vk::PipelineStageFlagBits::eTransfer,
+            vk::PipelineStageFlagBits::eFragmentShader,
+            vk::ImageLayout::eTransferDstOptimal,
+            inLayout,
+            vk::DependencyFlagBits::eByRegion
+        );
+    }
+    EndSingleTimeCommands( theCommandBuffer );
+
+    DestroyBuffer( theStagingBuffer );
+
+    return theImage;
 }
