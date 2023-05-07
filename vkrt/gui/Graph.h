@@ -19,54 +19,63 @@ namespace vkrt::gui
     class IdMap
     {
         public:
-            using iterator = typename std::vector< ElementType >::iterator;
-            using const_iterator = typename std::vector< ElementType >::const_iterator;
+            using iterator = typename std::unordered_map< std::size_t, ElementType >::iterator;
+            using const_iterator = typename std::unordered_map< std::size_t, ElementType >::const_iterator;
 
-            const_iterator begin() const { return mElements.begin(); }
-            const_iterator end() const { return mElements.end(); }
+            const_iterator begin() const { return mMap.begin(); }
+            const_iterator end() const { return mMap.end(); }
 
             IdMap() {}
             ~IdMap() {}
 
             std::size_t insert( ElementType inElement );
-            bool empty() { return mIds.empty(); };
-            std::size_t size() { return mIds.size(); };
+            bool empty() { return mMap.empty(); };
+            std::size_t size() { return mMap.size(); };
             bool contains( const std::size_t inId );
             ElementType & operator[]( const std::size_t inId );
             void remove( const std::size_t inId );
             size_t insert( const size_t inId, ElementType && inElement );
             size_t insert( const size_t inId, ElementType & inElement );
 
-            std::vector< ElementType > elements() { return mElements; }
-            std::vector< std::size_t > ids() { return mIds; }
+            std::unordered_map< std::size_t, ElementType > elements() { return mMap; }
 
             ElementType
             get( const std::size_t inId )
             {
-                auto theIterator = std::lower_bound( mIds.begin(), mIds.end(), inId );
-                auto theIndex = std::distance( mIds.begin(), theIterator );
-                return mElements[theIndex];
+                assert( mMap.contains( inId ) );
+                return mMap[ inId ];
             }
 
-        private:
-            std::vector< ElementType > mElements;
-            std::vector< std::size_t > mIds;
-            std::size_t mNextId = 0;
-    };
+            size_t Insert( size_t inId, ElementType inElement );
 
-    template< typename ElementType >
-    ElementType & IdMap< ElementType >::operator[]( const std::size_t inId )
-    {
-        auto theIterator = std::lower_bound( mIds.begin(), mIds.end(), inId );
-        assert( theIterator != mIds.end() );
-        auto theIndex = std::distance( mIds.begin(), theIterator );
-        return mElements[theIndex];
-    }
+        private:
+            std::unordered_map< std::size_t, ElementType > mMap;
+            std::vector< std::size_t > mFreeIds;
+
+            std::size_t RetrieveNextFreeId()
+            {
+                if( mFreeIds.empty() )
+                {
+                    int theId = 0;
+                    while( mMap.contains( theId ) )
+                    {
+                        theId++;
+                    }
+                    return theId;
+                }
+                else
+                {
+                    auto theId = mFreeIds.back();
+                    mFreeIds.pop_back();
+                    return theId;
+                }
+            }
+
+    };
 
     class Edge
     {
         public:
-            std::size_t mId;
             std::size_t mSrcNodeId;
             std::size_t mDstNodeId;
     };
@@ -75,42 +84,37 @@ namespace vkrt::gui
     std::size_t
     IdMap< ElementType >::insert( ElementType inElement )
     {
-        auto theId = mNextId++;
-        insert( theId, std::move( inElement ) );
+        auto theId = RetrieveNextFreeId();
+        Insert( theId, std::move( inElement ) );
         return theId;
+    }
+
+    template< typename ElementType >
+    std::size_t
+    IdMap< ElementType >::Insert( std::size_t inId, ElementType inElement )
+    {
+        assert( !mMap.contains( inId ) );
+        mMap[ inId ] = inElement;
     }
 
     template< typename ElementType >
     std::size_t IdMap< ElementType >::insert( const std::size_t inId, ElementType & inElement )
     {
-        assert( std::lower_bound( mIds.begin(), mIds.end(), inId ) == mIds.end() );
-        mElements.push_back( inElement );
-        mIds.push_back( inId );
-        return inId;
-    }
-
-    template< typename ElementType >
-    std::size_t IdMap< ElementType >::insert( const std::size_t inId, ElementType && inElement )
-    {
-        assert( std::lower_bound( mIds.begin(), mIds.end(), inId ) == mIds.end() );
-        mElements.push_back( inElement );
-        mIds.push_back( inId );
+        assert( !mMap.contains( inId ) );
+        mMap[ inId ] = inElement;
         return inId;
     }
 
     template< typename ElementType >
     void IdMap< ElementType >::remove( const std::size_t inId )
     {
-        auto theElement = std::lower_bound( mIds.begin(), mIds.end(), inId );
-        mIds.erase( theElement );
-        auto theElementId = std::next( mElements.begin(), std::distance( mIds.begin(), theElement ) );
-        mElements.erase( theElementId );
+        mMap.erase( inId );
     }
 
     template< typename ElementType >
     bool IdMap< ElementType >::contains( const std::size_t inId )
     {
-        return std::lower_bound( mIds.cbegin(), mIds.cend(), inId ) != mIds.end();
+        mMap.contains( inId );
     }
 
     template< typename NodeType >
@@ -121,21 +125,17 @@ namespace vkrt::gui
             ~Graph();
 
             std::size_t addNode( NodeType inNode );
-            void insertNode( const size_t id, NodeType & inNode );
             void removeNode( const std::size_t inId );
             std::size_t addEdge( const std::size_t inSrcId, const std::size_t inDstId );
-            void insertEdge( const size_t id, const size_t src, const size_t dst );
             void removeEdge( const std::size_t inId );
-            std::vector< Edge > GetEdges();
+            std::unordered_map< std::size_t, Edge > GetEdges();
             NodeType GetNode( size_t inId );
-            std::vector< NodeType > GetNodes();
-            std::vector< std::size_t > GetNodeIds();
+            std::unordered_map< std::size_t, NodeType > GetNodes();
             std::vector< size_t > GetInputNodes( size_t inNodeId );
 
         private:
             IdMap< NodeType > mNodes;
             IdMap< Edge > mEdges;
-            std::size_t mCurrentId;
 
     };
 
@@ -146,7 +146,7 @@ namespace vkrt::gui
     }
 
     template< typename NodeType >
-    std::vector< NodeType >
+    std::unordered_map< std::size_t, NodeType >
     Graph< NodeType >::GetNodes()
     {
         return mNodes.elements();
@@ -167,9 +167,9 @@ namespace vkrt::gui
         std::vector< std::size_t > mInputLinks;
         for( auto theLink : mEdges )
         {
-            if( theLink.mDstNodeId == inNodeId )
+            if( theLink.second.mDstNodeId == inNodeId )
             {
-                mInputLinks.push_back( theLink.mSrcNodeId );
+                mInputLinks.push_back( theLink.second.mSrcNodeId );
             }
         }
 
@@ -177,14 +177,7 @@ namespace vkrt::gui
     }
 
     template< typename NodeType >
-    std::vector< std::size_t >
-    Graph< NodeType >::GetNodeIds()
-    {
-        return mNodes.ids();
-    }
-
-    template< typename NodeType >
-    std::vector< Edge >
+    std::unordered_map< std::size_t, Edge >
     vkrt::gui::Graph< NodeType >::GetEdges()
     {
         return mEdges.elements();
@@ -192,8 +185,6 @@ namespace vkrt::gui
 
     template< typename NodeType >
     vkrt::gui::Graph< NodeType >::Graph()
-        :
-        mCurrentId( 0 )
     {
     }
 
@@ -201,17 +192,8 @@ namespace vkrt::gui
     std::size_t
     vkrt::gui::Graph< NodeType >::addNode( NodeType inNode )
     {
-        const std::size_t theId = mCurrentId++;
-        mNodes.insert( theId, inNode );
+        auto theId = mNodes.insert( inNode );
         return theId;
-    }
-
-    template< typename NodeType >
-    void
-    vkrt::gui::Graph< NodeType >::insertNode( const std::size_t id, NodeType & inNode )
-    {
-        assert( !mNodes.contains( id ) );
-        mNodes.insert( mCurrentId, inNode );
     }
 
     template< typename NodeType >
@@ -226,22 +208,11 @@ namespace vkrt::gui
     std::size_t
     vkrt::gui::Graph< NodeType >::addEdge( const std::size_t src, const std::size_t dst )
     {
-        const std::size_t theId = mCurrentId++;
         Edge theEdge;
-        theEdge.mId = theId;
         theEdge.mSrcNodeId = src;
         theEdge.mDstNodeId = dst;
-        mEdges.insert( mCurrentId, theEdge );
+        auto theId = mEdges.insert( theEdge );
         return theId;
-    }
-
-    template< typename NodeType >
-    void
-    vkrt::gui::Graph< NodeType >::insertEdge( const std::size_t id, const std::size_t src, const std::size_t dst )
-    {
-        assert( !mEdges.contains( id ) );
-        Edge theEdge = { id, src, dst };
-        mEdges.insert( mCurrentId, theEdge );
     }
 
     template< typename NodeType >
@@ -255,9 +226,9 @@ namespace vkrt::gui
     void traverse_graph( Graph< NodeType > graph, Visitor visitor )
     {
         std::vector< std::size_t > theIdStack;
-        for( auto theId : graph.GetNodeIds() )
+        for( auto theId : graph.GetNodes() )
         {
-            theIdStack.push_back( theId );
+            theIdStack.push_back( theId.first );
         }
 
         std::vector< std::size_t > theVisitedIds;

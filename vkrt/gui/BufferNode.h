@@ -30,9 +30,9 @@ namespace vkrt::gui
                 gui::Node( -1 ),
                 mInput( inNodeContext->CreateInputAttribute< vks::Image >
                 (
-                    []( const std::optional< vks::Image >& ){  },
                     [ this ]( const std::optional< vks::Image >& ){ mOutput->Update(); },
-                    [](){}
+                    [ this ]( const std::optional< vks::Image >& ){ mOutput->Update(); },
+                    [ this ](){ mOutput->Update(); }
                 ) ),
                 mOutput( inNodeContext->CreateOutputAttribute< vks::Image >
                 (

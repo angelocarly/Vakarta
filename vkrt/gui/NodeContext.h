@@ -37,14 +37,14 @@ namespace vkrt::gui
             NodeContext();
             ~NodeContext();
 
-            void AddNode( std::shared_ptr< Node > inNode );
+            std::size_t AddNode( std::shared_ptr< Node > inNode );
             void AddAttribute( std::shared_ptr< GuiAttribute > inAttribute );
             void AddLink( const std::size_t inSrc, const std::size_t inDst );
             void RemoveLink( const std::size_t inId );
             void RemoveNode( const std::size_t inId );
 
-            std::vector< vkrt::gui::NodeContext::Link > GetLinks();
-            std::vector< std::shared_ptr< Node > > GetNodes();
+            std::unordered_map< std::size_t, vkrt::gui::NodeContext::Link > GetLinks();
+            std::unordered_map< std::size_t, std::shared_ptr< Node > > GetNodes();
 
             template< typename Visitor >
             void Traverse( Visitor visitor )

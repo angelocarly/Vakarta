@@ -18,11 +18,12 @@ vkrt::gui::NodeContext::~NodeContext()
 
 }
 
-void
+std::size_t
 vkrt::gui::NodeContext::AddNode( std::shared_ptr< Node > inNode )
 {
     auto theId = mGraph.addNode( inNode );
     inNode->SetId( theId );
+    return theId;
 }
 
 void
@@ -40,8 +41,8 @@ vkrt::gui::NodeContext::AddLink( const std::size_t inSrc, const std::size_t inDs
     assert( mAttributes.contains( inSrc ) );
     assert( mAttributes.contains( inDst ) );
 
-    std::shared_ptr< GuiAttribute > theSrcAttribute = mAttributes[ inSrc ];
-    std::shared_ptr< GuiAttribute > theDstAttribute = mAttributes[ inDst ];
+    std::shared_ptr< GuiAttribute > theSrcAttribute = mAttributes.get( inSrc );
+    std::shared_ptr< GuiAttribute > theDstAttribute = mAttributes.get( inDst );
     assert( theSrcAttribute->mType == GuiAttribute::kOutput );
     assert( theDstAttribute->mType == GuiAttribute::kInput );
     assert( theSrcAttribute->mResourceType == theDstAttribute->mResourceType );
@@ -61,10 +62,10 @@ vkrt::gui::NodeContext::AddLink( const std::size_t inSrc, const std::size_t inDs
 
     // Store the link
     auto theId = mGraph.addEdge( theSrcAttribute->mNodeId, theDstAttribute->mNodeId );
-    mLinks.insert( theId, { theId, inSrc, inDst } );
+    mLinks.Insert( theId, { theId, inSrc, inDst } );
 }
 
-std::vector< vkrt::gui::NodeContext::Link >
+std::unordered_map< std::size_t, vkrt::gui::NodeContext::Link >
 vkrt::gui::NodeContext::GetLinks()
 {
     return mLinks.elements();
@@ -77,8 +78,8 @@ vkrt::gui::NodeContext::RemoveLink( const std::size_t inId )
     assert( mLinks.contains( inId ) );
 
     auto theLink = mLinks.get( inId );
-    std::shared_ptr< GuiAttribute > theSrcAttribute = mAttributes[ theLink.mSrcAttribute ];
-    std::shared_ptr< GuiAttribute > theDstAttribute = mAttributes[ theLink.mDstAttribute ];
+    std::shared_ptr< GuiAttribute > theSrcAttribute = mAttributes.get( theLink.mSrcAttribute );
+    std::shared_ptr< GuiAttribute > theDstAttribute = mAttributes.get( theLink.mDstAttribute );
     assert( theSrcAttribute->mType == GuiAttribute::kOutput );
     assert( theDstAttribute->mType == GuiAttribute::kInput );
     assert( theSrcAttribute->mResourceType == theDstAttribute->mResourceType );
@@ -107,9 +108,9 @@ vkrt::gui::NodeContext::RemoveNode( const std::size_t inId )
     auto theLinks = mGraph.GetEdges();
     for( auto theLink : theLinks )
     {
-        if( theLink.mSrcNodeId == inId || theLink.mDstNodeId == inId )
+        if( theLink.second.mSrcNodeId == inId || theLink.second.mDstNodeId == inId )
         {
-            RemoveLink( theLink.mId );
+            RemoveLink( theLink.first );
         }
     }
 
@@ -117,7 +118,7 @@ vkrt::gui::NodeContext::RemoveNode( const std::size_t inId )
     mGraph.removeNode( inId );
 }
 
-std::vector< std::shared_ptr< vkrt::gui::Node > >
+std::unordered_map< std::size_t, std::shared_ptr< vkrt::gui::Node > >
 vkrt::gui::NodeContext::GetNodes()
 {
     return mGraph.GetNodes();

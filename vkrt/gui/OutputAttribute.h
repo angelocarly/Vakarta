@@ -67,8 +67,9 @@ namespace vkrt::gui
     void
     OutputAttribute< T >::Disconnect( std::shared_ptr< vkrt::gui::UpdateListener > inLink )
     {
-        // Probably wrong
-        std::remove( mLinks.begin(), mLinks.end(), inLink );
+        // Delete the link in one line
+        mLinks.erase( std::remove( mLinks.begin(), mLinks.end(), inLink ), mLinks.end() );
+
     }
 
     template< typename T >

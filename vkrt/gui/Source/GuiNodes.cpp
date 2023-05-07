@@ -26,13 +26,6 @@ vkrt::GuiNodes::GuiNodes( vkrt::InputStatePtr inInputState )
     mInputState( inInputState )
 {
     mNodeContext = std::make_shared< vkrt::gui::NodeContext >();
-    mNodeContext->AddNode( std::make_shared< vkrt::gui::ImageNode >( mNodeContext ) );
-    mNodeContext->AddNode( std::make_shared< vkrt::gui::ImageNode >( mNodeContext ) );
-    mNodeContext->AddNode( std::make_shared< vkrt::gui::ImageNode >( mNodeContext ) );
-    mNodeContext->AddNode( std::make_shared< vkrt::gui::BufferNode >( mNodeContext ) );
-    mNodeContext->AddNode( std::make_shared< vkrt::gui::PNGNode >( mNodeContext ) );
-    mNodeContext->AddNode( std::make_shared< vkrt::gui::PNGNode >( mNodeContext ) );
-    mNodeContext->AddNode( std::make_shared< vkrt::gui::PNGNode >( mNodeContext ) );
 }
 
 vkrt::GuiNodes::~GuiNodes()
@@ -47,10 +40,10 @@ vkrt::GuiNodes::Draw( vkrt::Presenter & inPresenter )
     std::vector< std::size_t > linksToRemove;
     for( auto theLink : mNodeContext->GetLinks() )
     {
-        if( !ImNodes::IsLinkSelected( theLink.mId ) ) continue;
+        if( !ImNodes::IsLinkSelected( theLink.first ) ) continue;
         if( mInputState->IsKeyDown( GLFW_KEY_DELETE ) || mInputState->IsKeyDown( GLFW_KEY_BACKSPACE ) )
         {
-            linksToRemove.push_back( theLink.mId );
+            linksToRemove.push_back( theLink.first );
             break;
         }
     }
@@ -63,10 +56,10 @@ vkrt::GuiNodes::Draw( vkrt::Presenter & inPresenter )
     std::vector< std::size_t > nodesToRemove;
     for( auto theNode : mNodeContext->GetNodes() )
     {
-        if( !ImNodes::IsNodeSelected( theNode->GetId() ) ) continue;
+        if( !ImNodes::IsNodeSelected( theNode.first ) ) continue;
         if( mInputState->IsKeyDown( GLFW_KEY_DELETE ) || mInputState->IsKeyDown( GLFW_KEY_BACKSPACE ) )
         {
-            nodesToRemove.push_back( theNode->GetId() );
+            nodesToRemove.push_back( theNode.first );
             break;
         }
     }
@@ -87,19 +80,54 @@ vkrt::GuiNodes::Draw( vkrt::Presenter & inPresenter )
     ImNodes::BeginNodeEditor();
     {
 
+        if( ImGui::IsKeyReleased( ImGuiKey_A ) )
+        {
+            ImGui::OpenPopup( "add node" );
+        }
+
+        if( ImGui::BeginPopup( "add node" ) )
+        {
+            const ImVec2 click_pos = ImGui::GetMousePosOnOpeningCurrentPopup();
+
+            if( ImGui::MenuItem( "Image load" ) )
+            {
+                auto theId = mNodeContext->AddNode( std::make_shared< gui::PNGNode >( mNodeContext ) );
+                ImNodes::SetNodeScreenSpacePos( theId, click_pos );
+                ImGui::CloseCurrentPopup();
+            }
+
+            if( ImGui::MenuItem( "Buffer" ) )
+            {
+                auto theId = mNodeContext->AddNode( std::make_shared< gui::BufferNode >( mNodeContext ) );
+                ImNodes::SetNodeScreenSpacePos( theId, click_pos );
+                ImGui::CloseCurrentPopup();
+            }
+
+            if( ImGui::MenuItem( "Image view" ) )
+            {
+                auto theId = mNodeContext->AddNode( std::make_shared< gui::ImageNode >( mNodeContext ) );
+                ImNodes::SetNodeScreenSpacePos( theId, click_pos );
+                ImGui::CloseCurrentPopup();
+            }
+            ImGui::EndPopup();
+        }
+
         ImNodes::PushColorStyle( ImNodesCol_TitleBar, IM_COL32( 233, 150, 29, 255 ) );
         ImNodes::PushColorStyle( ImNodesCol_TitleBarSelected, IM_COL32( 213, 149, 56, 255 ) );
         ImNodes::PushColorStyle( ImNodesCol_TitleBarHovered, IM_COL32( 213, 170, 108, 255 ) );
 
         // Draw the nodes
-        mNodeContext->Traverse( [ this ]( std::shared_ptr< gui::Node > & inNode )
-        {
-            inNode->Draw();
-        } );
+        mNodeContext->Traverse
+        (
+            [ this ]( std::shared_ptr< gui::Node > & inNode )
+            {
+                inNode->Draw();
+            }
+        );
 
-        for( auto theLink : mNodeContext->GetLinks() )
+        for( auto theLink: mNodeContext->GetLinks() )
         {
-            ImNodes::Link( theLink.mId, theLink.mSrcAttribute, theLink.mDstAttribute );
+            ImNodes::Link( theLink.first, theLink.second.mSrcAttribute, theLink.second.mDstAttribute );
         }
 
         ImNodes::PopColorStyle();
