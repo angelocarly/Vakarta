@@ -54,10 +54,25 @@ vkrt::GuiNodes::Draw( vkrt::Presenter & inPresenter )
             break;
         }
     }
-
     for( auto theLinkId : linksToRemove )
     {
         mNodeContext->RemoveLink( theLinkId );
+    }
+
+    // Delete nodes before rendering
+    std::vector< std::size_t > nodesToRemove;
+    for( auto theNode : mNodeContext->GetNodes() )
+    {
+        if( !ImNodes::IsNodeSelected( theNode->GetId() ) ) continue;
+        if( mInputState->IsKeyDown( GLFW_KEY_DELETE ) || mInputState->IsKeyDown( GLFW_KEY_BACKSPACE ) )
+        {
+            nodesToRemove.push_back( theNode->GetId() );
+            break;
+        }
+    }
+    for( auto theNodeId : nodesToRemove )
+    {
+        mNodeContext->RemoveNode( theNodeId );
     }
 
     // Render nodes

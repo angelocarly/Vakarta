@@ -218,7 +218,7 @@ namespace vkrt::gui
     void
     vkrt::gui::Graph< NodeType >::removeNode( const std::size_t inId )
     {
-        assert( mEdges.contains( inId ) );
+        assert( mNodes.contains( inId ) );
         mNodes.remove( inId );
     }
 

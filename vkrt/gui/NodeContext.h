@@ -41,8 +41,10 @@ namespace vkrt::gui
             void AddAttribute( std::shared_ptr< GuiAttribute > inAttribute );
             void AddLink( const std::size_t inSrc, const std::size_t inDst );
             void RemoveLink( const std::size_t inId );
+            void RemoveNode( const std::size_t inId );
 
             std::vector< vkrt::gui::NodeContext::Link > GetLinks();
+            std::vector< std::shared_ptr< Node > > GetNodes();
 
             template< typename Visitor >
             void Traverse( Visitor visitor )
@@ -70,7 +72,6 @@ namespace vkrt::gui
 
         private:
             Graph< std::shared_ptr< Node > > mGraph;
-            std::vector< std::shared_ptr< Node > > mNodes;
             IdMap< std::shared_ptr< GuiAttribute > > mAttributes;
 
             IdMap< Link > mLinks;

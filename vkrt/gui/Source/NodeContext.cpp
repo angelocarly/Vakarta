@@ -23,7 +23,6 @@ vkrt::gui::NodeContext::AddNode( std::shared_ptr< Node > inNode )
 {
     auto theId = mGraph.addNode( inNode );
     inNode->SetId( theId );
-    mNodes.push_back( inNode );
 }
 
 void
@@ -97,5 +96,30 @@ vkrt::gui::NodeContext::RemoveLink( const std::size_t inId )
     // Remove link data
     mLinks.remove( inId );
     mGraph.removeEdge( inId );
+}
+
+void
+vkrt::gui::NodeContext::RemoveNode( const std::size_t inId )
+{
+    mGraph.GetNode( inId );
+
+    // Remove all links to this node
+    auto theLinks = mGraph.GetEdges();
+    for( auto theLink : theLinks )
+    {
+        if( theLink.mSrcNodeId == inId || theLink.mDstNodeId == inId )
+        {
+            RemoveLink( theLink.mId );
+        }
+    }
+
+    // Remove the node
+    mGraph.removeNode( inId );
+}
+
+std::vector< std::shared_ptr< vkrt::gui::Node > >
+vkrt::gui::NodeContext::GetNodes()
+{
+    return mGraph.GetNodes();
 }
 
