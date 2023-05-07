@@ -13,6 +13,7 @@
 
 #include "Node.h"
 #include "vks/core/Image.h"
+#include "OutputAttribute.h"
 
 namespace vkrt::gui
 {

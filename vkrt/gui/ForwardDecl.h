@@ -15,6 +15,8 @@ namespace vkrt::gui
     class NodeContext;
     typedef std::shared_ptr< vkrt::gui::NodeContext > NodeContextPtr;
 
+    class GuiAttribute;
+
 }
 
 #endif //VKRT_FORWARDDECL_H

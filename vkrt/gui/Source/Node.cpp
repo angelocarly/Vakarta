@@ -4,9 +4,11 @@
 
 #include "vkrt/gui/Node.h"
 
-vkrt::gui::Node::Node( vkrt::gui::NodeContextPtr inContext )
+#include "vkrt/gui/NodeContext.h"
+
+vkrt::gui::Node::Node( std::size_t inId )
 :
-    mId( inContext->AddNode( this ) )
+    mId( inId )
 {
 }
 
@@ -14,3 +16,4 @@ vkrt::gui::Node::~Node()
 {
 
 }
+

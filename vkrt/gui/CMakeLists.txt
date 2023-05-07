@@ -5,8 +5,8 @@ set(
         GuiLayer.h
         GuiNodes.h
         GuiAttribute.h
+        Graph.h
         ImageNode.h
-        ImageGenNode.h
         ImageProvider.h
         InputAttribute.h
         IdCache.h
@@ -28,10 +28,9 @@ set(
         Source/NodeContext.cpp
         Source/Node.cpp
         Source/PNGNode.cpp
-        Source/ImageGenNode.cpp
         Source/ShaderEditor.cpp
         Source/ZepTheme.cpp
-)
+        UpdateListener.h)
 
 add_library(
     VkrtGui

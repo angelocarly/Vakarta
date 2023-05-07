@@ -17,7 +17,8 @@ namespace vks
         public:
             enum Format
             {
-                RGBA
+                RGBA,
+                RGB
             };
 
         public:

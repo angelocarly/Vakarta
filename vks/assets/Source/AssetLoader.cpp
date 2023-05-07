@@ -122,17 +122,17 @@ vks::AssetLoader::LoadMeshResource( std::filesystem::path inPath )
 vks::ImageResource
 vks::AssetLoader::LoadImageResource( std::filesystem::path inPath )
 {
+    std::size_t channelCount = 4;
+
     int texWidth, texHeight, texChannels;
-    int alphaChannels = 1;
-    stbi_uc * pixels = stbi_load( inPath.c_str(), & texWidth, & texHeight, & texChannels, STBI_rgb_alpha );
+    stbi_uc * pixels = stbi_load( inPath.c_str(), & texWidth, & texHeight, & texChannels, channelCount );
 
     if( !pixels )
     {
         throw std::runtime_error( "failed to load texture image!" );
     }
 
-    int totalChannels = texChannels + alphaChannels;
-    std::vector< std::uint8_t > thePixels = std::vector< std::uint8_t >( pixels, pixels + texWidth * texHeight * totalChannels );
+    std::vector< std::uint8_t > thePixels = std::vector< std::uint8_t >( pixels, pixels + texWidth * texHeight * channelCount );
     vks::ImageResource theImage = { ( std::size_t ) texWidth, ( std::size_t ) texHeight, vks::ImageResource::Format::RGBA, std::move( thePixels ) };
 
     // Free buffer

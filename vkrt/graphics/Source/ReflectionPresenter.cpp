@@ -19,16 +19,9 @@ vkrt::ReflectionPresenter::ReflectionPresenter( vks::VulkanSessionPtr inSession 
     mDevice( inSession->GetDevice() )
 {
 
-    auto theImage = vks::AssetLoader::LoadImageResource( "resources/image.png" );
+    auto theImageResource = vks::AssetLoader::LoadImageResource( "resources/image.png" );
 
-    mImage = std::make_shared< vks::Image >( mDevice->CreateImage
-    (
-        vk::Format::eR8G8B8A8Unorm,
-        theImage.GetWidth(),
-        theImage.GetHeight(),
-        vk::ImageUsageFlagBits::eSampled | vk::ImageUsageFlagBits::eTransferDst,
-        vma::MemoryUsage::eGpuOnly
-    ) );
+    mImage = std::make_shared< vks::Image >( mDevice->AllocateImage( theImageResource, vk::ImageLayout::eShaderReadOnlyOptimal ) );
 
     auto imageViewCreateInfo = vk::ImageViewCreateInfo
     (
@@ -76,85 +69,6 @@ vkrt::ReflectionPresenter::ReflectionPresenter( vks::VulkanSessionPtr inSession 
             VK_FALSE
         )
     );
-
-    vks::Buffer theStagingBuffer;
-    auto theCommandBuffer = mDevice->BeginSingleTimeCommands();
-    {
-        mDevice->ImageMemoryBarrier
-        (
-            theCommandBuffer,
-            * mImage,
-            vk::AccessFlagBits::eNone,
-            vk::AccessFlagBits::eTransferRead,
-            vk::PipelineStageFlagBits::eTransfer,
-            vk::PipelineStageFlagBits::eTransfer,
-            vk::ImageLayout::eUndefined,
-            vk::ImageLayout::eTransferDstOptimal,
-            vk::DependencyFlagBits::eByRegion
-        );
-
-        // Load image
-
-        // Staging buffer
-        vma::AllocationCreateInfo theVertexAllocationInfo;
-        theVertexAllocationInfo.usage = vma::MemoryUsage::eAuto;
-        theVertexAllocationInfo.flags = vma::AllocationCreateFlagBits::eHostAccessSequentialWrite;
-        theStagingBuffer = mDevice->CreateBuffer
-        (
-            vk::BufferCreateInfo
-            (
-                vk::BufferCreateFlags(),
-                theImage.GetDataSize(),
-                vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eTransferSrc
-            ),
-            theVertexAllocationInfo
-        );
-
-        // Copy image to staging buffer
-        void* theMemory = mDevice->MapMemory( theStagingBuffer );
-        std::memcpy(theMemory, theImage.GetData().data(), theImage.GetDataSize() );
-        mDevice->UnmapMemory( theStagingBuffer );
-
-        // Copy staging buffer to image memory
-        theCommandBuffer.copyBufferToImage
-        (
-            theStagingBuffer.GetVkBuffer(),
-            mImage->GetVkImage(),
-            vk::ImageLayout::eTransferDstOptimal,
-            vk::BufferImageCopy
-            (
-                0,
-                0,
-                0,
-                vk::ImageSubresourceLayers
-                (
-                    vk::ImageAspectFlagBits::eColor,
-                    0,
-                    0,
-                    1
-                ),
-                vk::Offset3D( 0, 0, 0 ),
-                vk::Extent3D( theImage.GetWidth(), theImage.GetHeight(), 1 )
-            )
-        );
-
-        // Transfer image layout to shader read
-        mDevice->ImageMemoryBarrier
-        (
-            theCommandBuffer,
-            * mImage,
-            vk::AccessFlagBits::eTransferWrite,
-            vk::AccessFlagBits::eShaderRead,
-            vk::PipelineStageFlagBits::eTransfer,
-            vk::PipelineStageFlagBits::eFragmentShader,
-            vk::ImageLayout::eTransferDstOptimal,
-            vk::ImageLayout::eShaderReadOnlyOptimal,
-            vk::DependencyFlagBits::eByRegion
-        );
-    }
-    mDevice->EndSingleTimeCommands( theCommandBuffer );
-
-    mDevice->DestroyBuffer( theStagingBuffer );
 }
 
 vkrt::ReflectionPresenter::~ReflectionPresenter()

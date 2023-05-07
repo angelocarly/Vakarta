@@ -24,13 +24,13 @@ namespace vkrt
             GuiNodes( InputStatePtr inInputState );
             ~GuiNodes();
 
+            void Update();
             void Draw( vkrt::Presenter & inPresenter );
 
         private:
             InputStatePtr mInputState;
 
             vkrt::gui::NodeContextPtr mNodeContext;
-            std::vector< vkrt::gui::NodePtr > mNodes;
     };
 }
 

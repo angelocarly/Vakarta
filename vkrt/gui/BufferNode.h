@@ -12,6 +12,10 @@
 #define VKRT_BUFFERNODE_H
 
 #include "Node.h"
+#include "InputAttribute.h"
+#include "OutputAttribute.h"
+#include "vks/core/Image.h"
+
 #include "imnodes.h"
 
 namespace vkrt::gui
@@ -23,10 +27,20 @@ namespace vkrt::gui
         public:
             BufferNode( vkrt::gui::NodeContextPtr inNodeContext )
             :
-                gui::Node( inNodeContext ),
-                mInput( inNodeContext->AddInputAttribute() ),
-                mOutput( inNodeContext->AddOutputAttribute( [ this ](){ return mInput->GetResource(); } ) )
+                gui::Node( -1 ),
+                mInput( inNodeContext->CreateInputAttribute< vks::Image >
+                (
+                    []( const std::optional< vks::Image >& ){  },
+                    [ this ]( const std::optional< vks::Image >& ){ mOutput->Update(); },
+                    [](){}
+                ) ),
+                mOutput( inNodeContext->CreateOutputAttribute< vks::Image >
+                (
+                    [ this ](){ return mInput->GetResource(); } )
+                )
             {
+                LinkAttribute( mInput );
+                LinkAttribute( mOutput );
             }
             ~BufferNode() {};
 
@@ -51,8 +65,8 @@ namespace vkrt::gui
             }
 
         private:
-            std::shared_ptr< vkrt::gui::InputAttribute< vk::DescriptorSet > > mInput;
-            std::shared_ptr< vkrt::gui::OutputAttribute< vk::DescriptorSet > > mOutput;
+            std::shared_ptr< vkrt::gui::InputAttribute< vks::Image > > mInput;
+            std::shared_ptr< vkrt::gui::OutputAttribute< vks::Image > > mOutput;
     };
 }
 

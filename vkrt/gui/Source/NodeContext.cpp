@@ -3,7 +3,10 @@
 //
 
 #include "vkrt/gui/NodeContext.h"
+
+#include "vkrt/gui/OutputAttribute.h"
 #include "vkrt/gui/Node.h"
+#include "vks/core/Image.h"
 
 vkrt::gui::NodeContext::NodeContext()
 {
@@ -15,39 +18,84 @@ vkrt::gui::NodeContext::~NodeContext()
 
 }
 
-std::size_t
-// This pointer might break stuff in the future
-vkrt::gui::NodeContext::AddNode( Node * inNode )
+void
+vkrt::gui::NodeContext::AddNode( std::shared_ptr< Node > inNode )
 {
-    auto theId = mNodeIdCache.AddId();
-    mNodes[ theId ] = std::shared_ptr< Node >( inNode );
-    return theId;
-}
-
-std::size_t
-vkrt::gui::NodeContext::AddLink
-(
-    std::shared_ptr< vkrt::gui::OutputAttribute< vk::DescriptorSet > > a,
-    std::shared_ptr< vkrt::gui::InputAttribute< vk::DescriptorSet > > b
-)
-{
-    std::size_t theId = mLinkIdCache.AddId();
-    auto theLink = std::make_shared< vkrt::gui::Link< vk::DescriptorSet > >( theId, a, b );
-    mLinks[ theId ] = theLink;
-
-    b->Connect( theLink );
-
-    return theId;
+    auto theId = mGraph.addNode( inNode );
+    inNode->SetId( theId );
+    mNodes.push_back( inNode );
 }
 
 void
-vkrt::gui::NodeContext::RemoveLink( std::size_t inId )
+vkrt::gui::NodeContext::AddAttribute( std::shared_ptr< GuiAttribute > inAttribute )
 {
-    auto theLink = mLinks[ inId ];
+    assert( inAttribute != nullptr );
+    assert( inAttribute->mId == -1 );
+    auto theId = mAttributes.insert( inAttribute );
+    inAttribute->SetId( theId );
+}
 
-    theLink->mDestination->ResetConnection();
+void
+vkrt::gui::NodeContext::AddLink( const std::size_t inSrc, const std::size_t inDst )
+{
+    assert( mAttributes.contains( inSrc ) );
+    assert( mAttributes.contains( inDst ) );
 
-    mLinkIdCache.RemoveId( inId );
-    mLinks.erase( inId );
+    std::shared_ptr< GuiAttribute > theSrcAttribute = mAttributes[ inSrc ];
+    std::shared_ptr< GuiAttribute > theDstAttribute = mAttributes[ inDst ];
+    assert( theSrcAttribute->mType == GuiAttribute::kOutput );
+    assert( theDstAttribute->mType == GuiAttribute::kInput );
+    assert( theSrcAttribute->mResourceType == theDstAttribute->mResourceType );
+    assert( theSrcAttribute->mNodeId != -1 );
+    assert( theDstAttribute->mNodeId != -1 );
+
+    // Link the attributes
+    switch( theSrcAttribute->mResourceType )
+    {
+        case GuiAttribute::kImage:
+            std::shared_ptr< OutputAttribute< vks::Image > > theSrcImageAttribute = std::static_pointer_cast< OutputAttribute< vks::Image > >( theSrcAttribute );
+            std::shared_ptr< InputAttribute< vks::Image > > theDstImageAttribute = std::static_pointer_cast< InputAttribute< vks::Image > >( theDstAttribute );
+            theDstImageAttribute->Connect( theSrcImageAttribute );
+            theSrcImageAttribute->Connect( theDstImageAttribute );
+            break;
+    }
+
+    // Store the link
+    auto theId = mGraph.addEdge( theSrcAttribute->mNodeId, theDstAttribute->mNodeId );
+    mLinks.insert( theId, { theId, inSrc, inDst } );
+}
+
+std::vector< vkrt::gui::NodeContext::Link >
+vkrt::gui::NodeContext::GetLinks()
+{
+    return mLinks.elements();
+}
+
+void
+vkrt::gui::NodeContext::RemoveLink( const std::size_t inId )
+{
+    // Remove link callback connections
+    assert( mLinks.contains( inId ) );
+
+    auto theLink = mLinks.get( inId );
+    std::shared_ptr< GuiAttribute > theSrcAttribute = mAttributes[ theLink.mSrcAttribute ];
+    std::shared_ptr< GuiAttribute > theDstAttribute = mAttributes[ theLink.mDstAttribute ];
+    assert( theSrcAttribute->mType == GuiAttribute::kOutput );
+    assert( theDstAttribute->mType == GuiAttribute::kInput );
+    assert( theSrcAttribute->mResourceType == theDstAttribute->mResourceType );
+
+    switch( theSrcAttribute->mResourceType )
+    {
+        case GuiAttribute::kImage:
+            std::shared_ptr< OutputAttribute< vks::Image > > theSrcImageAttribute = std::static_pointer_cast< OutputAttribute< vks::Image > >( theSrcAttribute );
+            std::shared_ptr< InputAttribute< vks::Image > > theDstImageAttribute = std::static_pointer_cast< InputAttribute< vks::Image > >( theDstAttribute );
+            theDstImageAttribute->Disconnect();
+            theSrcImageAttribute->Disconnect( theDstImageAttribute );
+            break;
+    }
+
+    // Remove link data
+    mLinks.remove( inId );
+    mGraph.removeEdge( inId );
 }
 

@@ -12,6 +12,7 @@
 #define VKRT_GUIATTRIBUTE_H
 
 #include <cstdio>
+#include "Graph.h"
 
 namespace vkrt::gui
 {
@@ -23,14 +24,19 @@ namespace vkrt::gui
                 kInput,
                 kOutput
             };
+            enum ResourceType
+            {
+                kImage
+            };
 
         public:
-            GuiAttribute( std::size_t inId, GuiAttribute::Type inType )
+            GuiAttribute( std::size_t inId, GuiAttribute::Type inType, ResourceType inResourceType )
             :
                 mId( inId ),
-                mType( inType )
+                mNodeId( -1 ),
+                mType( inType ),
+                mResourceType( inResourceType )
             {
-
             }
 
             ~GuiAttribute()
@@ -40,7 +46,11 @@ namespace vkrt::gui
 
         public:
             std::size_t mId;
+            std::size_t mNodeId;
             GuiAttribute::Type mType;
+            GuiAttribute::ResourceType mResourceType;
+
+            void SetId( std::size_t inId ) { mId = inId; }
     };
 }
 

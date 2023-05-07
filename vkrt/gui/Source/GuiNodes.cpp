@@ -11,10 +11,11 @@
 #include "vkrt/gui/GuiNodes.h"
 
 #include "vkrt/core/InputState.h"
-#include "vkrt/gui/NodeContext.h"
-#include "vkrt/gui/ImageNode.h"
-#include "vkrt/gui/ImageGenNode.h"
+
 #include "vkrt/gui/BufferNode.h"
+#include "vkrt/gui/ImageNode.h"
+#include "vkrt/gui/Link.h"
+#include "vkrt/gui/NodeContext.h"
 #include "vkrt/gui/PNGNode.h"
 
 #include <GLFW/glfw3.h>
@@ -25,11 +26,13 @@ vkrt::GuiNodes::GuiNodes( vkrt::InputStatePtr inInputState )
     mInputState( inInputState )
 {
     mNodeContext = std::make_shared< vkrt::gui::NodeContext >();
-    mNodes.push_back( std::make_shared< vkrt::gui::ImageNode >( mNodeContext ) );
-    mNodes.push_back( std::make_shared< vkrt::gui::ImageNode >( mNodeContext ) );
-    mNodes.push_back( std::make_shared< vkrt::gui::BufferNode >( mNodeContext ) );
-    mNodes.push_back( std::make_shared< vkrt::gui::PNGNode >( mNodeContext ) );
-    mNodes.push_back( std::make_shared< vkrt::gui::ImageGenNode >( mNodeContext ) );
+    mNodeContext->AddNode( std::make_shared< vkrt::gui::ImageNode >( mNodeContext ) );
+    mNodeContext->AddNode( std::make_shared< vkrt::gui::ImageNode >( mNodeContext ) );
+    mNodeContext->AddNode( std::make_shared< vkrt::gui::ImageNode >( mNodeContext ) );
+    mNodeContext->AddNode( std::make_shared< vkrt::gui::BufferNode >( mNodeContext ) );
+    mNodeContext->AddNode( std::make_shared< vkrt::gui::PNGNode >( mNodeContext ) );
+    mNodeContext->AddNode( std::make_shared< vkrt::gui::PNGNode >( mNodeContext ) );
+    mNodeContext->AddNode( std::make_shared< vkrt::gui::PNGNode >( mNodeContext ) );
 }
 
 vkrt::GuiNodes::~GuiNodes()
@@ -40,6 +43,24 @@ vkrt::GuiNodes::~GuiNodes()
 void
 vkrt::GuiNodes::Draw( vkrt::Presenter & inPresenter )
 {
+    // Delete links before rendering
+    std::vector< std::size_t > linksToRemove;
+    for( auto theLink : mNodeContext->GetLinks() )
+    {
+        if( !ImNodes::IsLinkSelected( theLink.mId ) ) continue;
+        if( mInputState->IsKeyDown( GLFW_KEY_DELETE ) || mInputState->IsKeyDown( GLFW_KEY_BACKSPACE ) )
+        {
+            linksToRemove.push_back( theLink.mId );
+            break;
+        }
+    }
+
+    for( auto theLinkId : linksToRemove )
+    {
+        mNodeContext->RemoveLink( theLinkId );
+    }
+
+    // Render nodes
     const ImGuiViewport* viewport = ImGui::GetMainViewport();
     ImVec2 work_pos = viewport->WorkPos; // Use work area to avoid menu-bar/task-bar, if any!
     ImVec2 window_pos, window_pos_pivot;
@@ -55,14 +76,15 @@ vkrt::GuiNodes::Draw( vkrt::Presenter & inPresenter )
         ImNodes::PushColorStyle( ImNodesCol_TitleBarSelected, IM_COL32( 213, 149, 56, 255 ) );
         ImNodes::PushColorStyle( ImNodesCol_TitleBarHovered, IM_COL32( 213, 170, 108, 255 ) );
 
-        for( auto theNode : mNodes )
+        // Draw the nodes
+        mNodeContext->Traverse( [ this ]( std::shared_ptr< gui::Node > & inNode )
         {
-            theNode->Draw();
-        }
+            inNode->Draw();
+        } );
 
         for( auto theLink : mNodeContext->GetLinks() )
         {
-            ImNodes::Link( theLink.first, theLink.second->mSource->mId, theLink.second->mDestination->mId );
+            ImNodes::Link( theLink.mId, theLink.mSrcAttribute, theLink.mDstAttribute );
         }
 
         ImNodes::PopColorStyle();
@@ -75,25 +97,7 @@ vkrt::GuiNodes::Draw( vkrt::Presenter & inPresenter )
     int start_attr, end_attr;
     if ( ImNodes::IsLinkCreated( &start_attr, &end_attr ) )
     {
-        auto theSource = mNodeContext->GetOutputAttribute( start_attr );
-        auto theDestination = mNodeContext->GetInputAttribute( end_attr );
-        mNodeContext->AddLink( theSource, theDestination );
+        mNodeContext->AddLink( start_attr, end_attr );
     }
 
-    // Delete links
-    std::vector< std::size_t > linksToRemove;
-    for( auto theLink : mNodeContext->GetLinks() )
-    {
-        if( !ImNodes::IsLinkSelected( theLink.first ) ) continue;
-        if( mInputState->IsKeyDown( GLFW_KEY_DELETE ) || mInputState->IsKeyDown( GLFW_KEY_BACKSPACE ) )
-        {
-            linksToRemove.push_back( theLink.first );
-            break;
-        }
-    }
-
-    for( auto theLinkId : linksToRemove )
-    {
-        mNodeContext->RemoveLink( theLinkId );
-    }
 }

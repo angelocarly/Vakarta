@@ -11,13 +11,16 @@
 #ifndef VKRT_RESOURCEPROVIDER_H
 #define VKRT_RESOURCEPROVIDER_H
 
+#include <optional>
+
 namespace vkrt::gui
 {
     template< typename T >
     class ResourceProvider
     {
         public:
-            virtual T GetResource() = 0;
+            virtual void Update() = 0;
+            virtual std::optional< T > GetResource() = 0;
 
     };
 

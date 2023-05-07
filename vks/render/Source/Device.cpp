@@ -316,6 +316,9 @@ vks::Device::AllocateImage( vks::ImageResource inImageResource, vk::ImageLayout 
         case ImageResource::Format::RGBA:
             theFormat = vk::Format::eR8G8B8A8Unorm;
             break;
+        case ImageResource::Format::RGB:
+            theFormat = vk::Format::eR8G8B8Unorm;
+            break;
         default:
             throw std::runtime_error( "Unsupported image format" );
     }

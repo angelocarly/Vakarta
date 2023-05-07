@@ -19,9 +19,13 @@
 
 vkrt::gui::PNGNode::PNGNode( vkrt::gui::NodeContextPtr inContext )
 :
-    Node( inContext ),
-    mOutput( inContext->AddOutputAttribute< vks::Image >( [ this ](){ return GetImage(); } ) )
+    Node( -1 ),
+    mOutput( inContext->CreateOutputAttribute< vks::Image >
+    (
+        [ this ](){ return GetImage(); }
+    ) )
 {
+    LinkAttribute( mOutput );
 }
 
 vkrt::gui::PNGNode::~PNGNode()
@@ -52,11 +56,11 @@ vkrt::gui::PNGNode::Draw()
 
         if( ImGui::Button( "Load PNG.." ) )
         {
-            ImGuiFileDialog::Instance()->OpenDialog("ChooseFileDlgKey", "Choose File", ".png", ".");
+            ImGuiFileDialog::Instance()->OpenDialog(  "PNGNode:" + std::to_string( GetId() ) , "Choose File", ".png", ".");
         }
 
         // display
-        if (ImGuiFileDialog::Instance()->Display("ChooseFileDlgKey"))
+        if( ImGuiFileDialog::Instance()->Display( "PNGNode:" + std::to_string( GetId() )  ) )
         {
             // action if OK
             if (ImGuiFileDialog::Instance()->IsOk())
@@ -67,6 +71,7 @@ vkrt::gui::PNGNode::Draw()
                 auto theImageResource = vks::AssetLoader::LoadImageResource( mFilePath );
                 auto theDevice = vks::VulkanSession::GetInstance()->GetDevice();
                 mImage = theDevice->AllocateImage( theImageResource, vk::ImageLayout::eShaderReadOnlyOptimal );
+                mOutput->Update();
             }
 
             // close

@@ -13,6 +13,11 @@
 
 #include "GuiAttribute.h"
 #include "ResourceProvider.h"
+#include "UpdateListener.h"
+#include "NodeContext.h"
+#include "ForwardDecl.h"
+
+#include <functional>
 
 namespace vkrt::gui
 {
@@ -23,23 +28,63 @@ namespace vkrt::gui
         public ResourceProvider< T >
     {
         public:
-            OutputAttribute( std::size_t inId, std::function< T( void ) > inCallback );
+            OutputAttribute( std::function< std::optional< T >( void ) > inCallback );
             ~OutputAttribute();
 
-            virtual T GetResource() override
+            void Connect( std::shared_ptr< vkrt::gui::UpdateListener > inLink );
+            void Disconnect( std::shared_ptr< vkrt::gui::UpdateListener > inLink );
+            void Update() override;
+
+            virtual std::optional< T > GetResource() override
             {
                 return mCallback();
             }
 
         private:
-            std::function< T( void ) > mCallback;
+            std::function< std::optional< T >( void ) > mCallback;
+            std::vector< std::shared_ptr< vkrt::gui::UpdateListener > > mLinks;
 
     };
 
     template< typename T >
-    OutputAttribute< T >::OutputAttribute( std::size_t inId, std::function< T( void ) > inCallback )
+    void
+    OutputAttribute< T >::Connect( std::shared_ptr< vkrt::gui::UpdateListener > inLink )
+    {
+        // Check if links already contained
+        for( auto theLink : mLinks )
+        {
+            if( theLink == inLink )
+            {
+                return;
+            }
+        }
+
+        // Add the link
+        mLinks.push_back( inLink );
+    }
+
+    template< typename T >
+    void
+    OutputAttribute< T >::Disconnect( std::shared_ptr< vkrt::gui::UpdateListener > inLink )
+    {
+        // Probably wrong
+        std::remove( mLinks.begin(), mLinks.end(), inLink );
+    }
+
+    template< typename T >
+    void
+    OutputAttribute< T >::Update()
+    {
+        for( auto theLink : mLinks )
+        {
+            theLink->Update();
+        }
+    }
+
+    template< typename T >
+    OutputAttribute< T >::OutputAttribute( std::function< std::optional< T >( void ) > inCallback )
     :
-        GuiAttribute( inId, GuiAttribute::kOutput ),
+        GuiAttribute( -1, GuiAttribute::kOutput, ResourceType::kImage ),
         mCallback( inCallback )
     {
 

@@ -8,6 +8,7 @@
 #include "Node.h"
 #include "ForwardDecl.h"
 #include "ImageProvider.h"
+#include "vks/core/Image.h"
 
 #include <cstdio>
 
@@ -25,7 +26,14 @@ namespace vkrt::gui
             void Draw() override;
 
         private:
-            std::shared_ptr< vkrt::gui::InputAttribute< vk::DescriptorSet > > mInput;
+            void SetupImageViews( std::optional< vks::Image > inImage );
+            void DisconnectImageViews();
+
+            std::shared_ptr< vkrt::gui::InputAttribute< vks::Image > > mInput;
+
+            vk::ImageView mImageView;
+            vk::Sampler mSampler;
+            vk::DescriptorSet mDescriptorSet;
     };
 }
 

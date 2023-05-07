@@ -5,17 +5,20 @@
 #ifndef VKRT_NODECONTEXT_H
 #define VKRT_NODECONTEXT_H
 
+#include "IdCache.h"
+#include "ForwardDecl.h"
+#include "Graph.h"
+#include "InputAttribute.h"
+#include "OutputAttribute.h"
+
+#include <vulkan/vulkan.hpp>
+
 #include <utility>
 #include <vector>
 #include <map>
-#include "IdCache.h"
-#include "ForwardDecl.h"
-#include "GuiAttribute.h"
-#include "InputAttribute.h"
-#include "OutputAttribute.h"
-#include "Link.h"
-
-#include <vulkan/vulkan.hpp>
+#include <memory>
+#include <functional>
+#include <optional>
 
 namespace vkrt::gui
 {
@@ -23,89 +26,54 @@ namespace vkrt::gui
     class NodeContext
     {
         public:
+            struct Link
+            {
+                std::size_t mId;
+                std::size_t mSrcAttribute;
+                std::size_t mDstAttribute;
+            };
+
+        public:
             NodeContext();
             ~NodeContext();
 
-            std::size_t AddNode( Node * inNode );
-            std::size_t AddLink( std::shared_ptr< vkrt::gui::OutputAttribute< vk::DescriptorSet > > a, std::shared_ptr< vkrt::gui::InputAttribute< vk::DescriptorSet > > b );
-            void RemoveLink( std::size_t inId );
+            void AddNode( std::shared_ptr< Node > inNode );
+            void AddAttribute( std::shared_ptr< GuiAttribute > inAttribute );
+            void AddLink( const std::size_t inSrc, const std::size_t inDst );
+            void RemoveLink( const std::size_t inId );
 
-            [[nodiscard]] std::map< std::size_t, std::shared_ptr< vkrt::gui::Link< vk::DescriptorSet > > > GetLinks() const { return mLinks; }
-            [[nodiscard]] std::map< std::size_t, NodePtr > GetNodes() const { return mNodes; }
+            std::vector< vkrt::gui::NodeContext::Link > GetLinks();
 
-        private:
-            std::map< std::size_t, std::shared_ptr< vkrt::gui::Link< vk::DescriptorSet > > > mLinks;
-            std::map< std::size_t, NodePtr > mNodes;
-            std::map< std::size_t, std::shared_ptr< vkrt::gui::GuiAttribute > > mAttributes;
-            vkrt::gui::IdCache mLinkIdCache;
-            vkrt::gui::IdCache mNodeIdCache;
-            vkrt::gui::IdCache mAttributeIdCache;
-
-        public:
-
-            std::shared_ptr< vkrt::gui::InputAttribute< vk::DescriptorSet > >
-            AddInputAttribute()
+            template< typename Visitor >
+            void Traverse( Visitor visitor )
             {
-                auto theId = mAttributeIdCache.AddId();
-                auto theAttribute = std::make_shared< vkrt::gui::InputAttribute< vk::DescriptorSet > >( theId );
-                mAttributes[ theId ] = theAttribute;
-                return theAttribute;
+                gui::traverse_graph( mGraph, visitor );
             }
 
-            std::shared_ptr< vkrt::gui::OutputAttribute< vk::DescriptorSet > >
-            AddOutputAttribute( std::function< vk::DescriptorSet( void ) > inCallback )
+            template< typename T >
+            std::shared_ptr< vkrt::gui::InputAttribute< T > >
+            CreateInputAttribute( std::function< void( std::optional< T > ) > inConnectCallback, std::function< void( std::optional< T > ) > inUpdateCallback, std::function< void( void ) > inDisconnectCallback )
             {
-                auto theId = mAttributeIdCache.AddId();
-                auto t = vkrt::gui::OutputAttribute< vk::DescriptorSet >( 0, inCallback );
-                auto theAttribute = std::make_shared< vkrt::gui::OutputAttribute< vk::DescriptorSet > >( theId, inCallback );
-                mAttributes[ theId ] = theAttribute;
+                auto theAttribute = std::make_shared< InputAttribute< T > >( inConnectCallback, inUpdateCallback, inDisconnectCallback );
+                AddAttribute( theAttribute );
                 return theAttribute;
             }
 
             template< typename T >
             std::shared_ptr< vkrt::gui::OutputAttribute< T > >
-            AddOutputAttribute( std::function< T( void ) > inCallback )
+            CreateOutputAttribute( std::function< std::optional< T >( void ) > inCallback )
             {
-                auto theId = mAttributeIdCache.AddId();
-                auto t = vkrt::gui::OutputAttribute< T >( 0, inCallback );
-                auto theAttribute = std::make_shared< vkrt::gui::OutputAttribute< T > >( theId, inCallback );
-                mAttributes[ theId ] = theAttribute;
+                auto theAttribute = std::make_shared< OutputAttribute< T > >( inCallback );
+                AddAttribute( theAttribute );
                 return theAttribute;
             }
 
-            std::shared_ptr< vkrt::gui::InputAttribute< vk::DescriptorSet > >
-            GetInputAttribute( std::size_t inAttributeId )
-            {
-                auto theAttribute = mAttributes[ inAttributeId ];
-                if( !theAttribute )
-                {
-                    throw std::runtime_error( "Attribute not found" );
-                }
+        private:
+            Graph< std::shared_ptr< Node > > mGraph;
+            std::vector< std::shared_ptr< Node > > mNodes;
+            IdMap< std::shared_ptr< GuiAttribute > > mAttributes;
 
-                if( theAttribute->mType != GuiAttribute::Type::kInput )
-                {
-                    throw std::runtime_error( "Attribute is not an input attribute" );
-                }
-
-                return std::static_pointer_cast< vkrt::gui::InputAttribute< vk::DescriptorSet > >( theAttribute );
-            }
-
-            std::shared_ptr< vkrt::gui::OutputAttribute< vk::DescriptorSet > >
-            GetOutputAttribute( std::size_t inAttributeId )
-            {
-                auto theAttribute = mAttributes[ inAttributeId ];
-                if( !theAttribute )
-                {
-                    throw std::runtime_error( "Attribute not found" );
-                }
-
-                if( theAttribute->mType != GuiAttribute::Type::kOutput )
-                {
-                    throw std::runtime_error( "Attribute is not an output attribute" );
-                }
-
-                return std::static_pointer_cast< vkrt::gui::OutputAttribute< vk::DescriptorSet > >( theAttribute );
-            }
+            IdMap< Link > mLinks;
     };
 
 }

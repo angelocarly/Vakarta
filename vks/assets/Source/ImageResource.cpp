@@ -22,6 +22,9 @@ vks::ImageResource::ImageResource( std::size_t inWidth, std::size_t inHeight, Fo
         case RGBA:
             theChannels = 4;
             break;
+        case RGB:
+            theChannels = 3;
+            break;
         default:
             throw new std::runtime_error( "ImageResource::ImageResource: Unknown format" );
     }

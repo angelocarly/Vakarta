@@ -12,39 +12,51 @@
 #define VKRT_INPUTATTRIBUTE_H
 
 #include "GuiAttribute.h"
+#include "NodeContext.h"
 #include "ResourceProvider.h"
+#include "ForwardDecl.h"
+#include "UpdateListener.h"
+
+#include <stdexcept>
+#include <functional>
 
 namespace vkrt::gui
 {
     template< typename T >
     class InputAttribute
     :
-        public GuiAttribute
+        public GuiAttribute,
+        public UpdateListener
     {
         public:
-            InputAttribute( std::size_t inId );
+            InputAttribute( std::function< void ( std::optional< T > ) > inConnectCallback, std::function< void ( std::optional< T > ) > inUpdateCallback, std::function< void( void ) > inDisconnectCallback );
             ~InputAttribute();
 
             void Connect( std::shared_ptr< vkrt::gui::ResourceProvider< T > > inProvider );
-            void ResetConnection();
+            void Update();
+            void Disconnect();
             bool IsConnected() const;
-            T GetResource() const;
+            std::optional< T > GetResource() const;
 
         private:
             std::shared_ptr< vkrt::gui::ResourceProvider< T > > mProvider;
+            std::function< void( std::optional< T > ) > mConnectCallback;
+            std::function< void( std::optional< T > ) > mUpdateCallback;
+            std::function< void( void ) > mDisconnectCallback;
     };
 
     template< typename T >
-    T InputAttribute< T >::GetResource() const
+    std::optional< T > InputAttribute< T >::GetResource() const
     {
         if( IsConnected() ) return mProvider->GetResource();
-        return nullptr;
+        return std::optional< T >();
     }
 
     template< typename T >
-    void InputAttribute< T >::ResetConnection()
+    void InputAttribute< T >::Disconnect()
     {
         mProvider = nullptr;
+        mDisconnectCallback();
     }
 
     template< typename T >
@@ -54,9 +66,12 @@ namespace vkrt::gui
     }
 
     template< typename T >
-    InputAttribute< T >::InputAttribute( std::size_t inId )
+    InputAttribute< T >::InputAttribute( std::function< void ( std::optional< T > ) > inConnectCallback, std::function< void ( std::optional< T > ) > inUpdateCallback, std::function< void( void ) > inDisconnectCallback )
     :
-        GuiAttribute( inId, GuiAttribute::kInput )
+        GuiAttribute( -1, GuiAttribute::kInput, GuiAttribute::ResourceType::kImage ),
+        mConnectCallback( inConnectCallback ),
+        mUpdateCallback( inUpdateCallback ),
+        mDisconnectCallback( inDisconnectCallback )
     {
 
     }
@@ -72,6 +87,14 @@ namespace vkrt::gui
     vkrt::gui::InputAttribute< T >::Connect( std::shared_ptr< vkrt::gui::ResourceProvider< T > > inProvider )
     {
         mProvider = std::move( inProvider );
+        mConnectCallback( mProvider->GetResource() );
+    }
+
+    template< typename T >
+    void
+    vkrt::gui::InputAttribute< T >::Update()
+    {
+        mUpdateCallback( mProvider->GetResource() );
     }
 }
 
