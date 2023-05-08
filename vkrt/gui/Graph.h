@@ -85,7 +85,7 @@ namespace vkrt::gui
     IdMap< ElementType >::insert( ElementType inElement )
     {
         auto theId = RetrieveNextFreeId();
-        Insert( theId, std::move( inElement ) );
+        Insert( theId, inElement );
         return theId;
     }
 
@@ -114,7 +114,7 @@ namespace vkrt::gui
     template< typename ElementType >
     bool IdMap< ElementType >::contains( const std::size_t inId )
     {
-        mMap.contains( inId );
+        return mMap.contains( inId );
     }
 
     template< typename NodeType >
