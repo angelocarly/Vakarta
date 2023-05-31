@@ -5,7 +5,6 @@
  * @author	Angelo Carly
  * @date	22/04/2023
  *
- * Copyright (c) 2023 Hybrid Software Development. All rights reserved.
  */
 
 #include "vkrt/gui/GuiNodes.h"
@@ -17,6 +16,9 @@
 #include "vkrt/gui/Link.h"
 #include "vkrt/gui/NodeContext.h"
 #include "vkrt/gui/PNGNode.h"
+#include "vkrt/gui/CrystalShaderNode.h"
+#include "vkrt/gui/ShaderNode.h"
+#include "vkrt/gui/FilterNode.h"
 
 #include <GLFW/glfw3.h>
 #include <imnodes.h>
@@ -109,6 +111,29 @@ vkrt::GuiNodes::Draw( vkrt::Presenter & inPresenter )
                 ImNodes::SetNodeScreenSpacePos( theId, click_pos );
                 ImGui::CloseCurrentPopup();
             }
+
+            if( ImGui::MenuItem( "Shader node" ) )
+            {
+                auto theId = mNodeContext->AddNode( std::make_shared< gui::ShaderNode >( mNodeContext ) );
+                ImNodes::SetNodeScreenSpacePos( theId, click_pos );
+                ImGui::CloseCurrentPopup();
+            }
+
+            if( ImGui::MenuItem( "Crystal view" ) )
+            {
+                auto theId = mNodeContext->AddNode( std::make_shared< gui::CrystalShaderNode >( mNodeContext ) );
+                ImNodes::SetNodeScreenSpacePos( theId, click_pos );
+                ImGui::CloseCurrentPopup();
+            }
+
+            if( ImGui::MenuItem( "Filter" ) )
+            {
+                auto theId = mNodeContext->AddNode( std::make_shared< gui::FilterNode >( mNodeContext ) );
+                ImNodes::SetNodeScreenSpacePos( theId, click_pos );
+                ImGui::CloseCurrentPopup();
+            }
+
+
             ImGui::EndPopup();
         }
 

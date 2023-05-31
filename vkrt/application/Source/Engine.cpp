@@ -10,7 +10,7 @@
 vkrt::Engine::Engine()
 :
     mWindow( std::make_shared< vks::Window >( WIDTH, HEIGHT, TITLE ) ),
-    mVulkanSession( vks::VulkanSession::GetInstance() ),
+    mVulkanSession( vks::VksSession::GetInstance() ),
     mRenderer( mVulkanSession, mWindow, { vkrt::RendererConfig::LINES } ),
     mInputState( std::make_shared< InputState >( mWindow ) ),
     mCamera( std::make_shared< vkrt::Camera >( 45, float( WIDTH ) / float( HEIGHT ), 0.1f, 250.0f ) ),

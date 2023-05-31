@@ -1,6 +1,7 @@
 set(
     HEADER_FILES
         ComputePipeline.h
+        DescriptorBinder.h
         DescriptorLayoutBuilder.h
         DescriptorSet.h
         Device.h
@@ -8,24 +9,27 @@ set(
         GuiPass.h
         Instance.h
         Mesh.h
+        OffScreenRenderPass.h
         PhysicalDevice.h
         Pipeline.h
         RenderPass.h
         Swapchain.h
         Utils.h
-        VulkanSession.h
+        VksSession.h
         Window.h
 )
 
 set(
     SOURCE_FILES
         Source/ComputePipeline.cpp
+        Source/DescriptorBinder.cpp
         Source/DescriptorLayoutBuilder.cpp
         Source/DescriptorSet.cpp
         Source/Device.cpp
         Source/GuiPass.cpp
         Source/Instance.cpp
         Source/Mesh.cpp
+        Source/OffScreenRenderPass.cpp
         Source/PhysicalDevice.cpp
         Source/Pipeline.cpp
         Source/RenderPass.cpp

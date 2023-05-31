@@ -1,6 +1,9 @@
 set(
     HEADER_FILES
         BufferNode.h
+        ColorFuncShaderNode.h
+        CrystalShaderNode.h
+        FilterNode.h
         ForwardDecl.h
         GuiLayer.h
         GuiNodes.h
@@ -11,16 +14,21 @@ set(
         InputAttribute.h
         IdCache.h
         Link.h
+        Node.h
         OutputAttribute.h
         PNGNode.h
         ResourceProvider.h
         ShaderEditor.h
-        Node.h
+        ShaderNode.h
+        UpdateListener.h
         ZepTheme.h
 )
 
 set(
     SOURCE_FILES
+        Source/ColorFuncShaderNode.cpp
+        Source/CrystalShaderNode.cpp
+        Source/FilterNode.cpp
         Source/GuiLayer.cpp
         Source/GuiNodes.cpp
         Source/IdCache.cpp
@@ -29,8 +37,9 @@ set(
         Source/Node.cpp
         Source/PNGNode.cpp
         Source/ShaderEditor.cpp
+        Source/ShaderNode.cpp
         Source/ZepTheme.cpp
-        UpdateListener.h)
+)
 
 add_library(
     VkrtGui

@@ -18,7 +18,7 @@
 #include "vks/render/ForwardDecl.h"
 #include "vks/render/GuiPass.h"
 #include "vks/assets/AssetLoader.h"
-#include "vks/render/VulkanSession.h"
+#include "vks/render/VksSession.h"
 #include "vkrt/graphics/GeoGenPipeline.h"
 #include "vkrt/graphics/LinePipeline.h"
 #include "vkrt/graphics/MeshPipeline.h"
