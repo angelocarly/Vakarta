@@ -19,6 +19,7 @@
 #include <memory>
 #include <functional>
 #include <optional>
+#include <glm/glm.hpp>
 
 namespace vkrt::gui
 {
@@ -37,6 +38,10 @@ namespace vkrt::gui
             NodeContext();
             ~NodeContext();
 
+        public:
+            glm::ivec2 GetDefaultImageSize() { return glm::vec2( 48, 48 ); };
+
+        public:
             std::size_t AddNode( std::shared_ptr< Node > inNode );
             void AddAttribute( std::shared_ptr< GuiAttribute > inAttribute );
             void AddLink( const std::size_t inSrc, const std::size_t inDst );

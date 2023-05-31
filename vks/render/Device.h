@@ -34,16 +34,16 @@ namespace vks
             vks::Buffer CreateBuffer( vk::BufferCreateInfo inBufferCreateInfo, vma::AllocationCreateInfo inAllocationCreateInfo );
             void DestroyBuffer( vks::Buffer inBuffer );
             vks::Image CreateImage( vk::ImageCreateInfo inImageCreateInfo, vma::AllocationCreateInfo inAllocationCreateInfo );
-            vks::Image CreateImage( vk::Format inFormat, std::size_t inWidth, std::size_t inHeight, vk::ImageUsageFlags inUsage, vma::MemoryUsage inMemoryUsage );
+            vks::Image CreateImage( vk::Format inFormat, std::size_t inWidth, std::size_t inHeight, vk::ImageUsageFlags inUsageFlags, vma::AllocationCreateFlags inAllocationCreateFlags );
             void DestroyImage( vks::Image inImage );
             void ImageMemoryBarrier
             (
                 vk::CommandBuffer inCommandBuffer,
                 vks::Image inImage,
-                vk::Flags< vk::AccessFlagBits > inSrcAccessMask,
-                vk::Flags< vk::AccessFlagBits > inDstAccessMask,
-                vk::Flags< vk::PipelineStageFlagBits > inSrcStageMask,
-                vk::Flags< vk::PipelineStageFlagBits > inDstStageMask,
+                vk::AccessFlags inSrcAccessMask,
+                vk::AccessFlags inDstAccessMask,
+                vk::PipelineStageFlags inSrcStageMask,
+                vk::PipelineStageFlags inDstStageMask,
                 vk::ImageLayout inOldLayout,
                 vk::ImageLayout inNewLayout,
                 vk::DependencyFlags inDependencyFlags

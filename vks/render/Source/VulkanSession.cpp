@@ -6,9 +6,9 @@
 #include "vks/render/ForwardDecl.h"
 #include "vks/render/Instance.h"
 #include "vks/render/PhysicalDevice.h"
-#include "vks/render/VulkanSession.h"
+#include "vks/render/VksSession.h"
 
-class vks::VulkanSession::Impl
+class vks::VksSession::Impl
 {
     public:
         Impl();
@@ -22,7 +22,7 @@ class vks::VulkanSession::Impl
 
 vks::DevicePtr GetDevice();
 
-vks::VulkanSession::Impl::Impl()
+vks::VksSession::Impl::Impl()
 :
     mInstance( vks::Instance::GetInstance() ),
     mPhysicalDevice( std::make_shared< vks::PhysicalDevice >( mInstance ) ),
@@ -31,33 +31,33 @@ vks::VulkanSession::Impl::Impl()
 
 }
 
-vks::VulkanSession::Impl::~Impl()
+vks::VksSession::Impl::~Impl()
 {
 }
 
 // =====================================================================================================================
 
-vks::VulkanSession::VulkanSession()
+vks::VksSession::VksSession()
 :
     mImpl( new Impl() )
 {
 
 }
 
-vks::VulkanSession::~VulkanSession()
+vks::VksSession::~VksSession()
 {
 
 }
 
 vks::VulkanSessionPtr
-vks::VulkanSession::GetInstance()
+vks::VksSession::GetInstance()
 {
-    static std::shared_ptr< vks::VulkanSession > vksSession = std::shared_ptr< vks::VulkanSession >( new vks::VulkanSession() );
+    static std::shared_ptr< vks::VksSession > vksSession = std::shared_ptr< vks::VksSession >( new vks::VksSession() );
     return vksSession;
 }
 
 vks::DevicePtr
-vks::VulkanSession::GetDevice()
+vks::VksSession::GetDevice()
 {
     return mImpl->mDevice;
 }

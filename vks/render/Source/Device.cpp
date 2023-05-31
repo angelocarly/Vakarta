@@ -215,7 +215,7 @@ vks::Device::CreateImage( vk::ImageCreateInfo inImageCreateInfo, vma::Allocation
 }
 
 vks::Image
-vks::Device::CreateImage( vk::Format inFormat, std::size_t inWidth, std::size_t inHeight, vk::ImageUsageFlags inUsage, vma::MemoryUsage inMemoryUsage )
+vks::Device::CreateImage( vk::Format inFormat, std::size_t inWidth, std::size_t inHeight, vk::ImageUsageFlags inUsageFlags, vma::AllocationCreateFlags inAllocationCreateFlags )
 {
     auto theImageResult = mImpl->mAllocator.createImage
     (
@@ -229,7 +229,7 @@ vks::Device::CreateImage( vk::Format inFormat, std::size_t inWidth, std::size_t 
             1,
             vk::SampleCountFlagBits::e1,
             vk::ImageTiling::eOptimal,
-            vk::ImageUsageFlagBits::eSampled | vk::ImageUsageFlagBits::eTransferDst,
+            inUsageFlags,
             vk::SharingMode::eExclusive,
             1,
             0,
@@ -237,8 +237,8 @@ vks::Device::CreateImage( vk::Format inFormat, std::size_t inWidth, std::size_t 
         ),
         vma::AllocationCreateInfo
         (
-            vma::AllocationCreateFlagBits::eDedicatedMemory,
-            inMemoryUsage
+            inAllocationCreateFlags,
+            vma::MemoryUsage::eAuto
         )
     );
     return { theImageResult.first, theImageResult.second };
@@ -255,10 +255,10 @@ vks::Device::ImageMemoryBarrier
 (
     vk::CommandBuffer inCommandBuffer,
     vks::Image inImage,
-    vk::Flags< vk::AccessFlagBits > inSrcAccessMask,
-    vk::Flags< vk::AccessFlagBits > inDstAccessMask,
-    vk::Flags< vk::PipelineStageFlagBits > inSrcStageMask,
-    vk::Flags< vk::PipelineStageFlagBits > inDstStageMask,
+    vk::AccessFlags inSrcAccessMask,
+    vk::AccessFlags inDstAccessMask,
+    vk::PipelineStageFlags inSrcStageMask,
+    vk::PipelineStageFlags inDstStageMask,
     vk::ImageLayout inOldLayout,
     vk::ImageLayout inNewLayout,
     vk::DependencyFlags inDependencyFlags
@@ -329,7 +329,7 @@ vks::Device::AllocateImage( vks::ImageResource inImageResource, vk::ImageLayout 
         inImageResource.GetWidth(),
         inImageResource.GetHeight(),
         vk::ImageUsageFlagBits::eSampled | vk::ImageUsageFlagBits::eTransferDst,
-        vma::MemoryUsage::eGpuOnly
+        vma::AllocationCreateFlagBits::eDedicatedMemory
     );
 
     vks::Buffer theStagingBuffer;

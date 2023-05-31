@@ -11,7 +11,7 @@
 
 #include "vks/assets/AssetLoader.h"
 #include "vks/render/Device.h"
-#include "vks/render/VulkanSession.h"
+#include "vks/render/VksSession.h"
 #include "imgui_impl_vulkan.h"
 
 vkrt::ReflectionPresenter::ReflectionPresenter( vks::VulkanSessionPtr inSession )

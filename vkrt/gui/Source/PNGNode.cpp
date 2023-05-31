@@ -11,7 +11,7 @@
 #include "vkrt/gui/PNGNode.h"
 
 #include "vks/assets/AssetLoader.h"
-#include "vks/render/VulkanSession.h"
+#include "vks/render/VksSession.h"
 #include "vks/render/Device.h"
 
 #include <imnodes.h>
@@ -69,7 +69,7 @@ vkrt::gui::PNGNode::Draw()
                 mFileName = ImGuiFileDialog::Instance()->GetCurrentFileName();
                 // action
                 auto theImageResource = vks::AssetLoader::LoadImageResource( mFilePath );
-                auto theDevice = vks::VulkanSession::GetInstance()->GetDevice();
+                auto theDevice = vks::VksSession::GetInstance()->GetDevice();
                 mImage = theDevice->AllocateImage( theImageResource, vk::ImageLayout::eShaderReadOnlyOptimal );
                 mOutput->Update();
             }

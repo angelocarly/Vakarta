@@ -5,7 +5,7 @@
 #include "vkrt/gui/ImageNode.h"
 #include "vkrt/gui/ForwardDecl.h"
 
-#include "vks/render/VulkanSession.h"
+#include "vks/render/VksSession.h"
 #include "vks/render/Device.h"
 #include "vks/core/Image.h"
 #include "imgui_impl_vulkan.h"
@@ -63,7 +63,7 @@ vkrt::gui::ImageNode::SetupImageViews( std::optional< vks::Image > inImage )
 {
     if( !inImage ) return;
 
-    auto theDevice = vks::VulkanSession::GetInstance()->GetDevice();
+    auto theDevice = vks::VksSession::GetInstance()->GetDevice();
     auto theImage = mInput->GetResource().value();
 
     // Initialize data
@@ -96,9 +96,9 @@ vkrt::gui::ImageNode::SetupImageViews( std::optional< vks::Image > inImage )
         vk::SamplerCreateInfo
         (
             vk::SamplerCreateFlags(),
-            vk::Filter::eLinear,
-            vk::Filter::eLinear,
-            vk::SamplerMipmapMode::eLinear,
+            vk::Filter::eNearest,
+            vk::Filter::eNearest,
+            vk::SamplerMipmapMode::eNearest,
             vk::SamplerAddressMode::eRepeat,
             vk::SamplerAddressMode::eRepeat,
             vk::SamplerAddressMode::eRepeat,
@@ -120,7 +120,7 @@ vkrt::gui::ImageNode::SetupImageViews( std::optional< vks::Image > inImage )
 void vkrt::gui::ImageNode::DisconnectImageViews()
 {
     // Destroy resources
-    auto theDevice = vks::VulkanSession::GetInstance()->GetDevice();
+    auto theDevice = vks::VksSession::GetInstance()->GetDevice();
     theDevice->GetVkDevice().waitIdle();
     theDevice->GetVkDevice().destroy( mImageView );
     theDevice->GetVkDevice().destroy( mSampler );

@@ -9,24 +9,35 @@
 
 namespace vks
 {
-    class Device;
-    typedef std::shared_ptr< vks::Device > DevicePtr;
-    class PhysicalDevice;
-    typedef std::shared_ptr< vks::PhysicalDevice > PhysicalDevicePtr;
-    class RenderPass;
-    typedef std::shared_ptr< vks::RenderPass > RenderPassPtr;
-    class Swapchain;
-    typedef std::shared_ptr< vks::Swapchain > SwapchainPtr;
-    class Pipeline;
-    typedef std::shared_ptr< vks::Pipeline > PipelinePtr;
     class ComputePipeline;
     typedef std::shared_ptr< vks::ComputePipeline > ComputePipelinePtr;
-    class VulkanSession;
-    typedef std::shared_ptr< vks::VulkanSession > VulkanSessionPtr;
-    class Window;
-    typedef std::shared_ptr< vks::Window > WindowPtr;
+
+    class Device;
+    typedef std::shared_ptr< vks::Device > DevicePtr;
+
+    class DescriptorSet;
+    typedef std::shared_ptr< vks::DescriptorSet > DescriptorSetPtr;
+
     class GuiPass;
     typedef std::shared_ptr< vks::GuiPass > ImGuiPtr;
+
+    class Pipeline;
+    typedef std::shared_ptr< vks::Pipeline > PipelinePtr;
+
+    class PhysicalDevice;
+    typedef std::shared_ptr< vks::PhysicalDevice > PhysicalDevicePtr;
+
+    class RenderPass;
+    typedef std::shared_ptr< vks::RenderPass > RenderPassPtr;
+
+    class Swapchain;
+    typedef std::shared_ptr< vks::Swapchain > SwapchainPtr;
+
+    class VksSession;
+    typedef std::shared_ptr< vks::VksSession > VulkanSessionPtr;
+
+    class Window;
+    typedef std::shared_ptr< vks::Window > WindowPtr;
 
 }
 

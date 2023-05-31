@@ -2,18 +2,18 @@
 // Created by Angelo Carly on 09/01/2023.
 //
 
-#ifndef VKRT_VULKANSESSION_H
-#define VKRT_VULKANSESSION_H
+#ifndef VKRT_VKSSESSION_H
+#define VKRT_VKSSESSION_H
 
 #include <memory>
 
 namespace vks
 {
-    class VulkanSession
+    class VksSession
     {
         public:
-            VulkanSession();
-            ~VulkanSession();
+            VksSession();
+            ~VksSession();
 
         public:
             static VulkanSessionPtr GetInstance();
@@ -25,4 +25,4 @@ namespace vks
     };
 }
 
-#endif //VKRT_VULKANSESSION_H
+#endif //VKRT_VKSSESSION_H

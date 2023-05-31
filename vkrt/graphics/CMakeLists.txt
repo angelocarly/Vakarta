@@ -1,32 +1,39 @@
 set(
     HEADER_FILES
+        CrystalViewShader.h
+        FilterShader.h
+        ForwardDecl.h
         GeoGenPipeline.h
         LinePipeline.h
         MeshPipeline.h
         Renderer.h
         ReflectionPresenter.h
-        Presenter.h
         ImageFactory.h
+        Presenter.h
 )
 
 set(
     SOURCE_FILES
+        Source/CrystalViewShader.cpp
+        Source/FilterShader.cpp
         Source/GeoGenPipeline.cpp
         Source/LinePipeline.cpp
         Source/MeshPipeline.cpp
         Source/Renderer.cpp
         Source/ReflectionPresenter.cpp
-        Source/Presenter.cpp
         Source/ImageFactory.cpp
+        Source/Presenter.cpp
 )
 
 set(
     GLSL_SOURCE_FILES
+        shaders/CrystalView.comp
         shaders/GeoGen.comp
-        shaders/RenderShader.frag
-        shaders/RenderShader.vert
+        shaders/Filter.comp
         shaders/LineShader.frag
         shaders/LineShader.vert
+        shaders/RenderShader.frag
+        shaders/RenderShader.vert
 )
 
 add_library(

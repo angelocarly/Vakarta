@@ -13,7 +13,7 @@ namespace vkrt::gui
     class Node
     {
         public:
-            Node( std::size_t inId );
+            Node( std::size_t inId = -1 );
             ~Node();
 
         public:
