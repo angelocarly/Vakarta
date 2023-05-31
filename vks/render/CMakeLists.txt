@@ -41,7 +41,7 @@ add_library(
     ${HEADER_FILES}
 )
 
-set_property( TARGET VksRender PROPERTY CXX_STANDARD 17 )
+set_property( TARGET VksRender PROPERTY CXX_STANDARD 20 )
 
 target_include_directories( VksRender PUBLIC ${PROJECT_ROOT_DIR} )
 target_include_directories( VksRender PUBLIC ${LIB_DIR} )
