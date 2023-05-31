@@ -5,8 +5,10 @@
 #ifndef VKRT_DESCRIPTORLAYOUTBUILDER_H
 #define VKRT_DESCRIPTORLAYOUTBUILDER_H
 
-#include <vulkan/vulkan.hpp>
 #include "ForwardDecl.h"
+
+#include <vulkan/vulkan.hpp>
+#include <cstdint>
 
 namespace vks
 {

@@ -71,6 +71,12 @@ vkrt::gui::NodeContext::GetLinks()
     return mLinks.elements();
 }
 
+std::unordered_map< std::size_t, std::shared_ptr< vkrt::gui::GuiAttribute > >
+vkrt::gui::NodeContext::GetAttributes()
+{
+    return mAttributes.elements();
+}
+
 void
 vkrt::gui::NodeContext::RemoveLink( const std::size_t inId )
 {

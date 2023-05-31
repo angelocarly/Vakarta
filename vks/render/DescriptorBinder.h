@@ -13,6 +13,7 @@
 #include "vks/render/ForwardDecl.h"
 
 #include <vulkan/vulkan.hpp>
+#include <cstdint>
 
 namespace vks
 {

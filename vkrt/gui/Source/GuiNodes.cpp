@@ -165,7 +165,10 @@ vkrt::GuiNodes::Draw( vkrt::Presenter & inPresenter )
     int start_attr, end_attr;
     if ( ImNodes::IsLinkCreated( &start_attr, &end_attr ) )
     {
-        mNodeContext->AddLink( start_attr, end_attr );
+        if( mNodeContext->GetAttributes()[ start_attr ]->mResourceType == mNodeContext->GetAttributes()[ end_attr ]->mResourceType )
+        {
+            mNodeContext->AddLink( start_attr, end_attr );
+        }
     }
 
 }

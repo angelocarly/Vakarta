@@ -50,6 +50,7 @@ namespace vkrt::gui
 
             std::unordered_map< std::size_t, vkrt::gui::NodeContext::Link > GetLinks();
             std::unordered_map< std::size_t, std::shared_ptr< Node > > GetNodes();
+            std::unordered_map< std::size_t, std::shared_ptr< vkrt::gui::GuiAttribute > > GetAttributes();
 
             template< typename Visitor >
             void Traverse( Visitor visitor )

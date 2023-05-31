@@ -183,19 +183,21 @@ vks::Instance::Impl::CheckValidationLayersSupport()
         bool layerIsFound = false;
         for( vk::LayerProperties theProperty : theLayerProperties )
         {
-            if( theProperty.layerName == theRequestedLayer )
+            if( std::strncmp( theProperty.layerName, theRequestedLayer, strlen( theRequestedLayer ) ) == 0 )
             {
                 layerIsFound = true;
                 break;
             }
         }
 
-        if( layerIsFound )
+        if( !layerIsFound )
         {
             spdlog::get("vulkan")->error( "Requested layer not found: {}", theRequestedLayer );
             std::exit( 1 );
+            return false;
         }
     }
+    return true;
 }
 
 void

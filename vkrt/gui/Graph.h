@@ -94,7 +94,8 @@ namespace vkrt::gui
     IdMap< ElementType >::Insert( std::size_t inId, ElementType inElement )
     {
         assert( !mMap.contains( inId ) );
-        mMap[ inId ] = inElement;
+        mMap.insert( std::make_pair( inId, inElement ) );
+        return inId;
     }
 
     template< typename ElementType >

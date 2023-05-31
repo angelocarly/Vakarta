@@ -7,6 +7,7 @@
 
 #include "vks/core/Buffer.h"
 #include "vks/render/ForwardDecl.h"
+#include <cstdint>
 
 namespace vks
 {
@@ -28,4 +29,4 @@ namespace vks
 }
 
 
-#endif //VKRT_DESCRIPTORSET_H
+#endif
