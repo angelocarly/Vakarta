@@ -308,6 +308,7 @@ vks::Swapchain::PresentImage( uint32_t inImageIndex, vk::Semaphore & inWaitSemap
     auto result = mImpl->mDevice->GetVkQueue().presentKHR( thePresentInfo );
     if( result != vk::Result::eSuccess )
     {
+        // TODO: recreate the swapchain
         throw std::runtime_error( "Error presenting swapchain" );
     }
 }

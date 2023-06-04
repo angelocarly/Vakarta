@@ -12,11 +12,13 @@
 
 #include <memory>
 
-namespace vkrt
+namespace vkrt::graphics
 {
+    class CrystalViewShader;
+    using CrystalViewShaderPtr = std::shared_ptr< CrystalViewShader >;
 
-    class Layer;
-    using LayerPtr = std::shared_ptr<Layer>;
+    class FilterShader;
+    using FilterShaderPtr = std::shared_ptr< FilterShader >;
 }
 
 #endif

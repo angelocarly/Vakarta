@@ -11,9 +11,7 @@
 #include "vks/render/PhysicalDevice.h"
 
 #include "vkrt/core/ForwardDecl.h"
-#include "vkrt/graphics/Renderer.h"
-#include "vkrt/graphics/ReflectionPresenter.h"
-#include "vkrt/gui/GuiLayer.h"
+#include "vkrt/graphics/Display.h"
 
 namespace vkrt
 {
@@ -35,16 +33,12 @@ namespace vkrt
         private:
             vks::WindowPtr mWindow;
             vks::VulkanSessionPtr mVulkanSession;
-            vkrt::Renderer mRenderer;
+            vkrt::Display mRenderer;
             vkrt::InputStatePtr mInputState;
             vkrt::CameraPtr mCamera;
-            vkrt::GuiLayer mGuiLayer;
-            vkrt::GuiLayer::StatsInfo mStats;
             bool mMouseSwallowed = false;
 
         private:
-            vkrt::ReflectionPresenter mReflectionPresenter;
-
             // Resources
             vks::AssetLoader mAssetLoader;
             std::unique_ptr< vks::Mesh > mMesh;

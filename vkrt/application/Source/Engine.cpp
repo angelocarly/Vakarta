@@ -11,19 +11,11 @@ vkrt::Engine::Engine()
 :
     mWindow( std::make_shared< vks::Window >( WIDTH, HEIGHT, TITLE ) ),
     mVulkanSession( vks::VksSession::GetInstance() ),
-    mRenderer( mVulkanSession, mWindow, { vkrt::RendererConfig::LINES } ),
+    mRenderer( mVulkanSession, mWindow ),
     mInputState( std::make_shared< InputState >( mWindow ) ),
     mCamera( std::make_shared< vkrt::Camera >( 45, float( WIDTH ) / float( HEIGHT ), 0.1f, 250.0f ) ),
-    mAssetLoader(),
-    mReflectionPresenter( mVulkanSession ),
-    mGuiLayer( mInputState, mRenderer.GetImGuiContext() )
+    mAssetLoader()
 {
-    mCamera->SetPosition( glm::vec3( 0, 0, 5 ));
-    mRenderer.SetCamera( mCamera );
-
-    auto theMesh = mAssetLoader.LoadMeshResource( "resources/bunny.obj" );
-    mMesh = std::make_unique< vks::Mesh >( mVulkanSession->GetDevice(), theMesh.GetVertices(), theMesh.GetIndices() );
-
 }
 
 vkrt::Engine::~Engine()
@@ -37,14 +29,14 @@ void
 vkrt::Engine::Update( float inFrameDuration )
 {
     // Render Gui
-    mGuiLayer.Begin();
-    mStats.mFps = 1.0f / inFrameDuration;
-    mStats.mFrameTime = inFrameDuration;
-//    vkrt::GuiPanels::Tools( mRenderer );
-//    vkrt::GuiPanels::Stats( mStats );
-    mGuiLayer.ImageTest( mReflectionPresenter );
-    mGuiLayer.NodesTest( mReflectionPresenter );
-    mGuiLayer.End();
+//    mGuiLayer.Begin();
+//    mStats.mFps = 1.0f / inFrameDuration;
+//    mStats.mFrameTime = inFrameDuration;
+////    vkrt::GuiPanels::Tools( mRenderer );
+////    vkrt::GuiPanels::Stats( mStats );
+//    mGuiLayer.ImageTest( mReflectionPresenter );
+//    mGuiLayer.NodesTest( mReflectionPresenter );
+//    mGuiLayer.End();
 
     mWindow->Poll();
 
@@ -70,20 +62,6 @@ vkrt::Engine::Update( float inFrameDuration )
         glm::vec2 theMouseDelta = mInputState->GetMouseDelta() / 1000.0f;
         mCamera->RotatePitch( theMouseDelta.y );
         mCamera->RotateYaw( theMouseDelta.x );
-
-        // Switch render mode
-        if( mInputState->IsKeyDown( GLFW_KEY_T ) )
-        {
-            auto theConfig = mRenderer.GetConfig();
-            theConfig.topology = vkrt::RendererConfig::LINES;
-            mRenderer.SetConfig( theConfig );
-        }
-        if( mInputState->IsKeyDown( GLFW_KEY_Y ) )
-        {
-            auto theConfig = mRenderer.GetConfig();
-            theConfig.topology = vkrt::RendererConfig::TRIANGLES;
-            mRenderer.SetConfig( theConfig );
-        }
 
         if( mInputState->IsKeyDown( GLFW_KEY_Q ) )
         {
@@ -122,7 +100,7 @@ vkrt::Engine::Update( float inFrameDuration )
 
 void vkrt::Engine::Render()
 {
-    mRenderer.RenderFrame( * mMesh );
+    mRenderer.Render();
 }
 
 bool vkrt::Engine::ShouldClose()

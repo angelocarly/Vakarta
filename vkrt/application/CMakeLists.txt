@@ -24,7 +24,7 @@ target_link_libraries(
     ${PROJECT_NAME} PUBLIC
         VkrtCore
         VkrtGraphics
-        VkrtGui
+#        VkrtGui
         VksAssets
         VksCore
         VksRender

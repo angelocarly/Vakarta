@@ -30,11 +30,11 @@ vks::DescriptorLayoutBuilder::AddLayoutBinding( uint32_t inBinding, vk::Descript
 }
 
 std::vector< vk::DescriptorSetLayout >
-vks::DescriptorLayoutBuilder::Build( vks::DevicePtr inDevice )
+vks::DescriptorLayoutBuilder::Build( vks::DevicePtr inDevice, vk::DescriptorSetLayoutCreateFlags inFlags )
 {
     auto theDescriptorSetLayoutCreateInfo = vk::DescriptorSetLayoutCreateInfo
     (
-        vk::DescriptorSetLayoutCreateFlags(),
+        inFlags,
         mDescriptorSetLayoutBindings.size(),
         mDescriptorSetLayoutBindings.data()
     );

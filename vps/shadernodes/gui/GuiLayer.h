@@ -7,7 +7,7 @@
 
 #define IMGUI_DEFINE_MATH_OPERATORS
 #include "vkrt/graphics/Presenter.h"
-#include "vkrt/graphics/Renderer.h"
+#include "vkrt/graphics/Display.h"
 #include "GuiNodes.h"
 
 namespace vkrt
@@ -27,7 +27,7 @@ namespace vkrt
 
             void Begin();
             void Stats( vkrt::GuiLayer::StatsInfo & inStats );
-            void Tools( vkrt::Renderer & inRenderer );
+            void Tools( vkrt::Display & inRenderer );
             void ImageTest( vkrt::Presenter & inPresenter );
             void NodesTest( vkrt::Presenter & inPresenter );
             void End();

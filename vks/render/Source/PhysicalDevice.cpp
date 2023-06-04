@@ -134,6 +134,7 @@ vks::PhysicalDevice::GetRequiredExtensions()
     static std::vector< const char * > theExtensions;
 
     theExtensions.push_back( VK_KHR_SWAPCHAIN_EXTENSION_NAME );
+    theExtensions.push_back( VK_KHR_PUSH_DESCRIPTOR_EXTENSION_NAME );
 
     if( vks::Utils::IsTargetApple() )
     {

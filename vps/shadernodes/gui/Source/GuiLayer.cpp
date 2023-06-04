@@ -98,7 +98,7 @@ vkrt::GuiLayer::Stats( vkrt::GuiLayer::StatsInfo & inStats )
 }
 
 void
-vkrt::GuiLayer::Tools( vkrt::Renderer & inRenderer )
+vkrt::GuiLayer::Tools( vkrt::Display & inRenderer )
 {
     if( !mShowTools ) return;
 

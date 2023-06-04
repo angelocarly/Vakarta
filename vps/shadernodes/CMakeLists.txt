@@ -1,89 +1,89 @@
 set(
-    HEADER_FILES
-        CrystalViewShader.h
-        FilterShader.h
-        ForwardDecl.h
-        GeoGenPipeline.h
-        LinePipeline.h
-        MeshPipeline.h
-        Renderer.h
-        ReflectionPresenter.h
-        ImageFactory.h
-        Presenter.h
+    ShaderNodes_Gui_HEADER_FILES
+        gui/BufferNode.h
+        gui/ColorFuncShaderNode.h
+        gui/CrystalShaderNode.h
+        gui/FilterNode.h
+        gui/ForwardDecl.h
+        gui/GuiLayer.h
+        gui/GuiNodes.h
+        gui/GuiAttribute.h
+        gui/Graph.h
+        gui/ImageNode.h
+        gui/ImageProvider.h
+        gui/InputAttribute.h
+        gui/IdCache.h
+        gui/Link.h
+        gui/Node.h
+        gui/OutputAttribute.h
+        gui/PNGNode.h
+        gui/ResourceProvider.h
+        gui/ShaderEditor.h
+        gui/ShaderNode.h
+        gui/UpdateListener.h
+        gui/ZepTheme.h
 )
 
 set(
-    SOURCE_FILES
-        Source/CrystalViewShader.cpp
-        Source/FilterShader.cpp
-        Source/GeoGenPipeline.cpp
-        Source/LinePipeline.cpp
-        Source/MeshPipeline.cpp
-        Source/Renderer.cpp
-        Source/ReflectionPresenter.cpp
-        Source/ImageFactory.cpp
-        Source/Presenter.cpp
+    ShaderNodes_Gui_SOURCE_FILES
+        gui/Source/ColorFuncShaderNode.cpp
+        gui/Source/CrystalShaderNode.cpp
+        gui/Source/FilterNode.cpp
+        gui/Source/GuiLayer.cpp
+        gui/Source/GuiNodes.cpp
+        gui/Source/IdCache.cpp
+        gui/Source/ImageNode.cpp
+        gui/Source/NodeContext.cpp
+        gui/Source/Node.cpp
+        gui/Source/PNGNode.cpp
+        gui/Source/ShaderEditor.cpp
+        gui/Source/ShaderNode.cpp
+        gui/Source/ZepTheme.cpp
 )
 
 set(
-    GLSL_SOURCE_FILES
-        shaders/CrystalView.comp
-        shaders/GeoGen.comp
-        shaders/Filter.comp
-        shaders/LineShader.frag
-        shaders/LineShader.vert
-        shaders/RenderShader.frag
-        shaders/RenderShader.vert
+    ShaderNodes_Graphics_HEADER_FILES
+        graphics/CrystalViewShader.h
+        graphics/FilterShader.h
+        graphics/GeoGenPipeline.h
+        graphics/LinePipeline.h
+        graphics/MeshPipeline.h
+        graphics/Presenter.h
+        graphics/ReflectionPresenter.h
+)
+
+set(
+    ShaderNodes_Graphics_SOURCE_FILES
+        graphics/Source/CrystalViewShader.cpp
+        graphics/Source/FilterShader.cpp
+        graphics/Source/GeoGenPipeline.cpp
+        graphics/Source/LinePipeline.cpp
+        graphics/Source/MeshPipeline.cpp
+        graphics/Source/ReflectionPresenter.cpp
 )
 
 add_library(
-    VpsShaderNodes SHARED
-        ${SOURCE_FILES}
+    VpsShaderNodes
+        ${ShaderNodes_Gui_HEADER_FILES}
+        ${ShaderNodes_Gui_SOURCE_FILES}
+        ${ShaderNodes_Graphics_HEADER_FILES}
+        ${ShaderNodes_Graphics_SOURCE_FILES}
         ${HEADER_FILES}
 )
-
-target_include_directories( VpsShaderNodes PUBLIC ${PROJECT_ROOT_DIR} )
-
-set_property( TARGET VpsShaderNodes PROPERTY CXX_STANDARD 17 )
 
 ## Project libraries
 target_link_libraries(
     VpsShaderNodes PUBLIC
-        VkrtCore
-        VksAssets
+        VkrtGraphics
         VksRender
         VksCore
         Imgui
 )
 
-### Shaders
-
-if(LINUX)
-    set( GLSL_VALIDATOR "/usr/bin/glslangValidator" )
-else()
-    set( GLSL_VALIDATOR "/usr/local/bin/glslangValidator" )
-endif()
-
-foreach( GLSL ${GLSL_SOURCE_FILES} )
-    get_filename_component( FILE_NAME ${GLSL} NAME )
-    set( SPIRV "${VKRT_BIN_PATH}/shaders/${FILE_NAME}.spv" )
-    message( ${SPIRV} )
-    add_custom_command(
-            OUTPUT ${SPIRV}
-            COMMAND ${CMAKE_COMMAND} -E make_directory "${VKRT_BIN_PATH}/shaders"
-            COMMAND ${GLSL_VALIDATOR} --target-env vulkan1.0 -V ${PROJECT_ROOT_DIR}/vkrt/graphics/${GLSL} -o ${SPIRV}
-            DEPENDS ${GLSL} )
-    list( APPEND SPIRV_BINARY_FILES ${SPIRV} )
-endforeach( GLSL )
-
-add_custom_target(
-    Shaders
-        DEPENDS ${SPIRV_BINARY_FILES}
-)
-
-add_dependencies( ${PROJECT_NAME} Shaders )
+set_property( TARGET VpsShaderNodes PROPERTY CXX_STANDARD 20 )
 
 ### External dependencies
+target_link_libraries( VpsShaderNodes PUBLIC ImGuiFileDialog )
 
 # Vulkan
 find_package( Vulkan REQUIRED )

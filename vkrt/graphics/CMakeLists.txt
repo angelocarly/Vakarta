@@ -1,39 +1,31 @@
 set(
     HEADER_FILES
-        CrystalViewShader.h
-        FilterShader.h
+        Display.h
+        GuiLayer.h
         ForwardDecl.h
-        GeoGenPipeline.h
-        LinePipeline.h
-        MeshPipeline.h
-        Renderer.h
-        ReflectionPresenter.h
-        ImageFactory.h
-        Presenter.h
+        Layer.h
+        RenderEnvironment.h
 )
 
 set(
     SOURCE_FILES
-        Source/CrystalViewShader.cpp
-        Source/FilterShader.cpp
-        Source/GeoGenPipeline.cpp
-        Source/LinePipeline.cpp
-        Source/MeshPipeline.cpp
-        Source/Renderer.cpp
-        Source/ReflectionPresenter.cpp
-        Source/ImageFactory.cpp
-        Source/Presenter.cpp
+        Source/Display.cpp
+        Source/GuiLayer.cpp
+        Source/Layer.cpp
+        Source/RenderEnvironment.cpp
 )
 
 set(
     GLSL_SOURCE_FILES
-        shaders/CrystalView.comp
-        shaders/GeoGen.comp
-        shaders/Filter.comp
-        shaders/LineShader.frag
-        shaders/LineShader.vert
-        shaders/RenderShader.frag
-        shaders/RenderShader.vert
+#        shaders/CrystalView.comp
+#        shaders/GeoGen.comp
+#        shaders/Filter.comp
+#        shaders/LineShader.frag
+#        shaders/LineShader.vert
+#        shaders/RenderShader.frag
+#        shaders/RenderShader.vert
+        shaders/Combine.frag
+        shaders/Combine.vert
 )
 
 add_library(
@@ -66,7 +58,10 @@ endif()
 
 foreach( GLSL ${GLSL_SOURCE_FILES} )
     get_filename_component( FILE_NAME ${GLSL} NAME )
-    set( SPIRV "${VKRT_BIN_PATH}/shaders/${FILE_NAME}.spv" )
+    set(
+        SPIRV
+            "${VKRT_BIN_PATH}/shaders/${FILE_NAME}.spv"
+    )
     message( ${SPIRV} )
     add_custom_command(
             OUTPUT ${SPIRV}

@@ -24,7 +24,7 @@ int main()
         );
         float theFrameDuration = ( theFrameTime.count() - thePreviousFrameTime.count() ) % 10000000000 / 1000000.0f;
 
-        engine.Update( theFrameDuration );
+//        engine.Update( theFrameDuration );
         engine.Render();
     }
 
