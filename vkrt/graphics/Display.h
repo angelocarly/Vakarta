@@ -10,6 +10,7 @@
 #include "vkrt/core/InputState.h"
 
 #include "vkrt/graphics/Layer.h"
+#include "vkrt/graphics/Presenter.h"
 
 #include "vks/assets/AssetLoader.h"
 #include "vks/render/Device.h"
@@ -40,39 +41,32 @@ namespace vkrt
             ImGuiContext * GetImGuiContext();
 
         public:
-            void RegisterLayer( vkrt::LayerPtr inLayer );
+            void SetPresenter( std::shared_ptr< Presenter > inPresenter );
             void Render();
 
         private:
-            void InitializePipeline();
+            void InitializeCommandBuffers();
+            void InitializeRenderPass();
+            void InitializeFrameBuffers();
+
+            vk::RenderPassBeginInfo CreateRenderPassBeginInfo( std::size_t inFrameIndex );
 
         private:
             vks::VulkanSessionPtr mSession;
             vks::DevicePtr mDevice;
 
             vks::WindowPtr mWindow;
-            vks::SwapchainPtr mSwapChain;
-            vks::RenderPassPtr mRenderPass;
+            vks::SwapchainPtr mSwapchain;
 
-            vk::DescriptorSetLayout mImageDescriptorLayout;
-            vks::PipelinePtr mDisplayPipeline;
+            vk::RenderPass mRenderPass;
+            vk::ClearValue mClearValue;
 
-            struct LayerContext
-            {
-                vk::ImageLayout mImageLayout;
-                vks::Image mImage;
-                vk::ImageView mImageView;
-                vk::Sampler mSampler;
-                vkrt::LayerPtr mLayer;
-            };
+            // Per frame data
+            std::vector< vk::CommandBuffer > mCommandBuffers;
+            std::vector< vk::Framebuffer > mFrameBuffers;
 
-            struct FrameContext
-            {
-                std::vector< LayerContext > mLayers;
-                vk::CommandBuffer mCommandBuffer;
-            };
-
-            std::vector< FrameContext > mFrameContext;
+            // Presenter
+            std::shared_ptr< Presenter > mPresenter;
     };
 }
 

@@ -14,10 +14,10 @@ namespace vkrt
     class RenderEnvironment
     {
         public:
-            vks::Image mDisplayImage;
+            std::size_t mFrameIndex;
             vk::Rect2D mResolution;
-            vk::ImageView mDisplayImageView;
             vk::CommandBuffer mCommandBuffer;
+            vk::RenderPass mRenderPass;
     };
 }
 

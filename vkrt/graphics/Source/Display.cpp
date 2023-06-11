@@ -5,6 +5,7 @@
 
 #include "vkrt/graphics/RenderEnvironment.h"
 #include "vkrt/graphics/Layer.h"
+#include "vkrt/graphics/Presenter.h"
 
 #include "vks/render/ForwardDecl.h"
 #include "vks/render/RenderPass.h"
@@ -22,70 +23,20 @@ vkrt::Display::Display( vks::VulkanSessionPtr inSession, vks::WindowPtr inWindow
 :
     mWindow( inWindow ),
     mDevice( inSession->GetDevice() ),
-    mSwapChain( std::make_shared< vks::Swapchain >( mDevice, mWindow->GetVkSurface() ) ),
-    mRenderPass( std::make_shared< vks::RenderPass >( mSwapChain ) )
+    mSwapchain( std::make_shared< vks::Swapchain >( mDevice, mWindow->GetVkSurface() ) )
 {
-    auto theCommandBufferCount = mSwapChain->GetImageCount();
-    for( int i = 0; i < theCommandBufferCount; i++ )
-    {
-        FrameContext theFrameContext;
-        theFrameContext.mCommandBuffer = mDevice->GetVkDevice().allocateCommandBuffers
-        (
-            vk::CommandBufferAllocateInfo( mDevice->GetVkCommandPool(), vk::CommandBufferLevel::ePrimary, 1 )
-        ).front();
-        mFrameContext.push_back( theFrameContext );
-    }
-
-    InitializePipeline();
-
-    LayerPtr theLayer = std::make_shared< vkrt::GuiLayer >( mDevice );
-    RegisterLayer( theLayer );
+    InitializeCommandBuffers();
+    InitializeRenderPass();
+    InitializeFrameBuffers();
 }
 
 vkrt::Display::~Display()
 {
-    for( auto & theFrameContext : mFrameContext )
+    for( auto theFrameBuffer : mFrameBuffers )
     {
-        for( auto & theLayer : theFrameContext.mLayers )
-        {
-            mDevice->GetVkDevice().destroy( theLayer.mImageView );
-            mDevice->GetVkDevice().destroy( theLayer.mSampler );
-            mDevice->DestroyImage( theLayer.mImage );
-        }
+        mDevice->GetVkDevice().destroyFramebuffer( theFrameBuffer );
     }
-}
-
-void
-vkrt::Display::InitializePipeline()
-{
-    mImageDescriptorLayout = vks::DescriptorLayoutBuilder()
-        .AddLayoutBinding( 0, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment )
-        .Build( mDevice, vk::DescriptorSetLayoutCreateFlagBits::ePushDescriptorKHR )
-        .front();
-
-    auto theVertexShader = vks::Utils::CreateVkShaderModule( mDevice, "shaders/Combine.vert.spv" );
-    auto theFragmentShader = vks::Utils::CreateVkShaderModule( mDevice, "shaders/Combine.frag.spv" );
-
-    vks::Pipeline::PipelineCreateInfo theCreateInfo =
-    {
-        mRenderPass->GetVkRenderPass(),
-        theVertexShader,
-        theFragmentShader,
-        { mImageDescriptorLayout },
-        {}
-    };
-
-    vks::Pipeline::PipelineConfigInfo theConfigInfo =
-    {
-        vk::PrimitiveTopology::eTriangleList,
-        {},
-        {}
-    };
-    mDisplayPipeline = std::make_unique< vks::Pipeline >( mDevice, theCreateInfo, theConfigInfo );
-
-    mDevice->GetVkDevice().destroy( theVertexShader );
-    mDevice->GetVkDevice().destroy( theFragmentShader );
-
+    mDevice->GetVkDevice().destroyRenderPass( mRenderPass );
 }
 
 // =====================================================================================================================
@@ -97,192 +48,178 @@ vkrt::Display::InitializePipeline()
 void
 vkrt::Display::Render()
 {
-    uint32_t theImageIndex = mSwapChain->RetrieveNextImage();
-    auto theFrameContext = mFrameContext[ theImageIndex ];
+    uint32_t theFrameIndex = mSwapchain->RetrieveNextImage();
 
     // Begin the current frame's draw commands
-    auto theCommandBuffer = theFrameContext.mCommandBuffer;
+    auto theCommandBuffer = mCommandBuffers[ theFrameIndex ];
     theCommandBuffer.begin( vk::CommandBufferBeginInfo( vk::CommandBufferUsageFlags() ) );
     {
-        // Update the layers
-        for( auto & theLayer : theFrameContext.mLayers )
+        RenderEnvironment theRenderEnvironment =
         {
-            vkrt::RenderEnvironment theEnvironment =
-            {
-                theLayer.mImage,
-                vk::Rect2D( mSwapChain->GetExtent().width, mSwapChain->GetExtent().height ),
-                theLayer.mImageView,
-                theCommandBuffer
-            };
+            theFrameIndex,
+            vk::Rect2D( { 0, 0 }, { mSwapchain->GetExtent().width, mSwapchain->GetExtent().height } ),
+            theCommandBuffer,
+            mRenderPass
+        };
 
-            // Transition the image to color attachment optimal
-            mDevice->ImageMemoryBarrier
-            (
-                theCommandBuffer,
-                theLayer.mImage,
-                vk::AccessFlagBits::eNone,
-                vk::AccessFlagBits::eTransferWrite,
-                vk::PipelineStageFlagBits::eTopOfPipe,
-                vk::PipelineStageFlagBits::eTransfer,
-                theLayer.mImageLayout,
-                vk::ImageLayout::eColorAttachmentOptimal,
-                vk::DependencyFlagBits::eByRegion
-            );
-            theLayer.mImageLayout = vk::ImageLayout::eColorAttachmentOptimal;
-
-            theLayer.mLayer->Render( theEnvironment );
-
-            // Transition the image to
-            mDevice->ImageMemoryBarrier
-            (
-                theCommandBuffer,
-                theLayer.mImage,
-                vk::AccessFlagBits::eColorAttachmentWrite,
-                vk::AccessFlagBits::eShaderRead,
-                vk::PipelineStageFlagBits::eColorAttachmentOutput,
-                vk::PipelineStageFlagBits::eFragmentShader,
-                vk::ImageLayout::eColorAttachmentOptimal,
-                vk::ImageLayout::eShaderReadOnlyOptimal,
-                vk::DependencyFlagBits::eByRegion
-            );
-            theLayer.mImageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
+        // Prepare the presenter
+        if( mPresenter )
+        {
+            mPresenter->Prepare( theRenderEnvironment );
         }
 
-        // Renderpass to combine the layer's images into the final composition
-        theCommandBuffer.beginRenderPass( mRenderPass->GetVkBeginInfo( theImageIndex ), vk::SubpassContents::eInline );
+        // Set viewport and scissor
+        auto theViewport = vk::Viewport
+        (
+            0,
+            0,
+            mSwapchain->GetExtent().width,
+            mSwapchain->GetExtent().height,
+            0.0f,
+            1.0f
+        );
+        theCommandBuffer.setViewport( 0, 1, & theViewport );
+        const auto theScissors = vk::Rect2D( { 0, 0 }, mSwapchain->GetExtent() );
+        theCommandBuffer.setScissor( 0, 1, & theScissors );
+
+        // Draw the presenter to the frame
+        theCommandBuffer.beginRenderPass( CreateRenderPassBeginInfo( theFrameIndex ), vk::SubpassContents::eInline );
         {
-            // Set viewport and scissor
-            auto theViewport = vk::Viewport
-            (
-                0,
-                0,
-                mSwapChain->GetExtent().width,
-                mSwapChain->GetExtent().height,
-                0.0f,
-                1.0f
-            );
-            theCommandBuffer.setViewport( 0, 1, & theViewport );
-            const auto theScissors = vk::Rect2D( { 0, 0 }, mSwapChain->GetExtent() );
-            theCommandBuffer.setScissor( 0, 1, & theScissors );
-
-            theCommandBuffer.bindPipeline( vk::PipelineBindPoint::eGraphics, mDisplayPipeline->GetVkPipeline() );
-
-            // Draw each layer
-            for( auto & theLayer : theFrameContext.mLayers )
+            if( mPresenter )
             {
-                // Bind the layer's image
-                auto theImageInfo = vk::DescriptorImageInfo
-                (
-                    theLayer.mSampler,
-                    theLayer.mImageView,
-                    vk::ImageLayout::eShaderReadOnlyOptimal
-                );
-
-                auto theWriteDescriptorSet = vk::WriteDescriptorSet();
-                theWriteDescriptorSet.setDstBinding( 0 );
-                theWriteDescriptorSet.setDstArrayElement( 0 );
-                theWriteDescriptorSet.setDescriptorType( vk::DescriptorType::eCombinedImageSampler );
-                theWriteDescriptorSet.setDescriptorCount( 1 );
-                theWriteDescriptorSet.setPImageInfo( &theImageInfo );
-
-                PFN_vkCmdPushDescriptorSetKHR pfnVkCmdPushDescriptorSetKhr = reinterpret_cast< PFN_vkCmdPushDescriptorSetKHR >( mDevice->GetVkDevice().getProcAddr( "vkCmdPushDescriptorSetKHR" ) );
-                pfnVkCmdPushDescriptorSetKhr
-                (
-                    theCommandBuffer,
-                    VkPipelineBindPoint::VK_PIPELINE_BIND_POINT_GRAPHICS,
-                    mDisplayPipeline->GetVkPipelineLayout(),
-                    0,
-                    1,
-                    reinterpret_cast< const VkWriteDescriptorSet * >(& theWriteDescriptorSet)
-                );
-
-                // Render to screen
-                theCommandBuffer.draw( 3, 1, 0, 0 );
+                mPresenter->Draw( theRenderEnvironment );
             }
         }
         theCommandBuffer.endRenderPass();
     }
     theCommandBuffer.end();
 
-    mSwapChain->SubmitCommandBuffer( theImageIndex, theCommandBuffer );
+    mSwapchain->SubmitCommandBuffer( theFrameIndex, theCommandBuffer );
 }
 
 void
-vkrt::Display::RegisterLayer( vkrt::LayerPtr inLayer )
+vkrt::Display::SetPresenter( std::shared_ptr< Presenter > inPresenter )
 {
-    for( auto & theFrameContext : mFrameContext )
+    mPresenter = inPresenter;
+}
+
+
+void
+vkrt::Display::InitializeCommandBuffers()
+{
+    auto theCommandBufferCount = mSwapchain->GetImageCount();
+    mCommandBuffers.resize( theCommandBufferCount );
+    for( int i = 0; i < theCommandBufferCount; i++ )
     {
-
-        // Create the layer's image
-        auto theLayerImage = mDevice->CreateImage
+        mCommandBuffers[ i ] = mDevice->GetVkDevice().allocateCommandBuffers
         (
-            vk::Format::eR8G8B8A8Unorm,
-            mSwapChain->GetExtent().width,
-            mSwapChain->GetExtent().height,
-            vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled,
-            vma::AllocationCreateFlagBits::eDedicatedMemory
-        );
-
-        auto theLayerImageView = mDevice->GetVkDevice().createImageView
-        (
-            vk::ImageViewCreateInfo
-            (
-                vk::ImageViewCreateFlags(),
-                theLayerImage.GetVkImage(),
-                vk::ImageViewType::e2D,
-                vk::Format::eR8G8B8A8Unorm,
-                vk::ComponentMapping
-                (
-                    vk::ComponentSwizzle::eIdentity,
-                    vk::ComponentSwizzle::eIdentity,
-                    vk::ComponentSwizzle::eIdentity,
-                    vk::ComponentSwizzle::eIdentity
-                ),
-                vk::ImageSubresourceRange
-                (
-                    vk::ImageAspectFlagBits::eColor,
-                    0,
-                    1,
-                    0,
-                    1
-                )
-            )
-        );
-
-        auto theLayerSampler = mDevice->GetVkDevice().createSampler
-        (
-            vk::SamplerCreateInfo
-            (
-                vk::SamplerCreateFlags(),
-                vk::Filter::eLinear,
-                vk::Filter::eLinear,
-                vk::SamplerMipmapMode::eLinear,
-                vk::SamplerAddressMode::eRepeat,
-                vk::SamplerAddressMode::eRepeat,
-                vk::SamplerAddressMode::eRepeat,
-                0.0f,
-                VK_FALSE,
-                16.0f,
-                VK_FALSE,
-                vk::CompareOp::eAlways,
-                0.0f,
-                0.0f,
-                vk::BorderColor::eIntOpaqueBlack,
-                VK_FALSE
-            )
-        );
-
-        // Create a new render environment for the layer
-        LayerContext theLayerContext =
-        {
-            vk::ImageLayout::eUndefined,
-            theLayerImage,
-            theLayerImageView,
-            theLayerSampler,
-            inLayer
-        };
-
-        theFrameContext.mLayers.push_back( theLayerContext );
+            vk::CommandBufferAllocateInfo( mDevice->GetVkCommandPool(), vk::CommandBufferLevel::ePrimary, 1 )
+        ).front();
     }
 }
 
+void
+vkrt::Display::InitializeRenderPass()
+{
+    auto theColorAttachmentReference = vk::AttachmentReference
+    (
+        0,
+        vk::ImageLayout::eColorAttachmentOptimal
+    );
+
+    auto theSubpassDescription = vk::SubpassDescription
+    (
+        vk::SubpassDescriptionFlags(),
+        vk::PipelineBindPoint::eGraphics,
+        0,
+        nullptr,
+        1,
+        & theColorAttachmentReference,
+        nullptr,
+        nullptr,
+        0,
+        nullptr
+    );
+
+    // The depth attachment is first accessed in the early fragment stage.
+    std::array< vk::SubpassDependency, 1 > theSubPassDependencies;
+    theSubPassDependencies[ 0 ].setSrcSubpass( VK_SUBPASS_EXTERNAL );
+    theSubPassDependencies[ 0 ].setDstSubpass( 0 );
+    theSubPassDependencies[ 0 ].setSrcStageMask( vk::PipelineStageFlagBits::eColorAttachmentOutput | vk::PipelineStageFlagBits::eEarlyFragmentTests );
+    theSubPassDependencies[ 0 ].setSrcAccessMask( vk::AccessFlagBits::eNone );
+    theSubPassDependencies[ 0 ].setDstStageMask( vk::PipelineStageFlagBits::eColorAttachmentOutput | vk::PipelineStageFlagBits::eEarlyFragmentTests );
+    theSubPassDependencies[ 0 ].setDstAccessMask( vk::AccessFlagBits::eColorAttachmentWrite | vk::AccessFlagBits::eDepthStencilAttachmentWrite );
+
+    auto theColorAttachmentDescription = vk::AttachmentDescription
+    (
+        vk::AttachmentDescriptionFlags(),
+        mSwapchain->GetImageFormat(),
+        vk::SampleCountFlagBits::e1,
+        vk::AttachmentLoadOp::eClear,
+        vk::AttachmentStoreOp::eStore,
+        vk::AttachmentLoadOp::eDontCare,
+        vk::AttachmentStoreOp::eDontCare,
+        vk::ImageLayout::eUndefined,
+        vk::ImageLayout::ePresentSrcKHR
+    );
+
+    std::vector< vk::AttachmentDescription > theAttachmentDescriptions =
+    {
+        theColorAttachmentDescription
+    };
+    auto theRenderPassCreateInfo = vk::RenderPassCreateInfo
+    (
+        vk::RenderPassCreateFlags(),
+        theAttachmentDescriptions.size(),
+        theAttachmentDescriptions.data(),
+        1,
+        &theSubpassDescription,
+        theSubPassDependencies.size(),
+        theSubPassDependencies.data()
+    );
+
+    mRenderPass = mDevice->GetVkDevice().createRenderPass
+    (
+        theRenderPassCreateInfo
+    );
+
+    mClearValue = vk::ClearValue( vk::ClearColorValue( std::array< float, 4 >{ 0.0f, 0.0f, 0.0f, 1.0f } ) );
+}
+
+void
+vkrt::Display::InitializeFrameBuffers()
+{
+    auto theSwapchainImageViews = mSwapchain->GetSwapchainImageViews();
+    mFrameBuffers.resize( theSwapchainImageViews.size() );
+
+    for ( size_t i = 0; i < mFrameBuffers.size(); i++)
+    {
+        std::array< vk::ImageView, 1 > theAttachments =
+        {
+            theSwapchainImageViews[ i ]
+        };
+        auto theFrameBufferCreateInfo = vk::FramebufferCreateInfo
+        (
+            vk::FramebufferCreateFlags(),
+            mRenderPass,
+            theAttachments.size(),
+            theAttachments.data(),
+            mSwapchain->GetExtent().width,
+            mSwapchain->GetExtent().height,
+            1
+        );
+        mFrameBuffers[i] = mDevice->GetVkDevice().createFramebuffer( theFrameBufferCreateInfo );
+    }
+}
+
+vk::RenderPassBeginInfo
+vkrt::Display::CreateRenderPassBeginInfo( std::size_t inFrameIndex )
+{
+    return vk::RenderPassBeginInfo
+    (
+        mRenderPass,
+        mFrameBuffers[ inFrameIndex ],
+        vk::Rect2D( vk::Offset2D( 0, 0 ), mSwapchain->GetExtent() ),
+        mClearValue
+    );
+}

@@ -4,7 +4,9 @@ set(
         GuiLayer.h
         ForwardDecl.h
         Layer.h
+        Presenter.h
         RenderEnvironment.h
+        TestPresenter.h
 )
 
 set(
@@ -13,19 +15,13 @@ set(
         Source/GuiLayer.cpp
         Source/Layer.cpp
         Source/RenderEnvironment.cpp
+        Source/TestPresenter.cpp
 )
 
 set(
     GLSL_SOURCE_FILES
-#        shaders/CrystalView.comp
-#        shaders/GeoGen.comp
-#        shaders/Filter.comp
-#        shaders/LineShader.frag
-#        shaders/LineShader.vert
-#        shaders/RenderShader.frag
-#        shaders/RenderShader.vert
-        shaders/Combine.frag
-        shaders/Combine.vert
+        shaders/FrameIdentification.frag
+        shaders/FrameIdentification.vert
 )
 
 add_library(

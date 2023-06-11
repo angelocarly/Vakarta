@@ -28,6 +28,9 @@ class vkrt::InputState::Impl
         vks::WindowPtr mWindow;
 
     public:
+        static const bool kEnableImGuiCallbacks = false;
+
+    public:
         static bool mKeys[GLFW_KEY_LAST];
         glm::vec2 mMousePos;
         static glm::vec2 mMousePosBuffer;
@@ -65,7 +68,8 @@ int vkrt::InputState::Impl::mButtonsBuffer[GLFW_MOUSE_BUTTON_LAST];
 void
 vkrt::InputState::Impl::key_callback( GLFWwindow *window, int key, int scancode, int action, int mods )
 {
-    ImGui_ImplGlfw_KeyCallback( window, key, scancode, action, mods );
+    if( kEnableImGuiCallbacks )
+        ImGui_ImplGlfw_KeyCallback( window, key, scancode, action, mods );
 
     if (key >= 0 && key < GLFW_KEY_LAST) mKeys[key] = action != GLFW_RELEASE;
 }
@@ -73,7 +77,8 @@ vkrt::InputState::Impl::key_callback( GLFWwindow *window, int key, int scancode,
 void
 vkrt::InputState::Impl::mouse_button_callback( GLFWwindow *window, int button, int action, int mods )
 {
-    ImGui_ImplGlfw_MouseButtonCallback( window, button, action, mods );
+    if( kEnableImGuiCallbacks )
+        ImGui_ImplGlfw_MouseButtonCallback( window, button, action, mods );
 
     if (button >= 0 && button < GLFW_MOUSE_BUTTON_LAST) mButtonsBuffer[button] = action;
 }
@@ -81,7 +86,8 @@ vkrt::InputState::Impl::mouse_button_callback( GLFWwindow *window, int button, i
 void
 vkrt::InputState::Impl::mouse_cursor_callback(GLFWwindow *window, double xpos, double ypos )
 {
-    ImGui_ImplGlfw_CursorPosCallback( window, xpos, ypos );
+    if( kEnableImGuiCallbacks )
+        ImGui_ImplGlfw_CursorPosCallback( window, xpos, ypos );
 
     glm::vec2 prevMousePos = mMousePosBuffer;
     mMousePosBuffer.x = (float) xpos;
