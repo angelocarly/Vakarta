@@ -74,22 +74,21 @@ vkrt::TestPresenter::Prepare( vkrt::RenderEnvironment const & inEnvironment )
 void
 vkrt::TestPresenter::Draw( vkrt::RenderEnvironment const & inEnvironment )
 {
-     auto theCommandBuffer = inEnvironment.mCommandBuffer;
+    auto theCommandBuffer = inEnvironment.mCommandBuffer;
 
-     // Bind
-     theCommandBuffer.bindPipeline( vk::PipelineBindPoint::eGraphics, mPipeline->GetVkPipeline() );
+    // Bind
+    theCommandBuffer.bindPipeline( vk::PipelineBindPoint::eGraphics, mPipeline->GetVkPipeline() );
 
-     // Update data
-     std::uint32_t theData = inEnvironment.mFrameIndex;
+    // Update data
      theCommandBuffer.pushConstants
-     (
-         mPipeline->GetVkPipelineLayout(),
-         vk::ShaderStageFlagBits::eFragment,
-         0,
-         sizeof( uint32_t ),
-         & theData
-     );
+    (
+        mPipeline->GetVkPipelineLayout(),
+        vk::ShaderStageFlagBits::eFragment,
+        0,
+        sizeof( uint32_t ),
+        & inEnvironment.mFrameIndex
+    );
 
-     // Render
-     theCommandBuffer.draw( 3, 1, 0, 0 );
+    // Render
+    theCommandBuffer.draw( 3, 1, 0, 0 );
 }

@@ -18,12 +18,14 @@ class vks::Swapchain::Impl
         Impl( const vks::DevicePtr inDevice, vk::SurfaceKHR inSurface );
         ~Impl();
 
-        vk::Format GetImageFormat();
+        vk::Format GetImageFormat() const;
+        vk::ColorSpaceKHR GetColorSpace() const;
 
     public:
         vks::DevicePtr mDevice;
         vk::SurfaceKHR mSurface;
         vk::SwapchainKHR mSwapchain;
+
     public:
         vk::Extent2D mExtent;
         std::vector< vk::Image > mSwapChainImages;
@@ -32,16 +34,18 @@ class vks::Swapchain::Impl
         int mCurrentFrame = 0;
         std::vector< vk::Fence > mCommandBufferExecutedFence;
         std::vector< vk::Semaphore > mImageAcquiredSemaphores;
-        std::vector< vk::Semaphore > mBufferPresentedSemaphores;
+        std::vector< vk::Semaphore > mBufferExecutedSemaphore;
+        std::vector< bool > mFrameWasRendered;
 
         const int mMinImageCount = 2;
+
+    public:
+        void PresentImage( uint32_t inImageIndex, vk::Semaphore & inWaitSemaphore );
 
     private:
         void InitializeSwapChain();
         void InitializeSwapChainImages();
         void InitializeSynchronizationObjects();
-
-        vk::ColorSpaceKHR GetColorSpace();
 };
 
 vks::Swapchain::Impl::Impl( const vks::DevicePtr inDevice, vk::SurfaceKHR inSurface )
@@ -72,7 +76,7 @@ vks::Swapchain::Impl::~Impl()
     {
         mDevice->GetVkDevice().destroy( theSemaphore );
     }
-    for( auto theSemaphore : mBufferPresentedSemaphores )
+    for( auto theSemaphore : mBufferExecutedSemaphore )
     {
         mDevice->GetVkDevice().destroy( theSemaphore );
     }
@@ -81,13 +85,13 @@ vks::Swapchain::Impl::~Impl()
 }
 
 vk::Format
-vks::Swapchain::Impl::GetImageFormat()
+vks::Swapchain::Impl::GetImageFormat() const
 {
     return vk::Format::eB8G8R8A8Srgb;
 }
 
 vk::ColorSpaceKHR
-vks::Swapchain::Impl::GetColorSpace()
+vks::Swapchain::Impl::GetColorSpace() const
 {
     return vk::ColorSpaceKHR::eSrgbNonlinear;
 }
@@ -191,6 +195,8 @@ vks::Swapchain::Impl::InitializeSwapChainImages()
 void
 vks::Swapchain::Impl::InitializeSynchronizationObjects()
 {
+    mFrameWasRendered.resize( mSwapChainImages.size() );
+
     mCommandBufferExecutedFence.resize( mSwapChainImages.size() );
     for( int i = 0; i < mCommandBufferExecutedFence.size(); ++i )
     {
@@ -208,11 +214,11 @@ vks::Swapchain::Impl::InitializeSynchronizationObjects()
         mImageAcquiredSemaphores[ i ] = mDevice->GetVkDevice().createSemaphore( semaphoreCreateInfo );
     }
 
-    mBufferPresentedSemaphores.resize( mSwapChainImages.size() );
-    for( int i = 0; i < mBufferPresentedSemaphores.size(); ++i )
+    mBufferExecutedSemaphore.resize( mSwapChainImages.size() );
+    for( int i = 0; i < mBufferExecutedSemaphore.size(); ++i )
     {
         auto semaphoreCreateInfo = vk::SemaphoreCreateInfo( vk::SemaphoreCreateFlags() );
-        mBufferPresentedSemaphores[ i ] = mDevice->GetVkDevice().createSemaphore( semaphoreCreateInfo );
+        mBufferExecutedSemaphore[ i ] = mDevice->GetVkDevice().createSemaphore( semaphoreCreateInfo );
     }
 }
 
@@ -228,12 +234,6 @@ vks::Swapchain::~Swapchain()
 {
 }
 
-vk::SwapchainKHR
-vks::Swapchain::GetVkSwapchain()
-{
-    return mImpl->mSwapchain;
-}
-
 vk::Format vks::Swapchain::GetImageFormat()
 {
     return mImpl->GetImageFormat();
@@ -246,9 +246,8 @@ vk::Format vks::Swapchain::GetImageFormat()
 int
 vks::Swapchain::RetrieveNextImage()
 {
-    mImpl->mCurrentFrame = ( mImpl->mCurrentFrame + 1 ) % mImpl->mSwapChainImages.size();
-
     while( vk::Result::eTimeout == mImpl->mDevice->GetVkDevice().waitForFences( mImpl->mCommandBufferExecutedFence[ mImpl->mCurrentFrame ], VK_TRUE, UINT64_MAX ));
+    mImpl->mDevice->GetVkDevice().resetFences( mImpl->mCommandBufferExecutedFence[ mImpl->mCurrentFrame ] );
 
     // Block until a new image is acquired
     uint32_t imageIndex = 0;
@@ -256,18 +255,26 @@ vks::Swapchain::RetrieveNextImage()
     (
         mImpl->mSwapchain,
         UINT64_MAX,
+        // The semaphore to signal when the image is acquired
         mImpl->mImageAcquiredSemaphores[ mImpl->mCurrentFrame ],
         nullptr,
-        &imageIndex
+        & imageIndex
     );
+
+    // Reset the fence
+    mImpl->mDevice->GetVkDevice().resetFences( mImpl->mCommandBufferExecutedFence[ mImpl->mCurrentFrame ] );
 
     return imageIndex;
 }
 
+/**
+ * Submit a command buffer for image @inImageIndex
+ * @param inImageIndex
+ * @param inCommandBuffer
+ */
 void
-vks::Swapchain::SubmitCommandBuffer( uint32_t inImageIndex, vk::CommandBuffer inCommandBuffer )
+vks::Swapchain::SubmitCommandBuffer( std::uint32_t inImageIndex, vk::CommandBuffer inCommandBuffer )
 {
-    mImpl->mDevice->GetVkDevice().resetFences( mImpl->mCommandBufferExecutedFence[ mImpl->mCurrentFrame ] );
 
     vk::PipelineStageFlags theDstStageFlags = vk::PipelineStageFlagBits::eColorAttachmentOutput;
     mImpl->mDevice->GetVkQueue().submit
@@ -275,18 +282,23 @@ vks::Swapchain::SubmitCommandBuffer( uint32_t inImageIndex, vk::CommandBuffer in
         vk::SubmitInfo
         (
             1,
-            &mImpl->mImageAcquiredSemaphores[ mImpl->mCurrentFrame ],
-            &theDstStageFlags,
+            // Wait for the swapchain image to be acquired
+            & mImpl->mImageAcquiredSemaphores[ mImpl->mCurrentFrame ],
+            & theDstStageFlags,
             1,
-            &inCommandBuffer,
+            & inCommandBuffer,
             1,
-            &mImpl->mBufferPresentedSemaphores[ inImageIndex ]
+            // Signal the semaphore when the command buffer has finished executing
+            &mImpl->mBufferExecutedSemaphore[ mImpl->mCurrentFrame ]
         ),
+        // Fence to trigger when the command buffer has finished executing
         mImpl->mCommandBufferExecutedFence[ mImpl->mCurrentFrame ]
     );
 
     // Display the swapchain image
-    PresentImage( inImageIndex, mImpl->mBufferPresentedSemaphores[ inImageIndex ] );
+    mImpl->PresentImage( inImageIndex, mImpl->mBufferExecutedSemaphore[ mImpl->mCurrentFrame ] );
+
+    mImpl->mCurrentFrame = ( mImpl->mCurrentFrame + 1 ) % mImpl->mSwapChainImages.size();
 }
 
 /**
@@ -295,17 +307,17 @@ vks::Swapchain::SubmitCommandBuffer( uint32_t inImageIndex, vk::CommandBuffer in
  * @param inWaitSemaphore semaphore to trigger before submission
  */
 void
-vks::Swapchain::PresentImage( uint32_t inImageIndex, vk::Semaphore & inWaitSemaphore )
+vks::Swapchain::Impl::PresentImage( uint32_t inImageIndex, vk::Semaphore & inWaitSemaphore )
 {
     // Submit an image for presentation
     auto thePresentInfo = vk::PresentInfoKHR
     (
         inWaitSemaphore,
-        mImpl->mSwapchain,
+        mSwapchain,
         inImageIndex
     );
 
-    auto result = mImpl->mDevice->GetVkQueue().presentKHR( thePresentInfo );
+    auto result = mDevice->GetVkQueue().presentKHR( thePresentInfo );
     if( result != vk::Result::eSuccess )
     {
         // TODO: recreate the swapchain
@@ -320,24 +332,25 @@ vks::Swapchain::GetDevice()
 }
 
 std::vector< vk::ImageView >
-vks::Swapchain::GetSwapchainImageViews()
+vks::Swapchain::GetSwapchainImageViews() const
 {
     return mImpl->mSwapchainImageViews;
 }
 
 vk::Extent2D
-vks::Swapchain::GetExtent()
+vks::Swapchain::GetExtent() const
 {
     return mImpl->mExtent;
 }
 
 int
-vks::Swapchain::GetImageCount()
+vks::Swapchain::GetImageCount() const
 {
     return mImpl->mSwapChainImages.size();
 }
 
-int vks::Swapchain::GetMinImageCount()
+int
+vks::Swapchain::GetMinImageCount() const
 {
     return mImpl->mMinImageCount;
 }

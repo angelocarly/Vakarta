@@ -20,17 +20,14 @@ namespace vks
 
         public:
             vks::DevicePtr GetDevice();
-            vk::Extent2D GetExtent();
-            vk::SwapchainKHR GetVkSwapchain();
+            vk::Extent2D GetExtent() const;
             vk::Format GetImageFormat();
-            std::vector< vk::ImageView > GetSwapchainImageViews();
-            int GetImageCount();
-            int GetMinImageCount();
+            std::vector< vk::ImageView > GetSwapchainImageViews() const;
+            int GetImageCount() const;
+            int GetMinImageCount() const;
 
-        public:
             int RetrieveNextImage();
-            void PresentImage( uint32_t inImageIndex, vk::Semaphore & inWaitSemaphore );
-            void SubmitCommandBuffer( uint32_t inImageIndex, vk::CommandBuffer inCommandBuffer );
+            void SubmitCommandBuffer( std::uint32_t inImageIndex, vk::CommandBuffer inCommandBuffer );
 
         private:
             class Impl;
