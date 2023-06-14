@@ -24,5 +24,21 @@ void main()
     {
         col = vec3( 0, 0, 1 );
     }
+    else if( pcs.frameIndex == 3 )
+    {
+        col = vec3( 1, 0, 1 ); // burple
+    }
+    else if( pcs.frameIndex == 4 )
+    {
+        col = vec3( 0, 1, 1 ); // turq
+    }
+    else if( pcs.frameIndex == 5 )
+    {
+        col = vec3( 1, 1, 0 ); // yellow
+    }
+    else if( pcs.frameIndex == 6 )
+    {
+        col = vec3( 1, 1, 1 ); // white
+    }
     outColor = vec4( col, 1.0f );
 }

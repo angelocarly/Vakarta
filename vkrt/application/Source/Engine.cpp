@@ -1,6 +1,7 @@
 #include "vkrt/application/Engine.h"
 
 #include "vkrt/graphics/TestPresenter.h"
+#include "vkrt/graphics/LayerPresenter.h"
 
 #include <imgui/imgui.h>
 #include <spdlog/spdlog.h>
@@ -18,7 +19,9 @@ vkrt::Engine::Engine()
     mCamera( std::make_shared< vkrt::Camera >( 45, float( WIDTH ) / float( HEIGHT ), 0.1f, 250.0f ) ),
     mAssetLoader()
 {
-    mRenderer.SetPresenter( std::make_shared< vkrt::TestPresenter >( mVulkanSession->GetDevice() ) );
+    auto theLayerPresenter = std::make_shared< vkrt::LayerPresenter >( mVulkanSession->GetDevice(), vk::Extent2D( WIDTH, HEIGHT ) );
+    theLayerPresenter->AddPresenter( std::make_shared< vkrt::TestPresenter >( mVulkanSession->GetDevice() ) );
+    mRenderer.SetPresenter( theLayerPresenter );
 }
 
 vkrt::Engine::~Engine()

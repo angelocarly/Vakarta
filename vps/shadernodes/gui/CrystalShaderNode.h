@@ -5,7 +5,7 @@
  * @author	Angelo Carly
  * @date	08/05/2023
  *
- * Copyright (c) 2023 Hybrid Software Development. All rights reserved.
+ *
  */
 
 #ifndef VKRT_CRYSTALSHADERNODE_H

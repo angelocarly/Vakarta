@@ -57,7 +57,7 @@ vkrt::Display::Render()
         RenderEnvironment theRenderEnvironment =
         {
             theFrameIndex,
-            vk::Rect2D( { 0, 0 }, { mSwapchain->GetExtent().width, mSwapchain->GetExtent().height } ),
+            vk::Extent2D(  mSwapchain->GetExtent().width, mSwapchain->GetExtent().height ),
             theCommandBuffer,
             mRenderPass
         };

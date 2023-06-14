@@ -5,7 +5,7 @@
  * @author	Angelo Carly
  * @date	11/06/2023
  *
- * Copyright (c) 2023 Hybrid Software Development. All rights reserved.
+ *
  */
 
 #include "vkrt/graphics/TestPresenter.h"
@@ -30,7 +30,7 @@ vkrt::TestPresenter::~TestPresenter()
 void
 vkrt::TestPresenter::InitializePipeline( vk::RenderPass inRenderPass )
 {
-    auto theVertexShader = vks::Utils::CreateVkShaderModule( mDevice, "shaders/FrameIdentification.vert.spv" );
+    auto theVertexShader = vks::Utils::CreateVkShaderModule( mDevice, "shaders/ScreenRect.vert.spv" );
     auto theFragmentShader = vks::Utils::CreateVkShaderModule( mDevice, "shaders/FrameIdentification.frag.spv" );
 
     std::vector< vk::PushConstantRange > thePushConstants =
@@ -68,12 +68,17 @@ vkrt::TestPresenter::InitializePipeline( vk::RenderPass inRenderPass )
 void
 vkrt::TestPresenter::Prepare( vkrt::RenderEnvironment const & inEnvironment )
 {
-    if( !mPipeline ) InitializePipeline( inEnvironment.mRenderPass );
 }
 
+int theIndex = 0;
 void
 vkrt::TestPresenter::Draw( vkrt::RenderEnvironment const & inEnvironment )
 {
+    if( !mPipeline ) InitializePipeline( inEnvironment.mRenderPass );
+
+    theIndex++;
+    if( theIndex == 7 ) theIndex = 0;
+
     auto theCommandBuffer = inEnvironment.mCommandBuffer;
 
     // Bind
@@ -86,7 +91,7 @@ vkrt::TestPresenter::Draw( vkrt::RenderEnvironment const & inEnvironment )
         vk::ShaderStageFlagBits::eFragment,
         0,
         sizeof( uint32_t ),
-        & inEnvironment.mFrameIndex
+        & theIndex
     );
 
     // Render

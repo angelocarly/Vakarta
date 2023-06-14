@@ -5,7 +5,7 @@
  * @author	Angelo Carly
  * @date	28/04/2023
  *
- * Copyright (c) 2023 Hybrid Software Development. All rights reserved.
+ *
  */
 
 #ifndef VKRT_BUFFERNODE_H

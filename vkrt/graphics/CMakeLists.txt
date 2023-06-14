@@ -4,6 +4,7 @@ set(
         GuiLayer.h
         ForwardDecl.h
         Layer.h
+        LayerPresenter.h
         Presenter.h
         RenderEnvironment.h
         TestPresenter.h
@@ -14,6 +15,7 @@ set(
         Source/Display.cpp
         Source/GuiLayer.cpp
         Source/Layer.cpp
+        Source/LayerPresenter.cpp
         Source/RenderEnvironment.cpp
         Source/TestPresenter.cpp
 )
@@ -21,7 +23,8 @@ set(
 set(
     GLSL_SOURCE_FILES
         shaders/FrameIdentification.frag
-        shaders/FrameIdentification.vert
+        shaders/CompositeFrames.frag
+        shaders/ScreenRect.vert
 )
 
 add_library(

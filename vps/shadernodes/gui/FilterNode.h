@@ -7,7 +7,7 @@
  * @author	Angelo Carly
  * @date	12/05/2023
  *
- * Copyright (c) 2023 Hybrid Software Development. All rights reserved.
+ *
  */
 
 #ifndef Vkrt_Gui_FilterNode_h_Angelo

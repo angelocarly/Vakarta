@@ -303,6 +303,8 @@ vks::Swapchain::SubmitCommandBuffer( std::uint32_t inImageIndex, vk::CommandBuff
 
 /**
  * Present a swapchain image
+ * NOTE: During debugging, it is possible that a frame is seemingly skipped and the same image is rendered twice.
+ * It is unclear why this happens, when taking about five seconds between frames, the issue does not occur.
  * @param inImageIndex the image to render
  * @param inWaitSemaphore semaphore to trigger before submission
  */
