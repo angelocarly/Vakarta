@@ -15,20 +15,21 @@
 #include "vks/render/Pipeline.h"
 #include "vks/render/Utils.h"
 
-vkrt::TestPresenter::TestPresenter( vks::DevicePtr inDevice )
+vkrt::TestPresenter::TestPresenter( vks::DevicePtr inDevice, std::size_t inWidth, std::size_t inHeight )
 :
+    vkrt::Presenter( inDevice, inWidth, inHeight ),
     mDevice( inDevice )
 {
+    InitializePipeline( GetRenderPass() );
 
 }
 
 vkrt::TestPresenter::~TestPresenter()
 {
-
 }
 
 void
-vkrt::TestPresenter::InitializePipeline( vk::RenderPass inRenderPass )
+vkrt::TestPresenter::InitializePipeline( vk::RenderPass const inRenderPass )
 {
     auto theVertexShader = vks::Utils::CreateVkShaderModule( mDevice, "shaders/ScreenRect.vert.spv" );
     auto theFragmentShader = vks::Utils::CreateVkShaderModule( mDevice, "shaders/FrameIdentification.frag.spv" );
@@ -65,35 +66,34 @@ vkrt::TestPresenter::InitializePipeline( vk::RenderPass inRenderPass )
 
 }
 
-void
-vkrt::TestPresenter::Prepare( vkrt::RenderEnvironment const & inEnvironment )
-{
-}
+// ============================================= Rendering =============================================================
 
 int theIndex = 0;
 void
 vkrt::TestPresenter::Draw( vkrt::RenderEnvironment const & inEnvironment )
 {
-    if( !mPipeline ) InitializePipeline( inEnvironment.mRenderPass );
+    BeginRenderPass( inEnvironment.mCommandBuffer );
+    {
+        theIndex++;
+        if( theIndex == 7 ) theIndex = 0;
 
-    theIndex++;
-    if( theIndex == 7 ) theIndex = 0;
+        auto theCommandBuffer = inEnvironment.mCommandBuffer;
 
-    auto theCommandBuffer = inEnvironment.mCommandBuffer;
+        // Bind
+        theCommandBuffer.bindPipeline( vk::PipelineBindPoint::eGraphics, mPipeline->GetVkPipeline() );
 
-    // Bind
-    theCommandBuffer.bindPipeline( vk::PipelineBindPoint::eGraphics, mPipeline->GetVkPipeline() );
+        // Update data
+        theCommandBuffer.pushConstants
+            (
+                mPipeline->GetVkPipelineLayout(),
+                vk::ShaderStageFlagBits::eFragment,
+                0,
+                sizeof( uint32_t ),
+                & theIndex
+            );
 
-    // Update data
-     theCommandBuffer.pushConstants
-    (
-        mPipeline->GetVkPipelineLayout(),
-        vk::ShaderStageFlagBits::eFragment,
-        0,
-        sizeof( uint32_t ),
-        & theIndex
-    );
-
-    // Render
-    theCommandBuffer.draw( 3, 1, 0, 0 );
+        // Render
+        theCommandBuffer.draw( 3, 1, 0, 0 );
+    }
+    EndRenderPass( inEnvironment.mCommandBuffer );
 }

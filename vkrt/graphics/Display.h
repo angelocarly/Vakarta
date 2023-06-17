@@ -48,6 +48,7 @@ namespace vkrt
             void InitializeCommandBuffers();
             void InitializeRenderPass();
             void InitializeFrameBuffers();
+            void InitializePipeline( vk::RenderPass inRenderPass );
 
             vk::RenderPassBeginInfo CreateRenderPassBeginInfo( std::size_t inFrameIndex );
 
@@ -57,6 +58,7 @@ namespace vkrt
 
             vks::WindowPtr mWindow;
             vks::SwapchainPtr mSwapchain;
+            vks::PipelinePtr mPipeline;
 
             vk::RenderPass mRenderPass;
             vk::ClearValue mClearValue;

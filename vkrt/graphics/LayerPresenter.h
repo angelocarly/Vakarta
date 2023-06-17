@@ -12,6 +12,8 @@
 
 #include "Presenter.h"
 
+#include "vkrt/graphics/ForwardDecl.h"
+
 #include <vulkan/vulkan.hpp>
 
 namespace vkrt
@@ -25,12 +27,10 @@ namespace vkrt
             ~LayerPresenter();
 
         public:
-            void Prepare( vkrt::RenderEnvironment const & inEnvironment ) override;
             void Draw( vkrt::RenderEnvironment const & inEnvironment ) override;
-            void AddPresenter( std::shared_ptr< vkrt::Presenter > inPresenter );
+            void AddPresenter( vkrt::PresenterPtr inPresenter );
 
         private:
-            void InitializeRenderPass();
             void InitializePipeline( vk::RenderPass inRenderPass );
 
         private:
@@ -38,19 +38,8 @@ namespace vkrt
             vk::Extent2D mExtent;
 
             // Render prepare info
-            vk::RenderPass mRenderPass;
-            struct PresenterContext
-            {
-                vks::Image mImage;
-                vk::ImageView mImageView;
-                vk::Framebuffer mFramebuffer;
-                vk::Sampler mSampler;
-                std::shared_ptr< vkrt::Presenter > mPresenter;
-            };
-            std::vector< PresenterContext > mPresenterContexts;
-
-            // Draw info
             vks::PipelinePtr mPipeline;
+            std::vector< PresenterPtr > mPresenters;
     };
 }
 

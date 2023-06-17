@@ -17,6 +17,9 @@ namespace vkrt
 
     class Layer;
     using LayerPtr = std::shared_ptr<Layer>;
+
+    class Presenter;
+    using PresenterPtr = std::shared_ptr< Presenter >;
 }
 
 #endif

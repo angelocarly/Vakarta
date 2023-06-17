@@ -20,19 +20,18 @@ namespace vkrt
         public vkrt::Presenter
     {
         public:
-            TestPresenter( vks::DevicePtr inDevice );
+            TestPresenter( vks::DevicePtr inDevice, std::size_t inWidth, std::size_t inHeight );
             ~TestPresenter();
 
+            void Draw( vkrt::RenderEnvironment const & inRenderEnvironment ) override;
+
         private:
-            void InitializePipeline( vk::RenderPass inRenderPass );
+            void InitializePipeline( vk::RenderPass const inRenderPass );
 
         private:
             vks::DevicePtr mDevice;
             vks::PipelinePtr mPipeline;
 
-        public:
-            void Prepare( vkrt::RenderEnvironment const & inEnvironment ) override;
-            void Draw( vkrt::RenderEnvironment const & inEnvironment ) override;
     };
 }
 

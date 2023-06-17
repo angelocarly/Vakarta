@@ -20,7 +20,7 @@ vkrt::Engine::Engine()
     mAssetLoader()
 {
     auto theLayerPresenter = std::make_shared< vkrt::LayerPresenter >( mVulkanSession->GetDevice(), vk::Extent2D( WIDTH, HEIGHT ) );
-    theLayerPresenter->AddPresenter( std::make_shared< vkrt::TestPresenter >( mVulkanSession->GetDevice() ) );
+    theLayerPresenter->AddPresenter( std::make_shared< vkrt::TestPresenter >( mVulkanSession->GetDevice(), WIDTH, HEIGHT ) );
     mRenderer.SetPresenter( theLayerPresenter );
 }
 

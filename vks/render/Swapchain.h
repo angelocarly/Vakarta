@@ -9,6 +9,7 @@
 #include "ForwardDecl.h"
 
 #include <vulkan/vulkan.hpp>
+#include <cstdint>
 
 namespace vks
 {

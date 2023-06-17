@@ -28,6 +28,7 @@ vkrt::Display::Display( vks::VulkanSessionPtr inSession, vks::WindowPtr inWindow
     InitializeCommandBuffers();
     InitializeRenderPass();
     InitializeFrameBuffers();
+    InitializePipeline( mRenderPass );
 }
 
 vkrt::Display::~Display()
@@ -57,15 +58,13 @@ vkrt::Display::Render()
         RenderEnvironment theRenderEnvironment =
         {
             theFrameIndex,
-            vk::Extent2D(  mSwapchain->GetExtent().width, mSwapchain->GetExtent().height ),
-            theCommandBuffer,
-            mRenderPass
+            theCommandBuffer
         };
 
-        // Prepare the presenter
+        // Update the presenters
         if( mPresenter )
         {
-            mPresenter->Prepare( theRenderEnvironment );
+            mPresenter->Draw( theRenderEnvironment );
         }
 
         // Set viewport and scissor
@@ -85,10 +84,36 @@ vkrt::Display::Render()
         // Draw the presenter to the frame
         theCommandBuffer.beginRenderPass( CreateRenderPassBeginInfo( theFrameIndex ), vk::SubpassContents::eInline );
         {
-            if( mPresenter )
-            {
-                mPresenter->Draw( theRenderEnvironment );
-            }
+            theCommandBuffer.bindPipeline( vk::PipelineBindPoint::eGraphics, mPipeline->GetVkPipeline() );
+
+            auto theImageInfo = vk::DescriptorImageInfo
+            (
+                mPresenter->GetSampler(),
+                mPresenter->GetImageView(),
+                vk::ImageLayout::eShaderReadOnlyOptimal
+            );
+
+            auto theWriteDescriptorSet = vk::WriteDescriptorSet();
+            theWriteDescriptorSet.setDstBinding( 0 );
+            theWriteDescriptorSet.setDstArrayElement( 0 );
+            theWriteDescriptorSet.setDescriptorType( vk::DescriptorType::eCombinedImageSampler );
+            theWriteDescriptorSet.setDescriptorCount( 1 );
+            theWriteDescriptorSet.setPImageInfo( & theImageInfo );
+
+            PFN_vkCmdPushDescriptorSetKHR pfnVkCmdPushDescriptorSetKhr = reinterpret_cast< PFN_vkCmdPushDescriptorSetKHR >( mDevice->GetVkDevice().getProcAddr( "vkCmdPushDescriptorSetKHR" ) );
+            pfnVkCmdPushDescriptorSetKhr
+            (
+                theCommandBuffer,
+                VkPipelineBindPoint::VK_PIPELINE_BIND_POINT_GRAPHICS,
+                mPipeline->GetVkPipelineLayout(),
+                0,
+                1,
+                reinterpret_cast< const VkWriteDescriptorSet * >(& theWriteDescriptorSet)
+            );
+
+            // Render
+            theCommandBuffer.draw( 3, 1, 0, 0 );
+
         }
         theCommandBuffer.endRenderPass();
     }
@@ -210,6 +235,37 @@ vkrt::Display::InitializeFrameBuffers()
         );
         mFrameBuffers[i] = mDevice->GetVkDevice().createFramebuffer( theFrameBufferCreateInfo );
     }
+}
+
+void
+vkrt::Display::InitializePipeline( vk::RenderPass inRenderPass )
+{
+    auto theVertexShader = vks::Utils::CreateVkShaderModule( mDevice, "shaders/ScreenRect.vert.spv" );
+    auto theFragmentShader = vks::Utils::CreateVkShaderModule( mDevice, "shaders/Texture.frag.spv" );
+
+    auto theDescriptorLayout = vks::DescriptorLayoutBuilder()
+        .AddLayoutBinding( 0, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment )
+        .Build( mDevice, vk::DescriptorSetLayoutCreateFlagBits::ePushDescriptorKHR );
+
+    vks::Pipeline::PipelineCreateInfo theCreateInfo =
+        {
+            inRenderPass,
+            theVertexShader,
+            theFragmentShader,
+            { theDescriptorLayout },
+            {}
+        };
+
+    vks::Pipeline::PipelineConfigInfo theConfigInfo =
+        {
+            vk::PrimitiveTopology::eTriangleList,
+            {},
+            {}
+        };
+    mPipeline = std::make_unique< vks::Pipeline >( mDevice, theCreateInfo, theConfigInfo );
+
+    mDevice->GetVkDevice().destroy( theVertexShader );
+    mDevice->GetVkDevice().destroy( theFragmentShader );
 }
 
 vk::RenderPassBeginInfo

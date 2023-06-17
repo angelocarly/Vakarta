@@ -15,9 +15,7 @@ namespace vkrt
     {
         public:
             std::size_t mFrameIndex;
-            vk::Extent2D mResolution;
             vk::CommandBuffer mCommandBuffer;
-            vk::RenderPass mRenderPass;
     };
 }
 

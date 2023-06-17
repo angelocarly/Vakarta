@@ -18,12 +18,13 @@ set(
         Source/LayerPresenter.cpp
         Source/RenderEnvironment.cpp
         Source/TestPresenter.cpp
-)
+        Source/Presenter.cpp)
 
 set(
     GLSL_SOURCE_FILES
         shaders/FrameIdentification.frag
         shaders/CompositeFrames.frag
+        shaders/Texture.frag
         shaders/ScreenRect.vert
 )
 
