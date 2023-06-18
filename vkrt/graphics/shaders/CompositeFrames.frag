@@ -10,8 +10,8 @@ layout( binding = 0 ) uniform sampler2D inImage;
 void main()
 {
     vec4 col = vec4( 0 );
-    if( inUV.x < 0.5 ) col = texture( inImage, inUV ).rgba;
-    else col = vec4( 1, 0, 0, 1 );
+    col = texture( inImage, inUV ).rgba;
+    if( inUV.x > 0.5 ) col.rgb = 1 - col.rgb;
 
     outColor = col;
 }

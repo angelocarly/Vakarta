@@ -1,9 +1,7 @@
 set(
     HEADER_FILES
         Display.h
-        GuiLayer.h
         ForwardDecl.h
-        Layer.h
         LayerPresenter.h
         Presenter.h
         RenderEnvironment.h
@@ -13,8 +11,6 @@ set(
 set(
     SOURCE_FILES
         Source/Display.cpp
-        Source/GuiLayer.cpp
-        Source/Layer.cpp
         Source/LayerPresenter.cpp
         Source/RenderEnvironment.cpp
         Source/TestPresenter.cpp

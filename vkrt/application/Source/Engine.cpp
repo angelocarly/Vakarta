@@ -2,12 +2,13 @@
 
 #include "vkrt/graphics/TestPresenter.h"
 #include "vkrt/graphics/LayerPresenter.h"
+#include "vkrt/gui/GuiPresenter.h"
 
 #include <imgui/imgui.h>
 #include <spdlog/spdlog.h>
 
-#define WIDTH 1600
-#define HEIGHT 900
+#define WIDTH 800
+#define HEIGHT 600
 #define TITLE "VKRT"
 
 vkrt::Engine::Engine()
@@ -21,6 +22,8 @@ vkrt::Engine::Engine()
 {
     auto theLayerPresenter = std::make_shared< vkrt::LayerPresenter >( mVulkanSession->GetDevice(), vk::Extent2D( WIDTH, HEIGHT ) );
     theLayerPresenter->AddPresenter( std::make_shared< vkrt::TestPresenter >( mVulkanSession->GetDevice(), WIDTH, HEIGHT ) );
+    vkrt::GuiPresenter::Initialize( mVulkanSession->GetDevice(), mRenderer.GetSwapchain(), mWindow );
+    theLayerPresenter->AddPresenter( vkrt::GuiPresenter::GetInstance() );
     mRenderer.SetPresenter( theLayerPresenter );
 }
 

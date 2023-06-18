@@ -20,11 +20,11 @@ namespace vkrt
     class Presenter
     {
         public:
-
             Presenter( vks::DevicePtr inDevice, std::size_t inWidth, std::size_t inHeight );
             virtual ~Presenter();
 
             virtual void Draw( vkrt::RenderEnvironment const & inRenderEnvironment ) = 0;
+
             vk::ImageView GetImageView() const { return mImageView; };
             vk::Sampler GetSampler() const { return mSampler; };
 
@@ -38,7 +38,6 @@ namespace vkrt
             void InitializeRenderPass();
             void InitializeFrameBuffer( vk::ImageView inImageView, std::size_t inWidth, std::size_t inHeight );
 
-        private:
             vks::DevicePtr mDevice;
 
             // Render setup

@@ -63,6 +63,11 @@ vkrt::LayerPresenter::InitializePipeline( vk::RenderPass inRenderPass )
 void
 vkrt::LayerPresenter::Draw( const vkrt::RenderEnvironment & inEnvironment )
 {
+    for( auto thePresenter: mPresenters )
+    {
+        thePresenter->Draw( inEnvironment );
+    }
+
     BeginRenderPass( inEnvironment.mCommandBuffer );
     {
         for( auto thePresenter: mPresenters )

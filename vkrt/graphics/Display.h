@@ -9,7 +9,6 @@
 #include "vkrt/core/ForwardDecl.h"
 #include "vkrt/core/InputState.h"
 
-#include "vkrt/graphics/Layer.h"
 #include "vkrt/graphics/Presenter.h"
 
 #include "vks/assets/AssetLoader.h"
@@ -38,7 +37,7 @@ namespace vkrt
             Display( vks::VulkanSessionPtr inSession, vks::WindowPtr inWindow );
             ~Display();
 
-            ImGuiContext * GetImGuiContext();
+            vks::SwapchainPtr GetSwapchain() const { return mSwapchain; }
 
         public:
             void SetPresenter( std::shared_ptr< Presenter > inPresenter );

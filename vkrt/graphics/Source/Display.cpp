@@ -4,7 +4,6 @@
 #include "vkrt/graphics/Display.h"
 
 #include "vkrt/graphics/RenderEnvironment.h"
-#include "vkrt/graphics/Layer.h"
 #include "vkrt/graphics/Presenter.h"
 
 #include "vks/render/ForwardDecl.h"
@@ -12,7 +11,6 @@
 #include "vks/render/Swapchain.h"
 #include "vks/render/Window.h"
 #include "vks/render/Utils.h"
-#include "vkrt/graphics/GuiLayer.h"
 #include "vks/render/DescriptorLayoutBuilder.h"
 
 #include <spdlog/spdlog.h>
