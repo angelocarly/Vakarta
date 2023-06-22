@@ -36,6 +36,7 @@ vkrt::Display::~Display()
         mDevice->GetVkDevice().destroyFramebuffer( theFrameBuffer );
     }
     mDevice->GetVkDevice().destroyRenderPass( mRenderPass );
+    mDevice->GetVkDevice().destroy( mDescriptorSetLayout );
 }
 
 // =====================================================================================================================
@@ -241,16 +242,17 @@ vkrt::Display::InitializePipeline( vk::RenderPass inRenderPass )
     auto theVertexShader = vks::Utils::CreateVkShaderModule( mDevice, "shaders/ScreenRect.vert.spv" );
     auto theFragmentShader = vks::Utils::CreateVkShaderModule( mDevice, "shaders/Texture.frag.spv" );
 
-    auto theDescriptorLayout = vks::DescriptorLayoutBuilder()
+    mDescriptorSetLayout = vks::DescriptorLayoutBuilder()
         .AddLayoutBinding( 0, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment )
-        .Build( mDevice, vk::DescriptorSetLayoutCreateFlagBits::ePushDescriptorKHR );
+        .Build( mDevice, vk::DescriptorSetLayoutCreateFlagBits::ePushDescriptorKHR )
+        .front();
 
     vks::Pipeline::PipelineCreateInfo theCreateInfo =
         {
             inRenderPass,
             theVertexShader,
             theFragmentShader,
-            { theDescriptorLayout },
+            { mDescriptorSetLayout },
             {}
         };
 

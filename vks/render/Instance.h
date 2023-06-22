@@ -21,6 +21,7 @@ namespace vks
 
         public:
             vk::Instance GetVkInstance();
+            DevicePtr CreateDevice( vks::PhysicalDevicePtr inDevice );
 
         private:
             class Impl;

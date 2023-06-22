@@ -27,6 +27,7 @@ vkrt::LayerPresenter::LayerPresenter( vks::DevicePtr inDevice, vk::Extent2D inEx
 
 vkrt::LayerPresenter::~LayerPresenter()
 {
+    mDevice->GetVkDevice().destroy( mDescriptorLayout );
 }
 
 void
@@ -35,16 +36,17 @@ vkrt::LayerPresenter::InitializePipeline( vk::RenderPass inRenderPass )
     auto theVertexShader = vks::Utils::CreateVkShaderModule( mDevice, "shaders/ScreenRect.vert.spv" );
     auto theFragmentShader = vks::Utils::CreateVkShaderModule( mDevice, "shaders/CompositeFrames.frag.spv" );
 
-    auto theDescriptorLayout = vks::DescriptorLayoutBuilder()
+    mDescriptorLayout = vks::DescriptorLayoutBuilder()
         .AddLayoutBinding( 0, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment )
-        .Build( mDevice, vk::DescriptorSetLayoutCreateFlagBits::ePushDescriptorKHR );
+        .Build( mDevice, vk::DescriptorSetLayoutCreateFlagBits::ePushDescriptorKHR )
+        .front();
 
     vks::Pipeline::PipelineCreateInfo theCreateInfo =
     {
         inRenderPass,
         theVertexShader,
         theFragmentShader,
-        { theDescriptorLayout },
+        { mDescriptorLayout },
         {}
     };
 

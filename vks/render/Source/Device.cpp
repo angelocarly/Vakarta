@@ -12,7 +12,6 @@
 
 #include <spdlog/spdlog.h>
 #include <vulkan/vulkan.hpp>
-#include <vk_mem_alloc.hpp>
 #include <optional>
 
 // =====================================================================================================================

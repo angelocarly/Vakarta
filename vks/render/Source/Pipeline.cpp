@@ -138,16 +138,16 @@ vks::Pipeline::Impl::InitializePipeline()
     std::vector< vk::PipelineColorBlendAttachmentState > theColorBlendAttachmentStates =
     {
         vk::PipelineColorBlendAttachmentState
-            (
-                false,
-                vk::BlendFactor::eOne,
-                vk::BlendFactor::eZero,
-                vk::BlendOp::eAdd,
-                vk::BlendFactor::eOne,
-                vk::BlendFactor::eZero,
-                vk::BlendOp::eAdd,
-                vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG | vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA
-            )
+        (
+            true,
+            vk::BlendFactor::eSrcAlpha,
+            vk::BlendFactor::eOneMinusSrcAlpha,
+            vk::BlendOp::eAdd,
+            vk::BlendFactor::eOne,
+            vk::BlendFactor::eOne,
+            vk::BlendOp::eAdd,
+            vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG | vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA
+        )
     };
     auto const theColorBlendStateCreateInfo = vk::PipelineColorBlendStateCreateInfo
     (

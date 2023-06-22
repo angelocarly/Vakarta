@@ -40,5 +40,8 @@ void main()
     {
         col = vec3( 1, 1, 1 ); // white
     }
+
+    col = vec3( inUV, 0.0f );
+
     outColor = vec4( col, 1.0f );
 }

@@ -2,17 +2,19 @@
 // Created by magnias on 7/7/22.
 //
 
+#define VMA_IMPLEMENTATION
+#include <vk_mem_alloc.hpp>
+
+
 #include "vks/render/ForwardDecl.h"
 #include "vks/render/Instance.h"
 #include "vks/render/Utils.h"
+#include "vks/render/Device.h"
 
 #include <GLFW/glfw3.h>
 #include <spdlog/spdlog.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <vulkan/vulkan.hpp>
-
-#define VMA_IMPLEMENTATION
-#include <vk_mem_alloc.hpp>
 
 // ============================================ Debug Callback =========================================================
 
@@ -66,6 +68,7 @@ class vks::Instance::Impl
 {
     public:
         Impl();
+        ~Impl();
 
         void CreateVulkanInstance();
         bool CheckValidationLayersSupport();
@@ -89,6 +92,7 @@ class vks::Instance::Impl
     public:
         vk::Instance mInstance;
         vk::DebugUtilsMessengerEXT mDebugMessenger;
+        std::vector< vks::DevicePtr > mDevices;
 
         const std::vector< const char * > mValidationLayers =
         {
@@ -211,13 +215,10 @@ vks::Instance::Impl::SetupDebugMessenger()
     mDebugMessenger = mInstance.createDebugUtilsMessengerEXT( theCreateInfo );
 }
 
-void vks::Instance::Impl::DestroyDebugMessenger()
+vks::Instance::Impl::~Impl()
 {
+    mDevices.clear();
     mInstance.destroyDebugUtilsMessengerEXT( mDebugMessenger );
-}
-
-void vks::Instance::Impl::DestroyVulkanInstance()
-{
     vkDestroyInstance( mInstance, nullptr );
 }
 
@@ -240,8 +241,7 @@ vks::Instance::Instance()
 vks::Instance::~Instance()
 {
     spdlog::get( "vulkan" )->debug( "Destroying instance" );
-    mImpl->DestroyDebugMessenger();
-    mImpl->DestroyVulkanInstance();
+    mImpl.reset();
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -257,4 +257,12 @@ vk::Instance
 vks::Instance::GetVkInstance()
 {
     return mImpl->mInstance;
+}
+
+vks::DevicePtr
+vks::Instance::CreateDevice( vks::PhysicalDevicePtr inDevice )
+{
+    auto theDevice = std::shared_ptr< vks::Device >( new vks::Device( inDevice ) );
+    mImpl->mDevices.emplace_back( theDevice );
+    return theDevice;
 }

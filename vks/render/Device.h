@@ -17,9 +17,12 @@ namespace vks
 {
     class Device
     {
+
         public:
-            explicit Device( vks::PhysicalDevicePtr inDevice );
             ~Device();
+
+        private:
+            explicit Device( vks::PhysicalDevicePtr inDevice );
 
         public:
             vks::PhysicalDevicePtr GetPhysicalDevice();
@@ -55,6 +58,8 @@ namespace vks
         private:
             class Impl;
             std::unique_ptr< Impl > mImpl;
+
+            friend class Instance;
     };
 }
 

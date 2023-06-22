@@ -26,13 +26,14 @@ vks::VksSession::Impl::Impl()
 :
     mInstance( vks::Instance::GetInstance() ),
     mPhysicalDevice( std::make_shared< vks::PhysicalDevice >( mInstance ) ),
-    mDevice( std::make_shared< vks::Device >( mPhysicalDevice ) )
+    mDevice( mInstance.CreateDevice( mPhysicalDevice ) )
 {
 
 }
 
 vks::VksSession::Impl::~Impl()
 {
+    mDevice.reset();
 }
 
 // =====================================================================================================================

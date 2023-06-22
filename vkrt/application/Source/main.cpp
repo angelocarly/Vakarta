@@ -4,9 +4,15 @@
 
 #include "vkrt/application/Engine.h"
 
+#define WIDTH 1600
+#define HEIGHT 900
+#define TITLE "VKRT"
+
 int main()
 {
-    vkrt::Engine engine = vkrt::Engine();
+    auto theWindow = std::make_shared< vks::Window >( WIDTH, HEIGHT, TITLE );
+    auto theVulkanSession = vks::VksSession::GetInstance();
+    vkrt::Engine engine = vkrt::Engine( theWindow, theVulkanSession );
 
     std::chrono::microseconds thePreviousFrameTime = std::chrono::duration_cast<std::chrono::microseconds>
     (

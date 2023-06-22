@@ -58,6 +58,7 @@ namespace vkrt
             vks::WindowPtr mWindow;
             vks::SwapchainPtr mSwapchain;
             vks::PipelinePtr mPipeline;
+            vk::DescriptorSetLayout mDescriptorSetLayout;
 
             vk::RenderPass mRenderPass;
             vk::ClearValue mClearValue;

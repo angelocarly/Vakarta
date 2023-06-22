@@ -11,7 +11,6 @@ void main()
 {
     vec4 col = vec4( 0 );
     col = texture( inImage, inUV ).rgba;
-    if( inUV.x > 0.5 ) col.rgb = 1 - col.rgb;
 
     outColor = col;
 }

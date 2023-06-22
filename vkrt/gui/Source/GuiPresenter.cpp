@@ -4,6 +4,7 @@
 
 #include <filesystem>
 #include <spdlog/spdlog.h>
+#include <GLFW/glfw3native.h>
 #include "vkrt/gui/GuiPresenter.h"
 
 #include "vks/render/Device.h"
@@ -13,6 +14,7 @@
 #include "imgui.h"
 #include "imgui_impl_vulkan.h"
 #include "imgui_impl_glfw.h"
+#include "vks/render/Utils.h"
 
 static std::shared_ptr< vkrt::GuiPresenter > mInstance;
 
@@ -32,6 +34,12 @@ vkrt::GuiPresenter::Initialize( vks::DevicePtr inDevice, vks::SwapchainPtr inSwa
     mInstance = std::unique_ptr< GuiPresenter >( new GuiPresenter( inDevice, inSwapchain, inWindow ) );
 }
 
+void
+vkrt::GuiPresenter::Finalize()
+{
+    mInstance.reset();
+}
+
 vkrt::GuiPresenter::GuiPresenter( vks::DevicePtr inDevice, vks::SwapchainPtr inSwapchain, vks::WindowPtr inWindow )
 :
     Presenter( inDevice, inSwapchain->GetExtent().width, inSwapchain->GetExtent().height ),
@@ -45,8 +53,6 @@ vkrt::GuiPresenter::GuiPresenter( vks::DevicePtr inDevice, vks::SwapchainPtr inS
 
 vkrt::GuiPresenter::~GuiPresenter()
 {
-    mDevice->GetVkDevice().waitIdle();
-
     mDevice->GetVkDevice().destroy( mDescriptorPool );
 
     ImGui_ImplVulkan_Shutdown();
@@ -68,6 +74,7 @@ vkrt::GuiPresenter::Draw( const vkrt::RenderEnvironment & inRenderEnvironment )
 
         ImGui::NewFrame();
 
+        ImGui::SetNextWindowBgAlpha( 0.0f );
         ImGui::DockSpaceOverViewport();
 
         // Demo window
@@ -77,9 +84,9 @@ vkrt::GuiPresenter::Draw( const vkrt::RenderEnvironment & inRenderEnvironment )
         {
             if( ImGui::BeginMenu( "Menu" ) )
             {
-//                ImGui::MenuItem("Show stats" , nullptr, &mShowStats );
-//                ImGui::MenuItem("Show tools" , nullptr, &mShowTools );
-//                ImGui::MenuItem("Show demo window" , nullptr, &mShowDemoWindow );
+////                ImGui::MenuItem("Show stats" , nullptr, &mShowStats );
+////                ImGui::MenuItem("Show tools" , nullptr, &mShowTools );
+////                ImGui::MenuItem("Show demo window" , nullptr, &mShowDemoWindow );
                 ImGui::EndMenu();
             }
             ImGui::EndMainMenuBar();
@@ -115,7 +122,7 @@ vkrt::GuiPresenter::InitializeImGui()
     ImGuiIO& io = ::ImGui::GetIO();
     (void) io;
 
-    SetImGuiStyle();
+    SetImGuiStyle( io );
 
     // Load fonts
     // TODO: Load fonts dynamically
@@ -167,21 +174,75 @@ vkrt::GuiPresenter::InitializeDescriptorPool()
         };
 
     vk::DescriptorPoolCreateInfo const theDescriptorPoolCreateInfo
-        (
-            vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet,
-            1000, // Correct?
-            thePoolSizes.size(),
-            thePoolSizes.data()
-        );
+    (
+        vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet,
+        1000, // Correct?
+        thePoolSizes.size(),
+        thePoolSizes.data()
+    );
 
     mDescriptorPool = mDevice->GetVkDevice().createDescriptorPool( theDescriptorPoolCreateInfo );
 }
 
 void
-vkrt::GuiPresenter::SetImGuiStyle()
+vkrt::GuiPresenter::SetImGuiStyle( ImGuiIO & io )
 {
     ImGui::StyleColorsDark();
     ImGuiStyle* theStyle = &ImGui::GetStyle();
     theStyle->WindowBorderSize = 0.0f;
+    theStyle->WindowPadding = ImVec2( 4, 4 );
+    theStyle->FramePadding = ImVec2( 4, 2 );
+    theStyle->ItemSpacing = ImVec2( 8, 4 );
+
+    // Double the scale on Mac displays as ImGui doesn't provide appropriate font sizes for them.
+    // https://github.com/ocornut/imgui/issues/5301
+    if( vks::Utils::IsTargetApple() )
+    {
+        float scale = 2.0f;
+        ImFontConfig cfg;
+        cfg.SizePixels = 13.0f * scale;
+        io.Fonts->AddFontDefault( & cfg );
+        io.FontGlobalScale = 1.0f / scale;
+    }
+
+    ImVec4 theBaseColor = ImVec4( 0.71f, .51f, .31f, 1.0f );
+    ImVec4 theHoverColor = ImVec4( .75f, .48f, .22f, 1.0f );
+    ImVec4 theActiveColor = ImVec4( .61f, .36f, .10f, 1.0f );
+
+    ImVec4 theSecondColor = ImVec4( 0.32f, .31f, .29f, 1.0f );
+    ImVec4 theSecondHoverColor = ImVec4( .44f, .44f, .40f, 1.0f );
+    ImVec4 theSecondActiveColor = ImVec4( .43f, .36f, .29f, 1.0f );
+
+    ImVec4 theThirdColor = ImVec4( 0.18f, .17f, .16f, 1.0f );
+    ImVec4 theThirdHoverColor = ImVec4( .40f, .33f, .25f, 1.0f );
+    ImVec4 theThirdActiveColor = ImVec4( .43f, .36f, .29f, 1.0f );
+
+    ImVec4* colors = theStyle->Colors;
+    colors[ ImGuiCol_DockingEmptyBg ] = ImVec4( 0.0f, 0.0f, 0.0f, 0.0f );
+
+    colors[ ImGuiCol_TabUnfocusedActive ] = ImVec4( 0.68f, 0.47f, 0.24f, 1.0f );
+    colors[ ImGuiCol_SeparatorHovered ] = ImVec4( .54f, .40f, .08f, 0.75f );
+    colors[ ImGuiCol_SeparatorActive ] = ImVec4( .75f, .51f, .1f, 1.0f );
+
+    colors[ ImGuiCol_Button ] = theBaseColor;
+    colors[ ImGuiCol_ButtonHovered ] = theHoverColor;
+    colors[ ImGuiCol_ButtonActive ] = theActiveColor;
+    colors[ ImGuiCol_Header ] = theThirdColor;
+    colors[ ImGuiCol_HeaderHovered ] = theThirdHoverColor;
+    colors[ ImGuiCol_HeaderActive ] = theThirdActiveColor;
+    colors[ ImGuiCol_Tab ] = theBaseColor;
+    colors[ ImGuiCol_TabHovered ] = theHoverColor;
+    colors[ ImGuiCol_TabActive ] = theActiveColor;
+    colors[ ImGuiCol_TitleBgActive ] = theBaseColor;
+    colors[ ImGuiCol_ResizeGrip ] = theBaseColor;
+    colors[ ImGuiCol_ResizeGripHovered ] = theHoverColor;
+    colors[ ImGuiCol_ResizeGripActive ] = theActiveColor;
+    colors[ ImGuiCol_SliderGrab ] = theBaseColor;
+    colors[ ImGuiCol_SliderGrabActive ] = theActiveColor;
+    colors[ ImGuiCol_FrameBg ] = theSecondColor;
+    colors[ ImGuiCol_FrameBgHovered ] = theSecondHoverColor;
+    colors[ ImGuiCol_FrameBgActive ] = theSecondActiveColor;
+    colors[ ImGuiCol_CheckMark ] = theBaseColor;
 }
+
 

@@ -19,8 +19,7 @@ namespace vkrt
     {
 
         public:
-            Engine();
-
+            Engine( vks::WindowPtr inWindow, vks::VulkanSessionPtr inVulkanSession );
             ~Engine();
 
         public:

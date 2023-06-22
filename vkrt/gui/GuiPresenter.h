@@ -6,6 +6,7 @@
 #define VKRT_GUIPRESENTER_H
 
 #include "../graphics/Presenter.h"
+#include "imgui.h"
 
 #include <memory>
 
@@ -24,12 +25,14 @@ namespace vkrt
 
             void Draw( vkrt::RenderEnvironment const & inRenderEnvironment ) override;
 
+            static void Finalize();
+
         private:
             GuiPresenter( vks::DevicePtr inDevice, vks::SwapchainPtr inSwapchain, vks::WindowPtr inWindow );
 
             void InitializeDescriptorPool();
             void InitializeImGui();
-            void SetImGuiStyle();
+            void SetImGuiStyle( ImGuiIO & io );
             static void CheckVkResult( VkResult inResult );
 
         private:

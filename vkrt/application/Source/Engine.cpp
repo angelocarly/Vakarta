@@ -7,14 +7,14 @@
 #include <imgui/imgui.h>
 #include <spdlog/spdlog.h>
 
-#define WIDTH 800
-#define HEIGHT 600
+#define WIDTH 1600
+#define HEIGHT 900
 #define TITLE "VKRT"
 
-vkrt::Engine::Engine()
+vkrt::Engine::Engine( vks::WindowPtr inWindow, vks::VulkanSessionPtr inVulkanSession )
 :
-    mWindow( std::make_shared< vks::Window >( WIDTH, HEIGHT, TITLE ) ),
-    mVulkanSession( vks::VksSession::GetInstance() ),
+    mWindow( inWindow ),
+    mVulkanSession( inVulkanSession ),
     mRenderer( mVulkanSession, mWindow ),
     mInputState( std::make_shared< InputState >( mWindow ) ),
     mCamera( std::make_shared< vkrt::Camera >( 45, float( WIDTH ) / float( HEIGHT ), 0.1f, 250.0f ) ),
@@ -30,6 +30,7 @@ vkrt::Engine::Engine()
 vkrt::Engine::~Engine()
 {
     mVulkanSession->GetDevice()->GetVkDevice().waitIdle();
+    vkrt::GuiPresenter::Finalize();
 }
 
 // ---------------------------------------------------------------------------------------------------------------------

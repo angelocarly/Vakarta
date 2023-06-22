@@ -36,6 +36,7 @@ namespace vkrt
         private:
             vks::DevicePtr mDevice;
             vk::Extent2D mExtent;
+            vk::DescriptorSetLayout mDescriptorLayout;
 
             // Render prepare info
             vks::PipelinePtr mPipeline;

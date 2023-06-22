@@ -23,6 +23,7 @@ vkrt::Presenter::~Presenter()
     mDevice->GetVkDevice().destroy( mRenderPass );
     mDevice->GetVkDevice().destroy( mImageView );
     mDevice->GetVkDevice().destroy( mSampler );
+    mDevice->DestroyImage( mImage );
 }
 // ============================================= Initialization ========================================================
 
@@ -223,7 +224,7 @@ vkrt::Presenter::BeginRenderPass( vk::CommandBuffer const & inCommandBuffer )
     const auto theScissors = vk::Rect2D( { 0, 0 }, { mWidth, mHeight } );
     inCommandBuffer.setScissor( 0, 1, & theScissors );
 
-    auto theClearValue = vk::ClearValue( vk::ClearColorValue( std::array< float, 4 >{ 0.0f, 0.0f, 0.0f, 1.0f } ) );
+    auto theClearValue = vk::ClearValue( vk::ClearColorValue( std::array< float, 4 >{ 0.0f, 0.0f, 0.0f, 0.0f } ) );
     auto theBeginInfo = vk::RenderPassBeginInfo
     (
         mRenderPass,
