@@ -30,8 +30,8 @@ namespace vkrt
 
         protected:
             vk::RenderPass GetRenderPass() const { return mRenderPass; };
-            void BeginRenderPass( vk::CommandBuffer const & inCommandBuffer );
-            void EndRenderPass( vk::CommandBuffer const & inCommandBuffer );
+            void BeginPresenterRenderPass( vk::CommandBuffer const & inCommandBuffer );
+            void EndPresenterRenderPass( const vk::CommandBuffer & inCommandBuffer );
 
         private:
             void InitializeImage();

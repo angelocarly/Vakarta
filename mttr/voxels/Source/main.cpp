@@ -3,6 +3,8 @@
 #include <spdlog/spdlog.h>
 
 #include "vkrt/application/Engine.h"
+#include "mttr/voxels/VoxelPresenter.h"
+#include "mttr/voxels/VoxelControls.h"
 
 #define WIDTH 1600
 #define HEIGHT 900
@@ -12,27 +14,16 @@ int main()
 {
     auto theWindow = std::make_shared< vks::Window >( WIDTH, HEIGHT, TITLE );
     auto theVulkanSession = vks::VksSession::GetInstance();
-    vkrt::Engine engine = vkrt::Engine( theWindow, theVulkanSession );
 
-    std::chrono::microseconds thePreviousFrameTime = std::chrono::duration_cast<std::chrono::microseconds>
-    (
-        std::chrono::system_clock::now().time_since_epoch()
-    );
-    std::chrono::microseconds theFrameTime;
+    auto theVoxelPresenter = std::make_shared< Mttr::Vox::VoxelPresenter >( theVulkanSession->GetDevice(), WIDTH, HEIGHT );
 
-    spdlog::info("Started game loop");
-    while( !engine.ShouldClose() )
-    {
-        thePreviousFrameTime = theFrameTime;
-        theFrameTime = std::chrono::duration_cast<std::chrono::microseconds>
-        (
-            std::chrono::system_clock::now().time_since_epoch()
-        );
-        float theFrameDuration = ( theFrameTime.count() - thePreviousFrameTime.count() ) % 10000000000 / 1000000.0f;
+    vkrt::Engine engine = vkrt::Engine( theWindow, theVulkanSession, theVoxelPresenter );
 
-        engine.Update( theFrameDuration );
-        engine.Render();
-    }
+    auto theVoxelController = std::make_shared< Mttr::Vox::VoxelControls >();
+    theVoxelPresenter->SetVoxelControls( theVoxelController );
+    engine.RegisterGuiDrawer( theVoxelController );
+
+    engine.Run();
 
     return EXIT_SUCCESS;
 }

@@ -19,7 +19,6 @@
 #include "vks/render/Mesh.h"
 #include "vks/render/Window.h"
 #include "vks/render/ForwardDecl.h"
-#include "vks/render/GuiPass.h"
 #include "vks/render/VksSession.h"
 
 #include "imgui_internal.h"

@@ -194,7 +194,7 @@ vkrt::Presenter::InitializeFrameBuffer( vk::ImageView inImageView, std::size_t i
 }
 
 void
-vkrt::Presenter::BeginRenderPass( vk::CommandBuffer const & inCommandBuffer )
+vkrt::Presenter::BeginPresenterRenderPass( vk::CommandBuffer const & inCommandBuffer )
 {
     // Transition the image to a color attachment
     mDevice->ImageMemoryBarrier
@@ -241,7 +241,7 @@ vkrt::Presenter::BeginRenderPass( vk::CommandBuffer const & inCommandBuffer )
 }
 
 void
-vkrt::Presenter::EndRenderPass( const vk::CommandBuffer & inCommandBuffer )
+vkrt::Presenter::EndPresenterRenderPass( const vk::CommandBuffer & inCommandBuffer )
 {
     inCommandBuffer.endRenderPass();
 

@@ -2,11 +2,20 @@ project( Voxels VERSION 0.1.0)
 
 set(
     Voxels_HEADER_FILES
+        VoxelPresenter.h
+        VoxelControls.h
 )
 
 set(
     Voxels_SOURCE_FILES
         Source/main.cpp
+        Source/VoxelControls.cpp
+        Source/VoxelPresenter.cpp
+)
+
+set(
+    Voxels_GLSL_FILES
+        shaders/Voxels.frag
 )
 
 add_executable(
@@ -45,6 +54,38 @@ add_custom_command(
         ${SHADER_DIR}
         ${VOXELS_BIN_PATH}/shaders
 )
+
+# Shaders
+if(LINUX)
+    set( GLSL_VALIDATOR "/usr/bin/glslangValidator" )
+else()
+    set( GLSL_VALIDATOR "/usr/local/bin/glslangValidator" )
+endif()
+
+set( SHADER_DIR "${VOXELS_BIN_PATH}/shaders" )
+
+foreach( GLSL ${Voxels_GLSL_FILES} )
+    get_filename_component( FILE_NAME ${GLSL} NAME )
+    set(
+        SPIRV
+            "${SHADER_DIR}/${FILE_NAME}.spv"
+    )
+    message( ${SPIRV} )
+    message( ${CMAKE_SOURCE_DIR}/mttr/voxels/${GLSL} )
+    add_custom_command(
+            OUTPUT ${SPIRV}
+            COMMAND ${CMAKE_COMMAND} -E make_directory "${SHADER_DIR}"
+            COMMAND ${GLSL_VALIDATOR} --target-env vulkan1.0 -V ${CMAKE_SOURCE_DIR}/mttr/voxels/${GLSL} -o ${SPIRV}
+            DEPENDS ${GLSL} )
+    list( APPEND SPIRV_BINARY_FILES ${SPIRV} )
+endforeach( GLSL )
+
+add_custom_target(
+    VoxelsShaders
+        DEPENDS ${SPIRV_BINARY_FILES}
+)
+
+add_dependencies( ${PROJECT_NAME} VoxelsShaders )
 
 ### External libraries
 

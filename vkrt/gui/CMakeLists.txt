@@ -1,5 +1,6 @@
 set(
     HEADER_FILES
+        GuiDrawer.h
         GuiPresenter.h
 )
 

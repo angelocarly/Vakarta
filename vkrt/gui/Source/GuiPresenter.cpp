@@ -2,19 +2,22 @@
 // Created by magnias on 6/18/23.
 //
 
-#include <filesystem>
-#include <spdlog/spdlog.h>
-#include <GLFW/glfw3native.h>
 #include "vkrt/gui/GuiPresenter.h"
+
+#include "vkrt/gui/GuiDrawer.h"
 
 #include "vks/render/Device.h"
 #include "vks/render/Swapchain.h"
 #include "vks/render/Window.h"
+#include "vks/render/Utils.h"
 
 #include "imgui.h"
 #include "imgui_impl_vulkan.h"
 #include "imgui_impl_glfw.h"
-#include "vks/render/Utils.h"
+
+#include <filesystem>
+#include <spdlog/spdlog.h>
+#include <GLFW/glfw3native.h>
 
 static std::shared_ptr< vkrt::GuiPresenter > mInstance;
 
@@ -77,29 +80,25 @@ vkrt::GuiPresenter::Draw( const vkrt::RenderEnvironment & inRenderEnvironment )
         ImGui::SetNextWindowBgAlpha( 0.0f );
         ImGui::DockSpaceOverViewport();
 
-        // Demo window
-        ImGui::ShowDemoWindow();
-
-        if (ImGui::BeginMainMenuBar())
+        for( auto & drawer : mGuiDrawers )
         {
-            if( ImGui::BeginMenu( "Menu" ) )
-            {
-////                ImGui::MenuItem("Show stats" , nullptr, &mShowStats );
-////                ImGui::MenuItem("Show tools" , nullptr, &mShowTools );
-////                ImGui::MenuItem("Show demo window" , nullptr, &mShowDemoWindow );
-                ImGui::EndMenu();
-            }
-            ImGui::EndMainMenuBar();
+            drawer->DrawGui();
         }
 
         ImGui::Render();
     }
 
-    BeginRenderPass( inRenderEnvironment.mCommandBuffer );
+    BeginPresenterRenderPass( inRenderEnvironment.mCommandBuffer );
     {
         ImGui_ImplVulkan_RenderDrawData( ImGui::GetDrawData(), inRenderEnvironment.mCommandBuffer );
     }
-    EndRenderPass( inRenderEnvironment.mCommandBuffer );
+    EndPresenterRenderPass( inRenderEnvironment.mCommandBuffer );
+}
+
+void
+vkrt::GuiPresenter::RegisterGuiDrawer( vkrt::gui::GuiDrawerPtr inGuiDrawer )
+{
+    mGuiDrawers.push_back( inGuiDrawer );
 }
 
 // ============================================= Initialization ========================================================

@@ -11,7 +11,7 @@
 #define HEIGHT 900
 #define TITLE "VKRT"
 
-vkrt::Engine::Engine( vks::WindowPtr inWindow, vks::VulkanSessionPtr inVulkanSession )
+vkrt::Engine::Engine( vks::WindowPtr inWindow, vks::VulkanSessionPtr inVulkanSession, vkrt::PresenterPtr inPresenter )
 :
     mWindow( inWindow ),
     mVulkanSession( inVulkanSession ),
@@ -21,7 +21,7 @@ vkrt::Engine::Engine( vks::WindowPtr inWindow, vks::VulkanSessionPtr inVulkanSes
     mAssetLoader()
 {
     auto theLayerPresenter = std::make_shared< vkrt::LayerPresenter >( mVulkanSession->GetDevice(), vk::Extent2D( WIDTH, HEIGHT ) );
-    theLayerPresenter->AddPresenter( std::make_shared< vkrt::TestPresenter >( mVulkanSession->GetDevice(), WIDTH, HEIGHT ) );
+    theLayerPresenter->AddPresenter( inPresenter );
     vkrt::GuiPresenter::Initialize( mVulkanSession->GetDevice(), mRenderer.GetSwapchain(), mWindow );
     theLayerPresenter->AddPresenter( vkrt::GuiPresenter::GetInstance() );
     mRenderer.SetPresenter( theLayerPresenter );
@@ -108,13 +108,45 @@ vkrt::Engine::Update( float inFrameDuration )
 //    }
 }
 
-void vkrt::Engine::Render()
+void
+vkrt::Engine::Render()
 {
     mRenderer.Render();
 }
 
-bool vkrt::Engine::ShouldClose()
+bool
+vkrt::Engine::ShouldClose()
 {
     return mWindow->ShouldClose();
+}
+
+void
+vkrt::Engine::RegisterGuiDrawer( gui::GuiDrawerPtr inGuiDrawer )
+{
+    vkrt::GuiPresenter::GetInstance()->RegisterGuiDrawer( inGuiDrawer );
+}
+
+void
+vkrt::Engine::Run()
+{
+    std::chrono::microseconds thePreviousFrameTime = std::chrono::duration_cast<std::chrono::microseconds>
+    (
+        std::chrono::system_clock::now().time_since_epoch()
+    );
+    std::chrono::microseconds theFrameTime;
+
+    spdlog::info("Started game loop");
+    while( !ShouldClose() )
+    {
+        thePreviousFrameTime = theFrameTime;
+        theFrameTime = std::chrono::duration_cast<std::chrono::microseconds>
+            (
+                std::chrono::system_clock::now().time_since_epoch()
+            );
+        float theFrameDuration = ( theFrameTime.count() - thePreviousFrameTime.count() ) % 10000000000 / 1000000.0f;
+
+        Update( theFrameDuration );
+        Render();
+    }
 }
 

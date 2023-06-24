@@ -12,6 +12,7 @@
 
 #include "vkrt/core/ForwardDecl.h"
 #include "vkrt/graphics/Display.h"
+#include "vkrt/gui/ForwardDecl.h"
 
 namespace vkrt
 {
@@ -19,14 +20,15 @@ namespace vkrt
     {
 
         public:
-            Engine( vks::WindowPtr inWindow, vks::VulkanSessionPtr inVulkanSession );
+            Engine( vks::WindowPtr inWindow, vks::VulkanSessionPtr inVulkanSession, vkrt::PresenterPtr inPresenter );
             ~Engine();
 
-        public:
+            void Run();
+            void RegisterGuiDrawer( gui::GuiDrawerPtr inGuiDrawer );
+
+        private:
             void Update( float inFrameDuration );
-
             void Render();
-
             bool ShouldClose();
 
         private:

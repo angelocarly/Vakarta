@@ -6,7 +6,6 @@ set(
         DescriptorSet.h
         Device.h
         ForwardDecl.h
-        GuiPass.h
         Instance.h
         Mesh.h
         OffScreenRenderPass.h
@@ -26,7 +25,6 @@ set(
         Source/DescriptorLayoutBuilder.cpp
         Source/DescriptorSet.cpp
         Source/Device.cpp
-        Source/GuiPass.cpp
         Source/Instance.cpp
         Source/Mesh.cpp
         Source/OffScreenRenderPass.cpp

@@ -72,7 +72,7 @@ int theIndex = 0;
 void
 vkrt::TestPresenter::Draw( vkrt::RenderEnvironment const & inEnvironment )
 {
-    BeginRenderPass( inEnvironment.mCommandBuffer );
+    BeginPresenterRenderPass( inEnvironment.mCommandBuffer );
     {
         theIndex++;
         if( theIndex == 7 ) theIndex = 0;
@@ -95,5 +95,5 @@ vkrt::TestPresenter::Draw( vkrt::RenderEnvironment const & inEnvironment )
         // Render
         theCommandBuffer.draw( 3, 1, 0, 0 );
     }
-    EndRenderPass( inEnvironment.mCommandBuffer );
+    EndPresenterRenderPass( inEnvironment.mCommandBuffer );
 }

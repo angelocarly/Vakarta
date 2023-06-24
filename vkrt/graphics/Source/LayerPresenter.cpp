@@ -70,7 +70,7 @@ vkrt::LayerPresenter::Draw( const vkrt::RenderEnvironment & inEnvironment )
         thePresenter->Draw( inEnvironment );
     }
 
-    BeginRenderPass( inEnvironment.mCommandBuffer );
+    BeginPresenterRenderPass( inEnvironment.mCommandBuffer );
     {
         for( auto thePresenter: mPresenters )
         {
@@ -106,7 +106,7 @@ vkrt::LayerPresenter::Draw( const vkrt::RenderEnvironment & inEnvironment )
             theCommandBuffer.draw( 3, 1, 0, 0 );
         }
     }
-    EndRenderPass( inEnvironment.mCommandBuffer );
+    EndPresenterRenderPass( inEnvironment.mCommandBuffer );
 }
 
 void
