@@ -1,5 +1,5 @@
 /**
- * LayerPresenter.h
+ * Combine multiple presenters into a single presenter using alpha blending.
  *
  * @file	LayerPresenter.h
  * @author	Angelo Carly

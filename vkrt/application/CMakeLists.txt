@@ -6,22 +6,21 @@ set(
 set(
     SOURCE_FILES
         Source/Engine.cpp
-        Source/main.cpp
 )
 
-add_executable(
-    ${PROJECT_NAME}
+add_library(
+    VkrtEngine
         ${SOURCE_FILES}
         ${HEADER_FILES}
 )
 
-target_include_directories( ${PROJECT_NAME} PUBLIC ${PROJECT_ROOT_DIR} )
+target_include_directories( VkrtEngine PUBLIC ${PROJECT_ROOT_DIR} )
 
-set_property( TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 17 )
+set_property( TARGET VkrtEngine PROPERTY CXX_STANDARD 20 )
 
 ## Project libraries
 target_link_libraries(
-    ${PROJECT_NAME} PUBLIC
+    VkrtEngine PUBLIC
         VkrtCore
         VkrtGraphics
         VkrtGui
@@ -43,15 +42,15 @@ set(
         fonts/Hack-Regular.ttf
 )
 add_custom_command(
-        TARGET ${PROJECT_NAME} POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E make_directory "${VKRT_BIN_PATH}/resources"
+        TARGET VkrtEngine POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E make_directory "${RESOURCES_DIR}"
 )
 foreach( RESOURCE ${RESOURCES} )
     add_custom_command(
-            TARGET ${PROJECT_NAME} POST_BUILD
+            TARGET VkrtEngine POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy
             ${CMAKE_SOURCE_DIR}/resources/${RESOURCE}
-            ${VKRT_BIN_PATH}/resources/${RESOURCE}
+            ${RESOURCES_DIR}/${RESOURCE}
     )
 endforeach( RESOURCE )
 
@@ -59,17 +58,17 @@ endforeach( RESOURCE )
 
 # Vulkan
 find_package( Vulkan REQUIRED )
-target_link_libraries( ${PROJECT_NAME} PUBLIC Vulkan::Vulkan )
+target_link_libraries( VkrtEngine PUBLIC Vulkan::Vulkan )
 set( ENV{VK_ICD_FILENAMES} "${SRC_DIR}/../lib/VulkanSDK/macOS/etc/vulkan/icd.d/MoltenVK_icd.json" )
 set( ENV{VULKAN_SDK} "${SRC_DIR}/../lib/VulkanSDK/macOS/" )
 
 # GLFW
 find_package( glfw3 3.3 REQUIRED )
-target_link_libraries( ${PROJECT_NAME} PUBLIC glfw )
+target_link_libraries( VkrtEngine PUBLIC glfw )
 
 # glad
-target_include_directories( ${PROJECT_NAME} PUBLIC "${GLAD_DIR}/include" )
-target_link_libraries( ${PROJECT_NAME} PUBLIC "glad" "${CMAKE_DL_LIBS}" )
+target_include_directories( VkrtEngine PUBLIC "${GLAD_DIR}/include" )
+target_link_libraries( VkrtEngine PUBLIC "glad" "${CMAKE_DL_LIBS}" )
 
 # glm
 find_package( glm REQUIRED )
@@ -87,7 +86,7 @@ include_directories( ${VMA} )
 
 # zep
 target_include_directories(
-    ${PROJECT_NAME}
+    VkrtEngine
         PUBLIC
         ${LIB_DIR}/zep/include
 )
@@ -105,8 +104,8 @@ include_directories( ${VMA_HPP} )
 
 # spdlog
 find_package( spdlog REQUIRED )
-target_link_libraries( ${PROJECT_NAME} PUBLIC spdlog::spdlog )
+target_link_libraries( VkrtEngine PUBLIC spdlog::spdlog )
 
 # lodepng
 target_include_directories( "lodepng" PUBLIC "${LODEPNG_DIR}" )
-target_link_libraries( ${PROJECT_NAME} PUBLIC "lodepng" )
+target_link_libraries( VkrtEngine PUBLIC "lodepng" )

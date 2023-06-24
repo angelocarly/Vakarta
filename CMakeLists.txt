@@ -4,11 +4,11 @@
 cmake_minimum_required(VERSION 3.3)
 project(VKRT VERSION 0.1.0)
 
-set(PROJECT_ROOT_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
-set(LIB_DIR "${CMAKE_CURRENT_SOURCE_DIR}/lib")
-
-### PATH
-set( VKRT_BIN_PATH ${CMAKE_CURRENT_BINARY_DIR}/vkrt/application )
+set( PROJECT_ROOT_DIR "${CMAKE_CURRENT_SOURCE_DIR}" )
+set( LIB_DIR "${CMAKE_CURRENT_SOURCE_DIR}/lib" )
+set( BUILD_DIR "${CMAKE_CURRENT_SOURCE_DIR}/build" )
+set( SHADER_DIR "${BUILD_DIR}/shaders" )
+set( RESOURCES_DIR "${BUILD_DIR}/resources" )
 
 ### Libraries
 # glad
@@ -24,4 +24,4 @@ add_library( "lodepng" ${LODEPNG_DIR}/lodepng.cpp )
 add_subdirectory(lib)
 add_subdirectory(vks)
 add_subdirectory(vkrt)
-add_subdirectory(vps)
+add_subdirectory(mttr)
