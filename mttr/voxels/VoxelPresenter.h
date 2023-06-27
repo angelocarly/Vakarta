@@ -25,7 +25,7 @@ namespace Mttr::Vox
             VoxelPresenter( vks::DevicePtr inDevice, std::size_t inWidth, std::size_t inHeight );
             ~VoxelPresenter();
 
-            void SetVoxelControls( std::shared_ptr< Mttr::Vox::VoxelControls > inVoxelControls );
+            void SetVoxelControls( std::weak_ptr< Mttr::Vox::VoxelControls > inVoxelControls );
             void Draw( vkrt::RenderEnvironment const & inRenderEnvironment ) override;
 
         private:
@@ -37,7 +37,8 @@ namespace Mttr::Vox
             vks::PipelinePtr mPipeline;
             std::size_t mWidth;
             std::size_t mHeight;
-            std::shared_ptr< VoxelControls > mVoxelControls;
+            std::weak_ptr< VoxelControls > mVoxelControls;
+            vk::DescriptorSetLayout mDescriptorSetLayout;
 
             vks::Buffer mWorldBuffer;
 

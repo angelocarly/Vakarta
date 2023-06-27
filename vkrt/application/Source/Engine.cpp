@@ -68,7 +68,7 @@ vkrt::Engine::ShouldClose()
 }
 
 void
-vkrt::Engine::RegisterGuiDrawer( gui::GuiDrawerPtr inGuiDrawer )
+vkrt::Engine::RegisterGuiDrawer( std::weak_ptr< gui::GuiDrawer > inGuiDrawer )
 {
     vkrt::GuiPresenter::GetInstance()->RegisterGuiDrawer( inGuiDrawer );
 }

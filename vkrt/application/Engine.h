@@ -24,7 +24,7 @@ namespace vkrt
             ~Engine();
 
             void Run();
-            void RegisterGuiDrawer( gui::GuiDrawerPtr inGuiDrawer );
+            void RegisterGuiDrawer( std::weak_ptr< gui::GuiDrawer > inGuiDrawer );
 
             InputStatePtr GetInputState() const { return mInputState; }
             vks::VulkanSessionPtr GetVulkanSession() const { return mVulkanSession; }

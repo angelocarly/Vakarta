@@ -2,13 +2,15 @@ project( Voxels VERSION 0.1.0)
 
 set(
     Voxels_HEADER_FILES
-        VoxelPresenter.h
+        VoxelCompute.h
         VoxelControls.h
+        VoxelPresenter.h
 )
 
 set(
     Voxels_SOURCE_FILES
         Source/main.cpp
+        Source/VoxelCompute.cpp
         Source/VoxelControls.cpp
         Source/VoxelPresenter.cpp
 )

@@ -30,7 +30,8 @@ Mttr::Vox::VoxelPresenter::VoxelPresenter( vks::DevicePtr inDevice, std::size_t 
 
 Mttr::Vox::VoxelPresenter::~VoxelPresenter()
 {
-
+    mDevice->DestroyBuffer( mWorldBuffer );
+    mDevice->GetVkDevice().destroy( mDescriptorSetLayout );
 }
 
 void
@@ -49,16 +50,17 @@ Mttr::Vox::VoxelPresenter::InitializePipeline( vk::RenderPass const inRenderPass
         )
     };
 
-    std::vector< vk::DescriptorSetLayout > theLayouts = vks::DescriptorLayoutBuilder()
+    mDescriptorSetLayout = vks::DescriptorLayoutBuilder()
             .AddLayoutBinding( 0, vk::DescriptorType::eStorageBuffer, vk::ShaderStageFlagBits::eFragment )
-            .Build( mDevice, vk::DescriptorSetLayoutCreateFlagBits::ePushDescriptorKHR );
+            .Build( mDevice, vk::DescriptorSetLayoutCreateFlagBits::ePushDescriptorKHR )
+            .front();
 
     vks::Pipeline::PipelineCreateInfo theCreateInfo =
     {
         inRenderPass,
         theVertexShader,
         theFragmentShader,
-        theLayouts,
+        { mDescriptorSetLayout },
         thePushConstants
     };
 
@@ -100,7 +102,7 @@ Mttr::Vox::VoxelPresenter::InitializeBuffers()
 }
 
 void
-Mttr::Vox::VoxelPresenter::SetVoxelControls( std::shared_ptr< Mttr::Vox::VoxelControls > inVoxelControls )
+Mttr::Vox::VoxelPresenter::SetVoxelControls( std::weak_ptr< Mttr::Vox::VoxelControls > inVoxelControls )
 {
     mVoxelControls = inVoxelControls;
 }
@@ -114,7 +116,7 @@ Mttr::Vox::VoxelPresenter::Draw( const vkrt::RenderEnvironment & inRenderEnviron
     {
         theCommandBuffer.bindPipeline( vk::PipelineBindPoint::eGraphics, mPipeline->GetVkPipeline() );
 
-        if( !mVoxelControls )
+        if( !mVoxelControls.lock() )
         {
             throw std::runtime_error( "VoxelPresenter::Draw() - VoxelControls not set" );
         }
@@ -124,9 +126,9 @@ Mttr::Vox::VoxelPresenter::Draw( const vkrt::RenderEnvironment & inRenderEnviron
             std::uint32_t( mHeight ),
             0,
             0,
-            mVoxelControls->GetModel(),
-            mVoxelControls->GetView(),
-            mVoxelControls->GetProjection()
+            mVoxelControls.lock()->GetModel(),
+            mVoxelControls.lock()->GetView(),
+            mVoxelControls.lock()->GetProjection()
         };
         theCommandBuffer.pushConstants
         (

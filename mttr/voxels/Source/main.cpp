@@ -25,5 +25,10 @@ int main()
 
     engine->Run();
 
+    engine.reset();
+    theVoxelPresenter.reset();
+    theVoxelController.reset();
+    theVulkanSession.reset();
+
     return EXIT_SUCCESS;
 }

@@ -24,7 +24,7 @@ namespace vkrt
             ~GuiPresenter();
 
             void Draw( vkrt::RenderEnvironment const & inRenderEnvironment ) override;
-            void RegisterGuiDrawer( vkrt::gui::GuiDrawerPtr inGuiDrawer );
+            void RegisterGuiDrawer( std::weak_ptr< vkrt::gui::GuiDrawer > inGuiDrawer );
 
             static void Finalize();
 
@@ -42,7 +42,7 @@ namespace vkrt
             vks::SwapchainPtr mSwapChain;
             vks::WindowPtr mWindow;
 
-            std::vector< vkrt::gui::GuiDrawerPtr > mGuiDrawers;
+            std::vector< std::weak_ptr< vkrt::gui::GuiDrawer > > mGuiDrawers;
 
     };
 }

@@ -82,7 +82,7 @@ vkrt::GuiPresenter::Draw( const vkrt::RenderEnvironment & inRenderEnvironment )
 
         for( auto & drawer : mGuiDrawers )
         {
-            drawer->DrawGui();
+            drawer.lock()->DrawGui();
         }
 
         ImGui::Render();
@@ -96,7 +96,7 @@ vkrt::GuiPresenter::Draw( const vkrt::RenderEnvironment & inRenderEnvironment )
 }
 
 void
-vkrt::GuiPresenter::RegisterGuiDrawer( vkrt::gui::GuiDrawerPtr inGuiDrawer )
+vkrt::GuiPresenter::RegisterGuiDrawer( std::weak_ptr< vkrt::gui::GuiDrawer > inGuiDrawer )
 {
     mGuiDrawers.push_back( inGuiDrawer );
 }
