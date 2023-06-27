@@ -1,4 +1,4 @@
-# VKRT - Vulkan
+# VKRT - Vulkan Generative Art Sandbox
 A generative art sandbox using the Vulkan API.
 
 This project is my latest repository where I experiment using the Vulkan API to create generative art.
