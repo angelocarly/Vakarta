@@ -17,7 +17,6 @@ vkrt::Engine::Engine( vks::WindowPtr inWindow, vks::VulkanSessionPtr inVulkanSes
     mVulkanSession( inVulkanSession ),
     mRenderer( mVulkanSession, mWindow ),
     mInputState( std::make_shared< InputState >( mWindow ) ),
-    mCamera( std::make_shared< vkrt::Camera >( 45, float( WIDTH ) / float( HEIGHT ), 0.1f, 250.0f ) ),
     mAssetLoader()
 {
     auto theLayerPresenter = std::make_shared< vkrt::LayerPresenter >( mVulkanSession->GetDevice(), vk::Extent2D( WIDTH, HEIGHT ) );
@@ -38,74 +37,22 @@ vkrt::Engine::~Engine()
 void
 vkrt::Engine::Update( float inFrameDuration )
 {
-    // Render Gui
-//    mGuiLayer.Begin();
-//    mStats.mFps = 1.0f / inFrameDuration;
-//    mStats.mFrameTime = inFrameDuration;
-////    vkrt::GuiPanels::Tools( mRenderer );
-////    vkrt::GuiPanels::Stats( mStats );
-//    mGuiLayer.ImageTest( mReflectionPresenter );
-//    mGuiLayer.NodesTest( mReflectionPresenter );
-//    mGuiLayer.End();
-
     mWindow->Poll();
-
-//    ImGuiIO &io = ImGui::GetIO();
-//    if( io.WantCaptureMouse ) return;
-//
     mInputState->Sync();
-//
-//    if( mInputState->IsButtonClicked( GLFW_MOUSE_BUTTON_1 ) )
-//    {
-//        mInputState->SwallowMouse();
-//        mMouseSwallowed = true;
-//    }
-//    if( mInputState->IsKeyDown( GLFW_KEY_ESCAPE ) )
-//    {
-//        mInputState->ReleaseMouse();
-//        mMouseSwallowed = false;
-//    }
-//
-//    if( mMouseSwallowed )
-//    {
-//
-//        glm::vec2 theMouseDelta = mInputState->GetMouseDelta() / 1000.0f;
-//        mCamera->RotatePitch( theMouseDelta.y );
-//        mCamera->RotateYaw( theMouseDelta.x );
-//
-//        if( mInputState->IsKeyDown( GLFW_KEY_Q ) )
-//        {
-//            mCamera->RotateRoll( -0.1f );
-//        }
-//        if( mInputState->IsKeyDown( GLFW_KEY_E ) )
-//        {
-//            mCamera->RotateRoll( 0.1f );
-//        }
-//        if( mInputState->IsKeyDown( GLFW_KEY_W ) )
-//        {
-//            mCamera->Forward( 0.1f );
-//        }
-//        if( mInputState->IsKeyDown( GLFW_KEY_S ) )
-//        {
-//            mCamera->Backward( 0.1f );
-//        }
-//        if( mInputState->IsKeyDown( GLFW_KEY_D ) )
-//        {
-//            mCamera->Right( 0.1f );
-//        }
-//        if( mInputState->IsKeyDown( GLFW_KEY_A ) )
-//        {
-//            mCamera->Left( 0.1f );
-//        }
-//        if( mInputState->IsKeyDown( GLFW_KEY_SPACE ) )
-//        {
-//            mCamera->Up( 0.1f );
-//        }
-//        if( mInputState->IsKeyDown( GLFW_KEY_LEFT_SHIFT ) )
-//        {
-//            mCamera->Down( 0.1f );
-//        }
-//    }
+
+    // Don't capture mouse if ImGui wants it
+
+    ImGuiIO &io = ImGui::GetIO();
+    if( io.WantCaptureMouse ) return;
+
+    if( mInputState->IsButtonClicked( GLFW_MOUSE_BUTTON_1 ) )
+    {
+        mInputState->SwallowMouse();
+    }
+    if( mInputState->IsKeyDown( GLFW_KEY_ESCAPE ) )
+    {
+        mInputState->ReleaseMouse();
+    }
 }
 
 void
@@ -136,17 +83,29 @@ vkrt::Engine::Run()
     std::chrono::microseconds theFrameTime;
 
     spdlog::info("Started game loop");
+    std::size_t theFrameCount = 0;
     while( !ShouldClose() )
     {
+        theFrameCount++;
+
         thePreviousFrameTime = theFrameTime;
         theFrameTime = std::chrono::duration_cast<std::chrono::microseconds>
-            (
-                std::chrono::system_clock::now().time_since_epoch()
-            );
+        (
+            std::chrono::system_clock::now().time_since_epoch()
+        );
         float theFrameDuration = ( theFrameTime.count() - thePreviousFrameTime.count() ) % 10000000000 / 1000000.0f;
 
         Update( theFrameDuration );
         Render();
+
+        float theSecondDuration = ( theFrameTime.count() - mPreviousSecond.count() ) % 10000000000 / 1000000.0f;
+        if( theSecondDuration > 1 )
+        {
+            mPreviousSecond = theFrameTime;
+            auto theFPS = theFrameCount;
+            theFrameCount = 0;
+            spdlog::info( "FPS: {}", theFPS );
+        }
     }
 }
 

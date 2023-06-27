@@ -12,7 +12,13 @@
 
 #include "vkrt/gui/GuiDrawer.h"
 
+#include "vkrt/application/Engine.h"
+
+#include "vkrt/core/Camera.h"
+#include "vkrt/core/ForwardDecl.h"
+
 #include <glm/vec3.hpp>
+#include <glm/fwd.hpp>
 
 namespace Mttr::Vox
 {
@@ -21,16 +27,21 @@ namespace Mttr::Vox
         public vkrt::gui::GuiDrawer
     {
         public:
-            VoxelControls();
+            VoxelControls( std::shared_ptr< vkrt::Engine > inEngine );
             ~VoxelControls();
 
-            glm::vec3 GetCameraPosition() const { return mCameraPosition; }
+            glm::vec3 GetCameraPosition() const { return mCamera->GetPosition(); }
+            glm::vec3 GetCameraDirection() const { return mCamera->GetForward(); }
+            glm::mat4 GetModel() const;
+            glm::mat4 GetView() const;
+            glm::mat4 GetProjection() const;
 
         public:
             void DrawGui() override;
 
         private:
-            glm::vec3 mCameraPosition;
+            vkrt::CameraPtr mCamera;
+            std::shared_ptr< vkrt::Engine > mEngine;
     };
 }
 

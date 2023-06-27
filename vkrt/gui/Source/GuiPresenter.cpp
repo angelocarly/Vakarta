@@ -78,7 +78,7 @@ vkrt::GuiPresenter::Draw( const vkrt::RenderEnvironment & inRenderEnvironment )
         ImGui::NewFrame();
 
         ImGui::SetNextWindowBgAlpha( 0.0f );
-        ImGui::DockSpaceOverViewport();
+        ImGui::DockSpaceOverViewport( nullptr, ImGuiDockNodeFlags_PassthruCentralNode );
 
         for( auto & drawer : mGuiDrawers )
         {

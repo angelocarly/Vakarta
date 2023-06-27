@@ -17,9 +17,9 @@ namespace vkrt
             Camera( float inFov, float inAspect, float inZNear, float inZFar );
             ~Camera();
         public:
-            glm::vec3 GetPosition();
-            glm::vec3 GetForward();
-            glm::vec3 GetRight();
+            glm::vec3 & GetPosition();
+            glm::vec3 & GetForward();
+            glm::vec3 & GetRight();
 
             void SetPosition( glm::vec3 inPosition );
             void Move( glm::vec3 inDelta );
@@ -31,6 +31,9 @@ namespace vkrt
             void Down( float inDistance );
 
             glm::mat4 GetMVP();
+            glm::mat4 GetModel();
+            glm::mat4 GetView();
+            glm::mat4 GetProjection();
 
             void RotatePitch( float inAngle );
             void RotateYaw( float inAngle );

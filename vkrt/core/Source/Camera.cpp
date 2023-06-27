@@ -32,6 +32,8 @@ class vkrt::Camera::Impl
         float mZFar;
 
         // Individual quaternions specifying the rotation
+        float mPitch = 0.0f;
+        float mYaw = 0.0f;
         glm::quat mPitchQuat = glm::angleAxis( 0.0f, glm::vec3( 1.0f, 0.0f, 0.0f ) );
         glm::quat mYawQuat = glm::angleAxis( 0.0f, glm::vec3( 0.0f, 1.0f, 0.0f) );
         glm::quat mRollQuat = glm::angleAxis( 0.0f, glm::vec3( 0.0f, 0.0f, -1.0f ) );
@@ -66,8 +68,7 @@ vkrt::Camera::Impl::CalculateModelMatrix() const
 glm::mat4
 vkrt::Camera::Impl::CalculateViewMatrix() const
 {
-    auto theRotation = mRollQuat * mPitchQuat * mYawQuat;
-//    auto theRotation = mCamQuat;
+    auto theRotation = mYawQuat * mPitchQuat;
     theRotation = glm::normalize( theRotation );
     return  glm::mat4_cast( theRotation ) ;
 }
@@ -85,10 +86,10 @@ vkrt::Camera::Impl::CalculateProjectionMatrix() const
  * @param ihRadians
  */
 void
-vkrt::Camera::Impl::RotatePitch( float ihRadians )
+vkrt::Camera::Impl::RotatePitch( float inRadians )
 {
-    glm::quat qPitch = glm::angleAxis(ihRadians, glm::vec3( 1.0f, 0.0f, 0.0f ) );
-    mPitchQuat = glm::normalize( qPitch * mPitchQuat );
+    mPitch += inRadians;
+    mPitchQuat = glm::angleAxis(mPitch, glm::vec3( 1, 0, 0 ) );
     UpdateViewVectors();
 }
 
@@ -99,8 +100,8 @@ vkrt::Camera::Impl::RotatePitch( float ihRadians )
 void
 vkrt::Camera::Impl::RotateYaw( float inRadians )
 {
-    glm::quat qYaw = glm::angleAxis(inRadians, glm::vec3( 0.0f, 1.0f, 0.0f ) );
-    mYawQuat = glm::normalize( mYawQuat * qYaw );
+    mYaw += inRadians;
+    mYawQuat = glm::angleAxis(mYaw, glm::vec3( 0, 1, 0 ) );
     UpdateViewVectors();
 }
 
@@ -112,17 +113,17 @@ void
 vkrt::Camera::Impl::RotateRoll( float inRadians )
 {
     glm::quat qRoll = glm::angleAxis(inRadians, glm::vec3( 0.0f, 0.0f, -1.0f ) );
-    mRollQuat = glm::normalize( qRoll * mRollQuat );
+    mRollQuat = glm::normalize( mRollQuat * qRoll );
     UpdateViewVectors();
 }
 
 void vkrt::Camera::Impl::UpdateViewVectors()
 {
-    auto theRotation = glm::inverse( mPitchQuat * mRollQuat * mYawQuat );
+    auto theRotation = CalculateViewMatrix();
 //    auto theRotation = glm::inverse( mCamQuat );
-    mRight = glm::normalize( theRotation * glm::vec3(1, 0, 0));
-    mUp = glm::normalize( theRotation * glm::vec3(0, 1, 0));
-    mForward = glm::normalize( theRotation * glm::vec3(0, 0, -1)); // Left-handed coordinates
+    mRight = glm::normalize( theRotation * glm::vec4(1, 0, 0, 0));
+    mUp = glm::normalize( theRotation * glm::vec4(0, 1, 0, 0 ));
+    mForward = glm::normalize( theRotation * glm::vec4(0, 0, 1, 0 )); // Left-handed coordinates
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -139,7 +140,7 @@ vkrt::Camera::~Camera()
 
 }
 
-glm::vec3
+glm::vec3 &
 vkrt::Camera::GetPosition()
 {
     return mImpl->mPosition;
@@ -181,13 +182,13 @@ vkrt::Camera::RotateRoll( float inAngle )
     mImpl->RotateRoll( inAngle );
 }
 
-glm::vec3
+glm::vec3 &
 vkrt::Camera::GetForward()
 {
     return mImpl->mForward;
 }
 
-glm::vec3
+glm::vec3 &
 vkrt::Camera::GetRight()
 {
     return mImpl->mRight;
@@ -227,4 +228,22 @@ void
 vkrt::Camera::Down( float inDistance )
 {
     mImpl->mPosition -= mImpl->mUp * inDistance;
+}
+
+glm::mat4
+vkrt::Camera::GetModel()
+{
+    return mImpl->CalculateModelMatrix();
+}
+
+glm::mat4
+vkrt::Camera::GetView()
+{
+    return mImpl->CalculateViewMatrix();
+}
+
+glm::mat4
+vkrt::Camera::GetProjection()
+{
+    return mImpl->CalculateProjectionMatrix();
 }

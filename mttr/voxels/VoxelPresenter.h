@@ -30,6 +30,7 @@ namespace Mttr::Vox
 
         private:
             void InitializePipeline( vk::RenderPass const inRenderPass );
+            void InitializeBuffers();
 
         private:
             vks::DevicePtr mDevice;
@@ -38,6 +39,8 @@ namespace Mttr::Vox
             std::size_t mHeight;
             std::shared_ptr< VoxelControls > mVoxelControls;
 
+            vks::Buffer mWorldBuffer;
+
         private:
             struct PushConstants
             {
@@ -45,7 +48,9 @@ namespace Mttr::Vox
                 std::uint32_t mScreenHeight;
                 std::uint32_t mPadding1;
                 std::uint32_t mPadding2;
-                glm::vec4 mCameraPosition;
+                glm::mat4 mModel;
+                glm::mat4 mView;
+                glm::mat4 mProjection;
             };
     };
 }

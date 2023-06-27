@@ -39,6 +39,7 @@ class vkrt::InputState::Impl
 
         int mButtons[GLFW_MOUSE_BUTTON_LAST];
         static int mButtonsBuffer[GLFW_MOUSE_BUTTON_LAST];
+        bool mMouseSwallowed;
 };
 
 vkrt::InputState::Impl::Impl( vks::WindowPtr inWindow )
@@ -170,6 +171,7 @@ vkrt::InputState::SwallowMouse()
 {
     glfwSetInputMode( mImpl->mWindow->GetGLFWWindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED );
     glfwSetInputMode( mImpl->mWindow->GetGLFWWindow(), GLFW_RAW_MOUSE_MOTION, GLFW_TRUE );
+    mImpl->mMouseSwallowed = true;
 }
 
 void
@@ -177,5 +179,12 @@ vkrt::InputState::ReleaseMouse()
 {
     glfwSetInputMode( mImpl->mWindow->GetGLFWWindow(), GLFW_CURSOR, GLFW_CURSOR_NORMAL );
     glfwSetInputMode( mImpl->mWindow->GetGLFWWindow(), GLFW_RAW_MOUSE_MOTION, GLFW_FALSE );
+    mImpl->mMouseSwallowed = false;
+}
+
+bool
+vkrt::InputState::IsMouseSwallowed()
+{
+    return mImpl->mMouseSwallowed;
 }
 

@@ -9,9 +9,11 @@
 
 #include "mttr/voxels/VoxelPresenter.h"
 
+#include "vks/core/Buffer.h"
 #include "vks/render/Device.h"
 #include "vks/render/Pipeline.h"
 #include "vks/render/Utils.h"
+#include "vks/render/DescriptorLayoutBuilder.h"
 
 #include <glm/vec3.hpp>
 
@@ -23,6 +25,7 @@ Mttr::Vox::VoxelPresenter::VoxelPresenter( vks::DevicePtr inDevice, std::size_t 
     mHeight( inHeight )
 {
     InitializePipeline( GetRenderPass() );
+    InitializeBuffers();
 }
 
 Mttr::Vox::VoxelPresenter::~VoxelPresenter()
@@ -46,12 +49,16 @@ Mttr::Vox::VoxelPresenter::InitializePipeline( vk::RenderPass const inRenderPass
         )
     };
 
+    std::vector< vk::DescriptorSetLayout > theLayouts = vks::DescriptorLayoutBuilder()
+            .AddLayoutBinding( 0, vk::DescriptorType::eStorageBuffer, vk::ShaderStageFlagBits::eFragment )
+            .Build( mDevice, vk::DescriptorSetLayoutCreateFlagBits::ePushDescriptorKHR );
+
     vks::Pipeline::PipelineCreateInfo theCreateInfo =
     {
         inRenderPass,
         theVertexShader,
         theFragmentShader,
-        {},
+        theLayouts,
         thePushConstants
     };
 
@@ -65,6 +72,31 @@ Mttr::Vox::VoxelPresenter::InitializePipeline( vk::RenderPass const inRenderPass
 
     mDevice->GetVkDevice().destroy( theVertexShader );
     mDevice->GetVkDevice().destroy( theFragmentShader );
+}
+
+void
+Mttr::Vox::VoxelPresenter::InitializeBuffers()
+{
+    std::size_t theWorldSize = 256;
+    auto theBufferSize = theWorldSize * theWorldSize * theWorldSize * sizeof( std::uint32_t );
+    mWorldBuffer = mDevice->CreateBuffer
+    (
+        vk::BufferCreateInfo( vk::BufferCreateFlags(), theBufferSize, vk::BufferUsageFlagBits::eStorageBuffer ),
+        vma::AllocationCreateInfo( vma::AllocationCreateFlagBits::eHostAccessSequentialWrite, vma::MemoryUsage::eAuto )
+    );
+    auto theData = ( std::uint32_t * ) mDevice->MapMemory( mWorldBuffer );
+    for( std::size_t i = 0; i < theWorldSize * theWorldSize * theWorldSize; ++i )
+    {
+        if( rand() % 40 == 0 )
+        {
+            theData[ i ] = rand() % 6;
+        }
+        else
+        {
+            theData[ i ] = 0;
+        }
+    }
+    mDevice->UnmapMemory( mWorldBuffer );
 }
 
 void
@@ -92,7 +124,9 @@ Mttr::Vox::VoxelPresenter::Draw( const vkrt::RenderEnvironment & inRenderEnviron
             std::uint32_t( mHeight ),
             0,
             0,
-            glm::vec4( mVoxelControls->GetCameraPosition(), 0.0f )
+            mVoxelControls->GetModel(),
+            mVoxelControls->GetView(),
+            mVoxelControls->GetProjection()
         };
         theCommandBuffer.pushConstants
         (
@@ -102,6 +136,32 @@ Mttr::Vox::VoxelPresenter::Draw( const vkrt::RenderEnvironment & inRenderEnviron
             sizeof( PushConstants ),
             & thePushConstants
         );
+
+        auto theBufferInfo = vk::DescriptorBufferInfo
+        (
+            mWorldBuffer.GetVkBuffer(),
+            0,
+            mWorldBuffer.GetSize()
+        );
+
+        auto theWriteDescriptorSet = vk::WriteDescriptorSet();
+        theWriteDescriptorSet.setDstBinding( 0 );
+        theWriteDescriptorSet.setDstArrayElement( 0 );
+        theWriteDescriptorSet.setDescriptorType( vk::DescriptorType::eStorageBuffer );
+        theWriteDescriptorSet.setDescriptorCount( 1 );
+        theWriteDescriptorSet.setPBufferInfo( & theBufferInfo );
+
+        PFN_vkCmdPushDescriptorSetKHR pfnVkCmdPushDescriptorSetKhr = reinterpret_cast< PFN_vkCmdPushDescriptorSetKHR >( mDevice->GetVkDevice().getProcAddr( "vkCmdPushDescriptorSetKHR" ) );
+        pfnVkCmdPushDescriptorSetKhr
+        (
+            theCommandBuffer,
+            VkPipelineBindPoint::VK_PIPELINE_BIND_POINT_GRAPHICS,
+            mPipeline->GetVkPipelineLayout(),
+            0,
+            1,
+            reinterpret_cast< const VkWriteDescriptorSet * >(& theWriteDescriptorSet)
+        );
+
 
         // Render
         theCommandBuffer.draw( 3, 1, 0, 0 );

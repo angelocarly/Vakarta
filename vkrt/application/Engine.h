@@ -26,6 +26,9 @@ namespace vkrt
             void Run();
             void RegisterGuiDrawer( gui::GuiDrawerPtr inGuiDrawer );
 
+            InputStatePtr GetInputState() const { return mInputState; }
+            vks::VulkanSessionPtr GetVulkanSession() const { return mVulkanSession; }
+
         private:
             void Update( float inFrameDuration );
             void Render();
@@ -36,8 +39,7 @@ namespace vkrt
             vks::VulkanSessionPtr mVulkanSession;
             vkrt::Display mRenderer;
             vkrt::InputStatePtr mInputState;
-            vkrt::CameraPtr mCamera;
-            bool mMouseSwallowed = false;
+            std::chrono::microseconds mPreviousSecond;
 
         private:
             // Resources

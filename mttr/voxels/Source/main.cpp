@@ -17,13 +17,13 @@ int main()
 
     auto theVoxelPresenter = std::make_shared< Mttr::Vox::VoxelPresenter >( theVulkanSession->GetDevice(), WIDTH, HEIGHT );
 
-    vkrt::Engine engine = vkrt::Engine( theWindow, theVulkanSession, theVoxelPresenter );
+    auto engine = std::make_shared< vkrt::Engine >( theWindow, theVulkanSession, theVoxelPresenter );
 
-    auto theVoxelController = std::make_shared< Mttr::Vox::VoxelControls >();
+    auto theVoxelController = std::make_shared< Mttr::Vox::VoxelControls >( engine );
     theVoxelPresenter->SetVoxelControls( theVoxelController );
-    engine.RegisterGuiDrawer( theVoxelController );
+    engine->RegisterGuiDrawer( theVoxelController );
 
-    engine.Run();
+    engine->Run();
 
     return EXIT_SUCCESS;
 }
