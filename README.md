@@ -11,7 +11,7 @@ A generative art sandbox using the Vulkan API, and a home for my experimentation
 - VKS
   - Abstractions to simplify my usage of Vulkan.
 - VKRT
-  - General engine code. Host logic for frame representation and more to come.
+  - General engine code. Manages GUI, game loop, etc.
 - MTTR
   - Home of different implementations using the VKRT engine.
  
