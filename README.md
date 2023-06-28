@@ -1,4 +1,4 @@
-# VKRT - Vulkan Generative Art Sandbox
+# Vakarta - Vulkan Generative Art Sandbox
 A generative art sandbox using the Vulkan API, and a home for my experimentations.
 
 ## Design goals
