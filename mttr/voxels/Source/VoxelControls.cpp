@@ -13,9 +13,9 @@
 
 #include "imgui.h"
 
-Mttr::Vox::VoxelControls::VoxelControls( std::shared_ptr< vkrt::Engine > inEngine )
+Mttr::Vox::VoxelControls::VoxelControls( vkrt::InputStatePtr inInputState )
 :
-    mEngine( inEngine ),
+    mInputState( inInputState ),
     mCamera( std::make_shared< vkrt::Camera >( 90.0f, 900.0f / 1600.0f, .01f, 1000.0f ) )
 {
     mCamera->SetPosition( glm::vec3( 0.0f, 0.0f, -5.0f ) );
@@ -31,45 +31,44 @@ Mttr::Vox::VoxelControls::DrawGui()
 {
     ImGuiIO &io = ImGui::GetIO();
 
-    auto theInputState = mEngine->GetInputState();
-    if( mEngine->GetInputState()->IsMouseSwallowed() )
+    if( mInputState->IsMouseSwallowed() )
     {
 
-        glm::vec2 theMouseDelta = theInputState->GetMouseDelta() / 1000.0f;
+        glm::vec2 theMouseDelta = mInputState->GetMouseDelta() / 1000.0f;
         mCamera->RotatePitch( theMouseDelta.y );
         mCamera->RotateYaw( theMouseDelta.x );
 
-        float speed = 0.1f;
+        float speed = 1.1f;
 
-        if( theInputState->IsKeyDown( GLFW_KEY_Q ) )
+        if( mInputState->IsKeyDown( GLFW_KEY_Q ) )
         {
             mCamera->RotateRoll( -0.1f );
         }
-        if( theInputState->IsKeyDown( GLFW_KEY_E ) )
+        if( mInputState->IsKeyDown( GLFW_KEY_E ) )
         {
             mCamera->RotateRoll( 0.1f );
         }
-        if( theInputState->IsKeyDown( GLFW_KEY_W ) )
+        if( mInputState->IsKeyDown( GLFW_KEY_W ) )
         {
             mCamera->Forward( speed );
         }
-        if( theInputState->IsKeyDown( GLFW_KEY_S ) )
+        if( mInputState->IsKeyDown( GLFW_KEY_S ) )
         {
             mCamera->Backward( speed );
         }
-        if( theInputState->IsKeyDown( GLFW_KEY_D ) )
+        if( mInputState->IsKeyDown( GLFW_KEY_D ) )
         {
             mCamera->Right( speed );
         }
-        if( theInputState->IsKeyDown( GLFW_KEY_A ) )
+        if( mInputState->IsKeyDown( GLFW_KEY_A ) )
         {
             mCamera->Left( speed );
         }
-        if( theInputState->IsKeyDown( GLFW_KEY_SPACE ) )
+        if( mInputState->IsKeyDown( GLFW_KEY_SPACE ) )
         {
             mCamera->Up( speed );
         }
-        if( theInputState->IsKeyDown( GLFW_KEY_LEFT_SHIFT ) )
+        if( mInputState->IsKeyDown( GLFW_KEY_LEFT_SHIFT ) )
         {
             mCamera->Down( speed );
         }

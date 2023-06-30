@@ -14,7 +14,7 @@
 #include "vks/render/VksSession.h"
 #include "imgui_impl_vulkan.h"
 
-vkrt::ReflectionPresenter::ReflectionPresenter( vks::VulkanSessionPtr inSession )
+vkrt::ReflectionPresenter::ReflectionPresenter( vks::VksSessionPtr inSession )
 :
     mDevice( inSession->GetDevice() )
 {

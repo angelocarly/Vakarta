@@ -27,7 +27,7 @@ namespace Mttr::Vox
         public vkrt::gui::GuiDrawer
     {
         public:
-            VoxelControls( std::shared_ptr< vkrt::Engine > inEngine );
+            VoxelControls( vkrt::InputStatePtr inInputState );
             ~VoxelControls();
 
             glm::vec3 GetCameraPosition() const { return mCamera->GetPosition(); }
@@ -35,13 +35,14 @@ namespace Mttr::Vox
             glm::mat4 GetModel() const;
             glm::mat4 GetView() const;
             glm::mat4 GetProjection() const;
+            vkrt::CameraPtr GetCamera() const { return mCamera; }
 
         public:
             void DrawGui() override;
 
         private:
             vkrt::CameraPtr mCamera;
-            std::shared_ptr< vkrt::Engine > mEngine;
+            vkrt::InputStatePtr mInputState;
     };
 }
 

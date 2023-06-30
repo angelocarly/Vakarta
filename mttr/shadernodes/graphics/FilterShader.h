@@ -21,7 +21,7 @@ namespace vkrt::graphics
     class FilterShader
     {
         public:
-            FilterShader( vks::VulkanSessionPtr inSession, vk::RenderPass inRenderPass );
+            FilterShader( vks::VksSessionPtr inSession, vk::RenderPass inRenderPass );
             ~FilterShader();
 
             void Bind( vk::CommandBuffer inCommandBuffer );

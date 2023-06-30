@@ -15,10 +15,10 @@ layout(push_constant) uniform PushConstantsBlock
 } PushConstants;
 
 #define WORLD_SIZE 256
-layout( binding = 0 ) readonly buffer WorldDataBlock
+layout( binding = 0 ) readonly buffer InWorldDataBlock
 {
     int mWorldData[ WORLD_SIZE * WORLD_SIZE * WORLD_SIZE ];
-} WorldData;
+} inWorldData;
 
 float random(vec2 st) {
     return fract(sin(dot(st.xy,
@@ -28,9 +28,64 @@ float random(vec2 st) {
 
 vec3 traceRay( vec3 origin, vec3 direction )
 {
+    // Check whether the ray will intersect the world box
+    bool intersect = false;
+    float startT = 1000000000000.0f;
+
+    if( origin.x >= 0 && origin.y >= 0 && origin.z >= 0 && origin.x < WORLD_SIZE && origin.y < WORLD_SIZE && origin.z < WORLD_SIZE )
+    {
+        intersect = true;
+        startT = 0.0f;
+    }
+    else for( int i = 0; i < 3; i++ )
+    {
+        // No intersections possible
+
+        // Forward ray, check intersect at position 0
+        float next = 0.0f;
+        float axisdist = next - origin[ i ];
+        float raydist = axisdist / direction[ i ];
+        vec3 p = origin + direction * raydist;
+
+        if( raydist < 0.0f ) continue;
+
+        // Assert p is inside the world box
+        int nextIndex = ( i + 1 ) % 3;
+        if ( p[ nextIndex ] >= 0.0f && p[ nextIndex ] < WORLD_SIZE)
+        {
+            nextIndex = ( nextIndex + 1 ) % 3;
+            if( p[ nextIndex ] >= 0.0f && p[ nextIndex ] < WORLD_SIZE )
+            {
+                intersect = true;
+                if( raydist < startT ) startT = raydist;
+            }
+        }
+
+        next = WORLD_SIZE;
+        axisdist = next - origin[ i ];
+        raydist = axisdist / direction[ i ];
+        p = origin + direction * raydist;
+
+        if( raydist < 0.0f ) continue;
+
+        // Assert p is inside the world box
+        nextIndex = ( i + 1 ) % 3;
+        if ( p[ nextIndex ] >= 0.0f && p[ nextIndex ] < WORLD_SIZE)
+        {
+            nextIndex = ( nextIndex + 1 ) % 3;
+            if( p[ nextIndex ] >= 0.0f && p[ nextIndex ] < WORLD_SIZE )
+            {
+                intersect = true;
+                if( raydist < startT ) startT = raydist;
+            }
+        }
+    }
+
     // the current position we're in
-    vec3 rayPos = origin;
+    vec3 rayPos = origin + direction * startT * 0.999f;
     ivec3 pos = ivec3( floor( rayPos ) );
+
+    if( !intersect ) return vec3( 0.0f );
 
     // distance of the ray to the closest axis plane it'll intersect
     vec3 sidepos = vec3( -1.0f );
@@ -62,15 +117,14 @@ vec3 traceRay( vec3 origin, vec3 direction )
     // The distance on the ray
     float t = 0.0f;
 
-    for( int c = 0; c < 500; c++ )
+    for( int c = 0; c < 800; c++ )
     {
         vec3 tMax = vec3(0.0f);
         for (int i = 0; i < 3; i++)
         {
             // Only use the sidepos when it's still valid ( >= 0 )
             if ( sidepos[i] >= 0 ) tMax[i] = sidepos[i];
-            else
-                tMax[i] = deltaDist[i];
+            else tMax[i] = deltaDist[i];
         }
 
         vec3 newTDist = tDist + tMax;
@@ -111,21 +165,26 @@ vec3 traceRay( vec3 origin, vec3 direction )
         }
 
         if( pos.x >= 0 && pos.y >= 0 && pos.z >= 0 && pos.x < WORLD_SIZE && pos.y < WORLD_SIZE && pos.z < WORLD_SIZE )
-            if ( WorldData.mWorldData[ pos.x * WORLD_SIZE * WORLD_SIZE + pos.y * WORLD_SIZE + pos.z ] > 0 )
+        {
+            int theId = inWorldData.mWorldData[pos.x * WORLD_SIZE * WORLD_SIZE + pos.y * WORLD_SIZE + pos.z];
+            if (theId >= 6) continue;
+
+            if (theId > 0)
             {
-                vec3 color = vec3( 0 );
-                int theId = WorldData.mWorldData[ pos.x * WORLD_SIZE * WORLD_SIZE + pos.y * WORLD_SIZE + pos.z ];
-                switch( theId )
+                vec3 color = vec3(0);
+                switch (theId)
                 {
                     case 1: color = vec3(251, 133, 0) / 255; break;
                     case 2: color = vec3(255, 183, 3) / 255; break;
                     case 3: color = vec3(2, 48, 71) / 255; break;
                     case 4: color = vec3(33, 158, 188) / 255; break;
                     case 5: color = vec3(142, 202, 230) / 255; break;
-                    default: color = vec3(142, 202, 230); break;
+                    default : color = vec3(1, 0, 0); break;
                 }
                 return color;
             }
+        }
+        else if( c > 1 ) break;
     }
 
     return vec3( 0.0f, 0.0f, 0.0f );

@@ -9,6 +9,8 @@
 
 #include "mttr/voxels/VoxelPresenter.h"
 
+#include "vkrt/graphics/Presenter.h"
+
 #include "vks/core/Buffer.h"
 #include "vks/render/Device.h"
 #include "vks/render/Pipeline.h"
@@ -17,14 +19,17 @@
 
 #include <glm/vec3.hpp>
 
-Mttr::Vox::VoxelPresenter::VoxelPresenter( vks::DevicePtr inDevice, std::size_t inWidth, std::size_t inHeight )
+Mttr::Vox::VoxelPresenter::VoxelPresenter( vks::DevicePtr inDevice, std::size_t inWidth, std::size_t inHeight, vkrt::CameraPtr inCamera, std::size_t inWorldSize )
 :
     vkrt::Presenter( inDevice, inWidth, inHeight ),
     mDevice( inDevice ),
     mWidth( inWidth ),
-    mHeight( inHeight )
+    mHeight( inHeight ),
+    mCamera( inCamera ),
+    kWorldSize( inWorldSize )
 {
-    InitializePipeline( GetRenderPass() );
+    InitializeDescriptorSetLayout();
+    InitializeDisplayPipeline( GetRenderPass() );
     InitializeBuffers();
 }
 
@@ -35,7 +40,17 @@ Mttr::Vox::VoxelPresenter::~VoxelPresenter()
 }
 
 void
-Mttr::Vox::VoxelPresenter::InitializePipeline( vk::RenderPass const inRenderPass )
+Mttr::Vox::VoxelPresenter::InitializeDescriptorSetLayout()
+{
+    mDescriptorSetLayout = vks::DescriptorLayoutBuilder()
+        .AddLayoutBinding( 0, vk::DescriptorType::eStorageBuffer, vk::ShaderStageFlagBits::eFragment | vk::ShaderStageFlagBits::eCompute )
+        .Build( mDevice, vk::DescriptorSetLayoutCreateFlagBits::ePushDescriptorKHR )
+        .front();
+}
+
+
+void
+Mttr::Vox::VoxelPresenter::InitializeDisplayPipeline( vk::RenderPass const inRenderPass )
 {
     auto theVertexShader = vks::Utils::CreateVkShaderModule( mDevice, "shaders/ScreenRect.vert.spv" );
     auto theFragmentShader = vks::Utils::CreateVkShaderModule( mDevice, "shaders/Voxels.frag.spv" );
@@ -49,11 +64,6 @@ Mttr::Vox::VoxelPresenter::InitializePipeline( vk::RenderPass const inRenderPass
             sizeof( PushConstants )
         )
     };
-
-    mDescriptorSetLayout = vks::DescriptorLayoutBuilder()
-            .AddLayoutBinding( 0, vk::DescriptorType::eStorageBuffer, vk::ShaderStageFlagBits::eFragment )
-            .Build( mDevice, vk::DescriptorSetLayoutCreateFlagBits::ePushDescriptorKHR )
-            .front();
 
     vks::Pipeline::PipelineCreateInfo theCreateInfo =
     {
@@ -79,32 +89,26 @@ Mttr::Vox::VoxelPresenter::InitializePipeline( vk::RenderPass const inRenderPass
 void
 Mttr::Vox::VoxelPresenter::InitializeBuffers()
 {
-    std::size_t theWorldSize = 256;
-    auto theBufferSize = theWorldSize * theWorldSize * theWorldSize * sizeof( std::uint32_t );
+    auto theBufferSize = kWorldSize * kWorldSize * kWorldSize * sizeof( std::uint32_t );
     mWorldBuffer = mDevice->CreateBuffer
     (
-        vk::BufferCreateInfo( vk::BufferCreateFlags(), theBufferSize, vk::BufferUsageFlagBits::eStorageBuffer ),
+        vk::BufferCreateInfo( vk::BufferCreateFlags(), theBufferSize, vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eTransferSrc ),
         vma::AllocationCreateInfo( vma::AllocationCreateFlagBits::eHostAccessSequentialWrite, vma::MemoryUsage::eAuto )
     );
     auto theData = ( std::uint32_t * ) mDevice->MapMemory( mWorldBuffer );
-    for( std::size_t i = 0; i < theWorldSize * theWorldSize * theWorldSize; ++i )
+    for( std::size_t i = 0; i < kWorldSize * kWorldSize * kWorldSize; ++i )
     {
-        if( rand() % 40 == 0 )
-        {
-            theData[ i ] = rand() % 6;
-        }
-        else
+//        if( rand() % 66000 == 0 )
+//        {
+//            theData[ i ] = rand() % 10;
+//        }
+//        else
         {
             theData[ i ] = 0;
         }
     }
+    theData[ 0 ] = 1;
     mDevice->UnmapMemory( mWorldBuffer );
-}
-
-void
-Mttr::Vox::VoxelPresenter::SetVoxelControls( std::weak_ptr< Mttr::Vox::VoxelControls > inVoxelControls )
-{
-    mVoxelControls = inVoxelControls;
 }
 
 void
@@ -116,19 +120,15 @@ Mttr::Vox::VoxelPresenter::Draw( const vkrt::RenderEnvironment & inRenderEnviron
     {
         theCommandBuffer.bindPipeline( vk::PipelineBindPoint::eGraphics, mPipeline->GetVkPipeline() );
 
-        if( !mVoxelControls.lock() )
-        {
-            throw std::runtime_error( "VoxelPresenter::Draw() - VoxelControls not set" );
-        }
         PushConstants thePushConstants
         {
             std::uint32_t( mWidth ),
             std::uint32_t( mHeight ),
             0,
             0,
-            mVoxelControls.lock()->GetModel(),
-            mVoxelControls.lock()->GetView(),
-            mVoxelControls.lock()->GetProjection()
+            mCamera->GetModel(),
+            mCamera->GetView(),
+            mCamera->GetProjection()
         };
         theCommandBuffer.pushConstants
         (

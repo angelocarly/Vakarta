@@ -7,8 +7,8 @@
  *
  */
 
-#ifndef VKRT_LAYERPRESENTER_H
-#define VKRT_LAYERPRESENTER_H
+#ifndef Vkrt_LayerPresenter_h
+#define Vkrt_LayerPresenter_h
 
 #include "Presenter.h"
 
@@ -28,7 +28,7 @@ namespace vkrt
 
         public:
             void Draw( vkrt::RenderEnvironment const & inEnvironment ) override;
-            void AddPresenter( vkrt::PresenterPtr inPresenter );
+            void AddPresenter( vkrt::PresentablePtr inPresenter );
 
         private:
             void InitializePipeline( vk::RenderPass inRenderPass );
@@ -40,7 +40,7 @@ namespace vkrt
 
             // Render prepare info
             vks::PipelinePtr mPipeline;
-            std::vector< PresenterPtr > mPresenters;
+            std::vector< PresentablePtr > mPresenters;
     };
 }
 

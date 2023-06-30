@@ -11,7 +11,9 @@
 #define Mttr_VoxelPresenter_h
 
 #include "vkrt/graphics/Presenter.h"
-#include "VoxelControls.h"
+
+#include "mttr/voxels/VoxelControls.h"
+#include "VoxelCompute.h"
 
 #include <glm/vec4.hpp>
 
@@ -22,14 +24,15 @@ namespace Mttr::Vox
         public vkrt::Presenter
     {
         public:
-            VoxelPresenter( vks::DevicePtr inDevice, std::size_t inWidth, std::size_t inHeight );
+            VoxelPresenter( vks::DevicePtr inDevice, std::size_t inWidth, std::size_t inHeight, vkrt::CameraPtr inCamera, std::size_t inWorldSize );
             ~VoxelPresenter();
 
-            void SetVoxelControls( std::weak_ptr< Mttr::Vox::VoxelControls > inVoxelControls );
-            void Draw( vkrt::RenderEnvironment const & inRenderEnvironment ) override;
+            void Draw( const vkrt::RenderEnvironment & inRenderEnvironment) override;
+            vks::Buffer GetWorldBuffer() { return mWorldBuffer; };
 
         private:
-            void InitializePipeline( vk::RenderPass const inRenderPass );
+            void InitializeDescriptorSetLayout();
+            void InitializeDisplayPipeline( vk::RenderPass const inRenderPass );
             void InitializeBuffers();
 
         private:
@@ -37,10 +40,13 @@ namespace Mttr::Vox
             vks::PipelinePtr mPipeline;
             std::size_t mWidth;
             std::size_t mHeight;
-            std::weak_ptr< VoxelControls > mVoxelControls;
             vk::DescriptorSetLayout mDescriptorSetLayout;
 
             vks::Buffer mWorldBuffer;
+
+            vkrt::CameraPtr mCamera;
+
+            std::size_t const kWorldSize;
 
         private:
             struct PushConstants

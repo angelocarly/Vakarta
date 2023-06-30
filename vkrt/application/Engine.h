@@ -17,34 +17,42 @@
 namespace vkrt
 {
     class Engine
+    :
+    public vkrt::Drawable
     {
 
         public:
-            Engine( vks::WindowPtr inWindow, vks::VulkanSessionPtr inVulkanSession, vkrt::PresenterPtr inPresenter );
+            Engine( vks::WindowPtr inWindow, vks::VksSessionPtr inVulkanSession );
             ~Engine();
 
             void Run();
             void RegisterGuiDrawer( std::weak_ptr< gui::GuiDrawer > inGuiDrawer );
+            void RegisterPresenter( std::shared_ptr< Presentable > inPresenter );
+            void AddDrawable( std::shared_ptr< Drawable > inDrawable );
 
             InputStatePtr GetInputState() const { return mInputState; }
-            vks::VulkanSessionPtr GetVulkanSession() const { return mVulkanSession; }
+            vks::VksSessionPtr GetVulkanSession() const { return mVulkanSession; }
+
+        protected:
+            virtual void Update( float inFrameDuration ) = 0;
 
         private:
-            void Update( float inFrameDuration );
-            void Render();
+            void UpdateSelf( float inFrameDuration );
+            void RenderSelf();
             bool ShouldClose();
 
         private:
             vks::WindowPtr mWindow;
-            vks::VulkanSessionPtr mVulkanSession;
+            vks::VksSessionPtr mVulkanSession;
             vkrt::Display mRenderer;
             vkrt::InputStatePtr mInputState;
             std::chrono::microseconds mPreviousSecond;
 
+            std::vector< std::shared_ptr< Drawable > > mDrawables;
+
         private:
             // Resources
             vks::AssetLoader mAssetLoader;
-            std::unique_ptr< vks::Mesh > mMesh;
 
             // Gui
             vks::ImGuiPtr mGui;

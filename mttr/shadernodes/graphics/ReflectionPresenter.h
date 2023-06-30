@@ -20,7 +20,7 @@ namespace vkrt
         : public Presenter
     {
         public:
-            ReflectionPresenter( vks::VulkanSessionPtr inSession );
+            ReflectionPresenter( vks::VksSessionPtr inSession );
             ~ReflectionPresenter();
 
             vk::DescriptorSet GetImage() override;

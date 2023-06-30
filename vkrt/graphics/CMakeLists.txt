@@ -1,8 +1,10 @@
 set(
     HEADER_FILES
         Display.h
+        Drawable.h
         ForwardDecl.h
         LayerPresenter.h
+        Presentable.h
         Presenter.h
         RenderEnvironment.h
         TestPresenter.h

@@ -50,7 +50,7 @@ vks::VksSession::~VksSession()
 
 }
 
-vks::VulkanSessionPtr
+vks::VksSessionPtr
 vks::VksSession::GetInstance()
 {
     static std::shared_ptr< vks::VksSession > vksSession = std::shared_ptr< vks::VksSession >( new vks::VksSession() );

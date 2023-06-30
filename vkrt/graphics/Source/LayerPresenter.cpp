@@ -110,7 +110,7 @@ vkrt::LayerPresenter::Draw( const vkrt::RenderEnvironment & inEnvironment )
 }
 
 void
-vkrt::LayerPresenter::AddPresenter( vkrt::PresenterPtr inPresenter )
+vkrt::LayerPresenter::AddPresenter( vkrt::PresentablePtr inPresenter )
 {
     mPresenters.push_back( inPresenter );
 }

@@ -17,7 +17,7 @@
 
 #include <memory>
 
-vkrt::Display::Display( vks::VulkanSessionPtr inSession, vks::WindowPtr inWindow )
+vkrt::Display::Display( vks::VksSessionPtr inSession, vks::WindowPtr inWindow )
 :
     mWindow( inWindow ),
     mDevice( inSession->GetDevice() ),

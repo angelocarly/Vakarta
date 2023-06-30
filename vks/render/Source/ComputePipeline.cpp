@@ -136,3 +136,18 @@ vks::ComputePipeline::PushConstants( vk::CommandBuffer inCommandBuffer, vk::Devi
 {
     inCommandBuffer.pushConstants( mImpl->mPipelineLayout, vk::ShaderStageFlagBits::eCompute, 0, theSize, theMemory );
 }
+
+void
+vks::ComputePipeline::PushDescriptor( vk::CommandBuffer inCommandBuffer, vk::WriteDescriptorSet const & inWriteDescriptorSet )
+{
+    PFN_vkCmdPushDescriptorSetKHR pfnVkCmdPushDescriptorSetKhr = reinterpret_cast< PFN_vkCmdPushDescriptorSetKHR >( mImpl->mDevice->GetVkDevice().getProcAddr( "vkCmdPushDescriptorSetKHR" ) );
+    pfnVkCmdPushDescriptorSetKhr
+    (
+        inCommandBuffer,
+        VkPipelineBindPoint::VK_PIPELINE_BIND_POINT_COMPUTE,
+        mImpl->mPipelineLayout,
+        0,
+        1,
+        reinterpret_cast< const VkWriteDescriptorSet * >( & inWriteDescriptorSet )
+    );
+}

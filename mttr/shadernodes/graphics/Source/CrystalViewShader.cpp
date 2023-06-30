@@ -25,7 +25,7 @@
 class vkrt::graphics::CrystalViewShader::Impl
 {
     public:
-        Impl( vks::VulkanSessionPtr inSession, vk::RenderPass inRenderPass )
+        Impl( vks::VksSessionPtr inSession, vk::RenderPass inRenderPass )
         :
             mSession( inSession ),
             mDevice( inSession->GetDevice() ),
@@ -45,7 +45,7 @@ class vkrt::graphics::CrystalViewShader::Impl
         }
 
     public:
-        vks::VulkanSessionPtr mSession;
+        vks::VksSessionPtr mSession;
         vks::DevicePtr mDevice;
         vk::RenderPass mRenderPass;
         vks::ComputePipelinePtr mPipeline;
@@ -122,7 +122,7 @@ class vkrt::graphics::CrystalViewShader::Impl
         }
 };
 
-vkrt::graphics::CrystalViewShader::CrystalViewShader( vks::VulkanSessionPtr inSession, vk::RenderPass inRenderPass )
+vkrt::graphics::CrystalViewShader::CrystalViewShader( vks::VksSessionPtr inSession, vk::RenderPass inRenderPass )
 :
     mImpl( new Impl( inSession, inRenderPass ) )
 {

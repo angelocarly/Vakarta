@@ -17,7 +17,6 @@ namespace vks
         public:
             struct ComputePipelineCreateInfo
             {
-                vk::RenderPass mRenderPass;
                 vk::ShaderModule mComputeShaderModule;
                 std::vector< vk::DescriptorSetLayout > mDescriptorSetLayouts;
                 std::vector< vk::PushConstantRange > mPushConstants;
@@ -31,6 +30,7 @@ namespace vks
             void Bind( vk::CommandBuffer inCommandBuffer );
             void BindDescriptorSets( vk::CommandBuffer inCommandBuffer, std::vector< vks::DescriptorSet > inDescriptorSets );
             void PushConstants( vk::CommandBuffer inCommandBuffer, vk::DeviceSize theSize, const void * theMemory );
+            void PushDescriptor( vk::CommandBuffer inCommandBuffer, vk::WriteDescriptorSet const & inWriteDescriptorSet );
 
             vk::Pipeline GetVkPipeline();
             vk::PipelineLayout GetVkPipelineLayout();

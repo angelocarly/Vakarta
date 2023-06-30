@@ -4,20 +4,24 @@ set(
     Voxels_HEADER_FILES
         VoxelCompute.h
         VoxelControls.h
+        VoxelEngine.h
         VoxelPresenter.h
+        VoxelRenderer.h
 )
 
 set(
     Voxels_SOURCE_FILES
-        Source/main.cpp
         Source/VoxelCompute.cpp
         Source/VoxelControls.cpp
+        Source/VoxelEngine.cpp
         Source/VoxelPresenter.cpp
+        Source/VoxelRenderer.cpp
 )
 
 set(
     Voxels_GLSL_FILES
         shaders/Voxels.frag
+        shaders/Voxels.comp
 )
 
 add_executable(

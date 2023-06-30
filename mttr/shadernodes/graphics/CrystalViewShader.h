@@ -21,7 +21,7 @@ namespace vkrt::graphics
     class CrystalViewShader
     {
         public:
-            CrystalViewShader( vks::VulkanSessionPtr inSession, vk::RenderPass inRenderPass );
+            CrystalViewShader( vks::VksSessionPtr inSession, vk::RenderPass inRenderPass );
             ~CrystalViewShader();
 
             void Bind( vk::CommandBuffer inCommandBuffer );

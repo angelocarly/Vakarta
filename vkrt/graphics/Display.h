@@ -33,7 +33,7 @@ namespace vkrt
     class Display
     {
         public:
-            Display( vks::VulkanSessionPtr inSession, vks::WindowPtr inWindow );
+            Display( vks::VksSessionPtr inSession, vks::WindowPtr inWindow );
             ~Display();
 
             vks::SwapchainPtr GetSwapchain() const { return mSwapchain; }
@@ -51,7 +51,7 @@ namespace vkrt
             vk::RenderPassBeginInfo CreateRenderPassBeginInfo( std::size_t inFrameIndex );
 
         private:
-            vks::VulkanSessionPtr mSession;
+            vks::VksSessionPtr mSession;
             vks::DevicePtr mDevice;
 
             vks::WindowPtr mWindow;

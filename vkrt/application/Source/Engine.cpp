@@ -11,7 +11,7 @@
 #define HEIGHT 900
 #define TITLE "VKRT"
 
-vkrt::Engine::Engine( vks::WindowPtr inWindow, vks::VulkanSessionPtr inVulkanSession, vkrt::PresenterPtr inPresenter )
+vkrt::Engine::Engine( vks::WindowPtr inWindow, vks::VksSessionPtr inVulkanSession )
 :
     mWindow( inWindow ),
     mVulkanSession( inVulkanSession ),
@@ -19,11 +19,7 @@ vkrt::Engine::Engine( vks::WindowPtr inWindow, vks::VulkanSessionPtr inVulkanSes
     mInputState( std::make_shared< InputState >( mWindow ) ),
     mAssetLoader()
 {
-    auto theLayerPresenter = std::make_shared< vkrt::LayerPresenter >( mVulkanSession->GetDevice(), vk::Extent2D( WIDTH, HEIGHT ) );
-    theLayerPresenter->AddPresenter( inPresenter );
     vkrt::GuiPresenter::Initialize( mVulkanSession->GetDevice(), mRenderer.GetSwapchain(), mWindow );
-    theLayerPresenter->AddPresenter( vkrt::GuiPresenter::GetInstance() );
-    mRenderer.SetPresenter( theLayerPresenter );
 }
 
 vkrt::Engine::~Engine()
@@ -35,7 +31,7 @@ vkrt::Engine::~Engine()
 // ---------------------------------------------------------------------------------------------------------------------
 
 void
-vkrt::Engine::Update( float inFrameDuration )
+vkrt::Engine::UpdateSelf( float inFrameDuration )
 {
     mWindow->Poll();
     mInputState->Sync();
@@ -56,7 +52,7 @@ vkrt::Engine::Update( float inFrameDuration )
 }
 
 void
-vkrt::Engine::Render()
+vkrt::Engine::RenderSelf()
 {
     mRenderer.Render();
 }
@@ -71,6 +67,15 @@ void
 vkrt::Engine::RegisterGuiDrawer( std::weak_ptr< gui::GuiDrawer > inGuiDrawer )
 {
     vkrt::GuiPresenter::GetInstance()->RegisterGuiDrawer( inGuiDrawer );
+}
+
+void
+vkrt::Engine::RegisterPresenter( std::shared_ptr< Presentable > inPresenter )
+{
+    auto theLayerPresenter = std::make_shared< vkrt::LayerPresenter >( mVulkanSession->GetDevice(), vk::Extent2D( WIDTH, HEIGHT ) );
+    theLayerPresenter->AddPresenter( inPresenter );
+    theLayerPresenter->AddPresenter( vkrt::GuiPresenter::GetInstance() );
+    mRenderer.SetPresenter( theLayerPresenter );
 }
 
 void
@@ -96,7 +101,8 @@ vkrt::Engine::Run()
         float theFrameDuration = ( theFrameTime.count() - thePreviousFrameTime.count() ) % 10000000000 / 1000000.0f;
 
         Update( theFrameDuration );
-        Render();
+        UpdateSelf( theFrameDuration );
+        RenderSelf();
 
         float theSecondDuration = ( theFrameTime.count() - mPreviousSecond.count() ) % 10000000000 / 1000000.0f;
         if( theSecondDuration > 1 )
@@ -107,5 +113,11 @@ vkrt::Engine::Run()
             spdlog::info( "FPS: {}", theFPS );
         }
     }
+}
+
+void
+vkrt::Engine::AddDrawable( std::shared_ptr< Drawable > inDrawable )
+{
+    mDrawables.push_back( inDrawable );
 }
 

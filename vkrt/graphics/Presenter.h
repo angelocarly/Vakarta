@@ -11,6 +11,8 @@
 #define VKRT_PRESENTER_H
 
 #include "RenderEnvironment.h"
+#include "Presentable.h"
+#include "Drawable.h"
 
 #include <cstddef>
 #include <cstdint>
@@ -18,15 +20,16 @@
 namespace vkrt
 {
     class Presenter
+    :
+        public vkrt::Presentable,
+        public vkrt::Drawable
     {
         public:
             Presenter( vks::DevicePtr inDevice, std::size_t inWidth, std::size_t inHeight );
             virtual ~Presenter();
 
-            virtual void Draw( vkrt::RenderEnvironment const & inRenderEnvironment ) = 0;
-
-            vk::ImageView GetImageView() const { return mImageView; };
-            vk::Sampler GetSampler() const { return mSampler; };
+            vk::ImageView GetImageView() const override { return mImageView; };
+            vk::Sampler GetSampler() const override { return mSampler; };
 
         protected:
             vk::RenderPass GetRenderPass() const { return mRenderPass; };

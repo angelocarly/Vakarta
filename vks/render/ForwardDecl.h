@@ -34,7 +34,7 @@ namespace vks
     typedef std::shared_ptr< vks::Swapchain > SwapchainPtr;
 
     class VksSession;
-    typedef std::shared_ptr< vks::VksSession > VulkanSessionPtr;
+    typedef std::shared_ptr< vks::VksSession > VksSessionPtr;
 
     class Window;
     typedef std::shared_ptr< vks::Window > WindowPtr;

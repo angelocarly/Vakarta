@@ -16,7 +16,7 @@ namespace vks
             ~VksSession();
 
         public:
-            static VulkanSessionPtr GetInstance();
+            static VksSessionPtr GetInstance();
             vks::DevicePtr GetDevice();
 
         private:

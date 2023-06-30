@@ -20,6 +20,9 @@ namespace vkrt
 
     class Presenter;
     using PresenterPtr = std::shared_ptr< Presenter >;
+
+    class Presentable;
+    using PresentablePtr = std::shared_ptr< Presentable >;
 }
 
 #endif
