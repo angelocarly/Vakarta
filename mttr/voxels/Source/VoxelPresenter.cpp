@@ -98,16 +98,16 @@ Mttr::Vox::VoxelPresenter::InitializeBuffers()
     auto theData = ( std::uint32_t * ) mDevice->MapMemory( mWorldBuffer );
     for( std::size_t i = 0; i < kWorldSize * kWorldSize * kWorldSize; ++i )
     {
-//        if( rand() % 66000 == 0 )
-//        {
-//            theData[ i ] = rand() % 10;
-//        }
-//        else
+        if( rand() % 66000 == 0 )
+        {
+            theData[ i ] = rand() % 10;
+        }
+        else
         {
             theData[ i ] = 0;
         }
     }
-    theData[ 0 ] = 1;
+    theData[ 0 ] = 5;
     mDevice->UnmapMemory( mWorldBuffer );
 }
 

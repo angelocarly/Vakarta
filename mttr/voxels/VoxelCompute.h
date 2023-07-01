@@ -43,6 +43,12 @@ namespace Mttr::Vox
             vk::RenderPass const kRenderPass;
 
             vks::Buffer mReadWorldBuffer;
+
+            std::chrono::microseconds mStartTime;
+            struct PushConstants
+            {
+                float mTime;
+            };
     };
 }
 

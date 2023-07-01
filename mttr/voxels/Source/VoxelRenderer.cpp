@@ -24,12 +24,14 @@ Mttr::Vox::VoxelRenderer::~VoxelRenderer()
 }
 
 int count = 0;
+int totalcount = 0;
 
 void
 Mttr::Vox::VoxelRenderer::Draw( const vkrt::RenderEnvironment & inRenderEnvironment )
 {
     auto theWorldBuffer = mVoxelPresenter->GetWorldBuffer();
     count++;
+    totalcount++;
     if( count == 10 )
     {
         mVoxelCompute->Compute( inRenderEnvironment.mCommandBuffer, theWorldBuffer );

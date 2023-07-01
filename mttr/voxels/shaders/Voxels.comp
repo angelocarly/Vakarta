@@ -15,10 +15,15 @@ layout ( binding = 1 ) buffer OutWorldDataBlock
     int mWorldData[ WORLD_SIZE * WORLD_SIZE * WORLD_SIZE ];
 } outWorldData;
 
-float random(vec2 st) {
-    return fract(sin(dot(st.xy,
-    vec2(12.9898,78.233)))*
-    43758.5453123);
+layout(push_constant) uniform PushConstantsBlock
+{
+    float mTime;
+} PushConstants;
+
+float random(vec3 st) {
+    return fract(sin(dot(st.xyz,
+    vec3(12.9898,78.233,39.847)))*
+    43758.5453123 + PushConstants.mTime );
 }
 
 void main()
@@ -34,6 +39,18 @@ void main()
     }
 
     uint index = x * WORLD_SIZE * WORLD_SIZE + y * WORLD_SIZE + z;
+
+    if( length( vec3( x, y, z ) - vec3( WORLD_SIZE / 2.0f ) ) < WORLD_SIZE / 2 - sin( PushConstants.mTime / 2000.0f ) * 10 )
+    {
+        outWorldData.mWorldData[ index ] = 1;
+    }
+    else
+    {
+        outWorldData.mWorldData[ index ] = 0;
+    }
+    return;
+
+    outWorldData.mWorldData[ index ] = 1;
 
     uint liveNeighbors = 0;
     uint deadNeighbors = 0;
@@ -59,7 +76,7 @@ void main()
 
                 uint neighborIndex = neighborpos.x * WORLD_SIZE * WORLD_SIZE + neighborpos.y * WORLD_SIZE + neighborpos.z;
                 uint theNeighbor = inWorldData.mWorldData[ neighborIndex ];
-                if( theNeighbor > 0 )
+                if( theNeighbor > 4 )
                 {
                     youngestNeighbor = max( youngestNeighbor, int( theNeighbor ) );
                     liveNeighbors++;
@@ -72,12 +89,23 @@ void main()
         }
     }
 
-
     int theCell = inWorldData.mWorldData[ index ];
 
-    if( liveNeighbors == 1 )
+    if( liveNeighbors == 1 && random( gl_GlobalInvocationID ) > 0.93f )
     {
-        outWorldData.mWorldData[ index ] = 5;
+        outWorldData.mWorldData[ index ] = 1;
+        return;
+    }
+    if( liveNeighbors == 2 && random( gl_GlobalInvocationID ) > 0.46f )
+    {
+        if( theCell == 0 )
+        {
+            outWorldData.mWorldData[ index ] = 5;
+        }
+        else
+        {
+            outWorldData.mWorldData[ index ] = 0;
+        }
         return;
     }
     if( youngestNeighbor > 0 )

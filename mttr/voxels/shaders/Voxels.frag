@@ -26,7 +26,15 @@ float random(vec2 st) {
     43758.5453123);
 }
 
-vec3 traceRay( vec3 origin, vec3 direction )
+struct RayResult
+{
+    vec3 color;
+    vec3 position;
+    vec3 normal;
+    bool hit;
+};
+
+RayResult traceRay( vec3 origin, vec3 direction )
 {
     // Check whether the ray will intersect the world box
     bool intersect = false;
@@ -85,7 +93,7 @@ vec3 traceRay( vec3 origin, vec3 direction )
     vec3 rayPos = origin + direction * startT * 0.999f;
     ivec3 pos = ivec3( floor( rayPos ) );
 
-    if( !intersect ) return vec3( 0.0f );
+    if( !intersect ) return RayResult( vec3( 0 ), vec3( 0 ), vec3( 0 ), false );
 
     // distance of the ray to the closest axis plane it'll intersect
     vec3 sidepos = vec3( -1.0f );
@@ -117,6 +125,7 @@ vec3 traceRay( vec3 origin, vec3 direction )
     // The distance on the ray
     float t = 0.0f;
 
+    vec3 normal;
     for( int c = 0; c < 800; c++ )
     {
         vec3 tMax = vec3(0.0f);
@@ -137,6 +146,7 @@ vec3 traceRay( vec3 origin, vec3 direction )
                 t = tDist.x;
                 pos.x += int(sign(direction.x));
                 sidepos.x = -1;
+                normal = vec3( sign( direction.x ), 0, 0 );
             }
             else
             {
@@ -144,6 +154,7 @@ vec3 traceRay( vec3 origin, vec3 direction )
                 t = tDist.z;
                 pos.z += int(sign(direction.z));
                 sidepos.z = -1;
+                normal = vec3( 0, 0, sign( direction.z ) );
             }
         }
         else
@@ -154,6 +165,7 @@ vec3 traceRay( vec3 origin, vec3 direction )
                 t = tDist.y;
                 pos.y += int(sign(direction.y));
                 sidepos.y = -1;
+                normal = vec3( 0, sign( direction.y ), 0 );
             }
             else
             {
@@ -161,6 +173,7 @@ vec3 traceRay( vec3 origin, vec3 direction )
                 t = tDist.z;
                 pos.z += int(sign(direction.z));
                 sidepos.z = -1;
+                normal = vec3( 0, 0, sign( direction.z ) );
             }
         }
 
@@ -175,19 +188,20 @@ vec3 traceRay( vec3 origin, vec3 direction )
                 switch (theId)
                 {
                     case 1: color = vec3(251, 133, 0) / 255; break;
-                    case 2: color = vec3(255, 183, 3) / 255; break;
+//                    case 2: color = vec3(255, 183, 3) / 255; break;
                     case 3: color = vec3(2, 48, 71) / 255; break;
-                    case 4: color = vec3(33, 158, 188) / 255; break;
-                    case 5: color = vec3(142, 202, 230) / 255; break;
-                    default : color = vec3(1, 0, 0); break;
+//                    case 4: color = vec3(33, 158, 188) / 255; break;
+//                    case 5: color = vec3(142, 202, 230) / 255; break;
+                    default: color = vec3(142, 202, 230) / 255; break;
+//                    default : color = vec3(1, 0, 0); break;
                 }
-                return color;
+                return RayResult( color, origin + direction * t, normal, true );
             }
         }
         else if( c > 1 ) break;
     }
 
-    return vec3( 0.0f, 0.0f, 0.0f );
+    return RayResult( vec3( 0 ), vec3( 0 ), vec3( 0 ), false );
 }
 
 void main()
@@ -202,6 +216,20 @@ void main()
     vec3 worlddir = normalize( ( -( PushConstants.mView * PushConstants.mProjection ) * vec4( -uv * ( far - near ), far + near, far - near ) ).xyz);
 
     // Ray
-    vec3 col = traceRay( worldpos, worlddir );
+    RayResult res = traceRay( worldpos, worlddir );
+    vec3 lightDir = normalize( vec3( 0.7f, 1.0f, 0.6f ) );
+    vec3 col = res.color;
+    col *= max( dot( res.normal, -lightDir ), .1f );
+    if( res.hit )
+    {
+        // Shadow mapping
+        vec3 lightPos = res.position - lightDir * 0.001f;
+        RayResult lightRes = traceRay( lightPos, lightDir );
+
+        if( lightRes.hit )
+        {
+            col *= 0.2f;
+        }
+    }
     outColor = vec4( col, 1.0f );
 }

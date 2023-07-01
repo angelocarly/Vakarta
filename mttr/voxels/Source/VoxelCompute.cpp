@@ -23,6 +23,11 @@ Mttr::Vox::VoxelCompute::VoxelCompute( vks::DevicePtr inDevice, std::size_t inWo
     InitializeDescriptorSetLayout();
     InitializeComputePipeline();
     InitializeBuffers();
+
+    mStartTime = std::chrono::duration_cast<std::chrono::microseconds>
+    (
+        std::chrono::system_clock::now().time_since_epoch()
+    );
 }
 
 Mttr::Vox::VoxelCompute::~VoxelCompute()
@@ -46,11 +51,22 @@ Mttr::Vox::VoxelCompute::InitializeComputePipeline()
 {
     auto theComputeShader = vks::Utils::CreateVkShaderModule( mDevice, "shaders/Voxels.comp.spv" );
 
+    std::vector< vk::PushConstantRange > thePushConstants =
+    {
+        vk::PushConstantRange
+        (
+            vk::ShaderStageFlagBits::eCompute,
+            0,
+            sizeof( PushConstants )
+        )
+    };
+
+
     vks::ComputePipeline::ComputePipelineCreateInfo theComputePipelineCreateInfo =
     {
         theComputeShader,
         { mDescriptorSetLayout },
-        {}
+        thePushConstants
     };
     mComputePipeline = std::make_unique< vks::ComputePipeline >( mDevice, theComputePipelineCreateInfo );
 
@@ -112,6 +128,24 @@ Mttr::Vox::VoxelCompute::Compute( vk::CommandBuffer const inCommandBuffer, vks::
     theWriteDescriptorSet.setDescriptorCount( 1 );
     theWriteDescriptorSet.setPBufferInfo( & theBufferInfo );
     mComputePipeline->PushDescriptor( theCommandBuffer, theWriteDescriptorSet );
+
+    auto theTime = std::chrono::duration_cast<std::chrono::microseconds>
+    (
+        std::chrono::system_clock::now().time_since_epoch()
+    );
+    PushConstants thePushConstants
+    {
+        ( float ) ( mStartTime - theTime ).count() / 1000.0f
+    };
+    theCommandBuffer.pushConstants
+    (
+        mComputePipeline->GetVkPipelineLayout(),
+        vk::ShaderStageFlagBits::eCompute,
+        0,
+        sizeof( PushConstants ),
+        & thePushConstants
+    );
+
 
     int theGroupSize = 8;
     int theGroupCount = kWorldSize / theGroupSize;
