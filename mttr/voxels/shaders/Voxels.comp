@@ -4,7 +4,7 @@
 #define WORKGROUP_SIZE 8
 layout ( local_size_x = WORKGROUP_SIZE, local_size_y = WORKGROUP_SIZE, local_size_z = WORKGROUP_SIZE ) in;
 
-#define WORLD_SIZE 256
+#define WORLD_SIZE 128
 layout ( binding = 0 ) buffer InWorldDataBlock
 {
     int mWorldData[ WORLD_SIZE * WORLD_SIZE * WORLD_SIZE ];
@@ -39,18 +39,6 @@ void main()
     }
 
     uint index = x * WORLD_SIZE * WORLD_SIZE + y * WORLD_SIZE + z;
-
-    if( length( vec3( x, y, z ) - vec3( WORLD_SIZE / 2.0f ) ) < WORLD_SIZE / 2 - sin( PushConstants.mTime / 2000.0f ) * 10 )
-    {
-        outWorldData.mWorldData[ index ] = 1;
-    }
-    else
-    {
-        outWorldData.mWorldData[ index ] = 0;
-    }
-    return;
-
-    outWorldData.mWorldData[ index ] = 1;
 
     uint liveNeighbors = 0;
     uint deadNeighbors = 0;
@@ -91,12 +79,7 @@ void main()
 
     int theCell = inWorldData.mWorldData[ index ];
 
-    if( liveNeighbors == 1 && random( gl_GlobalInvocationID ) > 0.93f )
-    {
-        outWorldData.mWorldData[ index ] = 1;
-        return;
-    }
-    if( liveNeighbors == 2 && random( gl_GlobalInvocationID ) > 0.46f )
+    if( liveNeighbors == 1 && random( gl_GlobalInvocationID ) > .933f )
     {
         if( theCell == 0 )
         {
@@ -108,15 +91,19 @@ void main()
         }
         return;
     }
-    if( youngestNeighbor > 0 )
-    {
-        outWorldData.mWorldData[ index ] = youngestNeighbor - 1;
-        return;
-    }
-    if( theCell > 0 )
+    else
     {
         if( theCell > 0 ) outWorldData.mWorldData[ index ] = inWorldData.mWorldData[ index ] - 1;
-        return;
     }
+//    if( youngestNeighbor > 0 )
+//    {
+//        outWorldData.mWorldData[ index ] = youngestNeighbor - 1;
+//        return;
+//    }
+//    if( theCell > 0 )
+//    {
+//        if( theCell > 0 ) outWorldData.mWorldData[ index ] = inWorldData.mWorldData[ index ] - 1;
+//        return;
+//    }
 
 }

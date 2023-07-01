@@ -15,6 +15,8 @@
 #include "vks/render/Device.h"
 #include "vks/render/Utils.h"
 
+#include <chrono>
+
 Mttr::Vox::VoxelCompute::VoxelCompute( vks::DevicePtr inDevice, std::size_t inWorldSize )
 :
     mDevice( inDevice ),

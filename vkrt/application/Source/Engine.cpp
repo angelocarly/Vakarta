@@ -20,6 +20,11 @@ vkrt::Engine::Engine( vks::WindowPtr inWindow, vks::VksSessionPtr inVulkanSessio
     mAssetLoader()
 {
     vkrt::GuiPresenter::Initialize( mVulkanSession->GetDevice(), mRenderer.GetSwapchain(), mWindow );
+
+    mPreviousSecond = std::chrono::duration_cast<std::chrono::microseconds>
+    (
+        std::chrono::system_clock::now().time_since_epoch()
+    );
 }
 
 vkrt::Engine::~Engine()

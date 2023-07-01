@@ -16,6 +16,8 @@
 
 #include <vulkan/vulkan.hpp>
 
+#include <chrono>
+
 namespace Mttr::Vox
 {
     /**

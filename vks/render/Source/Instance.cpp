@@ -3,8 +3,6 @@
 //
 
 #define VMA_IMPLEMENTATION
-#include <vk_mem_alloc.hpp>
-
 
 #include "vks/render/ForwardDecl.h"
 #include "vks/render/Instance.h"

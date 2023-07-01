@@ -10,7 +10,7 @@
 
 #include "mttr/voxels/VoxelRenderer.h"
 
-static const std::size_t kWorldSize = 256;
+static const std::size_t kWorldSize = 128;
 
 Mttr::Vox::VoxelRenderer::VoxelRenderer( vks::DevicePtr inDevice, std::size_t inWidth, std::size_t inHeight, vkrt::CameraPtr inCamera )
 {
@@ -32,7 +32,7 @@ Mttr::Vox::VoxelRenderer::Draw( const vkrt::RenderEnvironment & inRenderEnvironm
     auto theWorldBuffer = mVoxelPresenter->GetWorldBuffer();
     count++;
     totalcount++;
-    if( count == 10 )
+    if( count == 1 )
     {
         mVoxelCompute->Compute( inRenderEnvironment.mCommandBuffer, theWorldBuffer );
         count = 0;

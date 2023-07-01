@@ -51,13 +51,8 @@ namespace Mttr::Vox
         private:
             struct PushConstants
             {
-                std::uint32_t mScreenWidth;
-                std::uint32_t mScreenHeight;
-                std::uint32_t mPadding1;
-                std::uint32_t mPadding2;
-                glm::mat4 mModel;
-                glm::mat4 mView;
-                glm::mat4 mProjection;
+                glm::mat4 mMVP;
+                glm::mat4 mViewProjection;
             };
     };
 }

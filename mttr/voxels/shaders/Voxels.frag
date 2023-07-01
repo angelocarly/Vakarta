@@ -7,14 +7,11 @@ layout( location = 0 ) out vec4 outColor;
 
 layout(push_constant) uniform PushConstantsBlock
 {
-    ivec2 screenSize;
-    ivec2 _pad;
-    mat4 mModel;
-    mat4 mView;
-    mat4 mProjection;
+    mat4 mMVP;
+    mat4 mViewProjection;
 } PushConstants;
 
-#define WORLD_SIZE 256
+#define WORLD_SIZE 128
 layout( binding = 0 ) readonly buffer InWorldDataBlock
 {
     int mWorldData[ WORLD_SIZE * WORLD_SIZE * WORLD_SIZE ];
@@ -188,12 +185,11 @@ RayResult traceRay( vec3 origin, vec3 direction )
                 switch (theId)
                 {
                     case 1: color = vec3(251, 133, 0) / 255; break;
-//                    case 2: color = vec3(255, 183, 3) / 255; break;
+                    case 2: color = vec3(255, 183, 3) / 255; break;
                     case 3: color = vec3(2, 48, 71) / 255; break;
-//                    case 4: color = vec3(33, 158, 188) / 255; break;
-//                    case 5: color = vec3(142, 202, 230) / 255; break;
-                    default: color = vec3(142, 202, 230) / 255; break;
-//                    default : color = vec3(1, 0, 0); break;
+                    case 4: color = vec3(33, 158, 188) / 255; break;
+                    case 5: color = vec3(142, 202, 230) / 255; break;
+                    default : color = vec3(1, 0, 0); break;
                 }
                 return RayResult( color, origin + direction * t, normal, true );
             }
@@ -211,15 +207,15 @@ void main()
 
     float near = 1.0f;
     float far = 1000.0f;
-    vec4 worldpos4 = ( ( inverse( PushConstants.mModel ) * inverse( PushConstants.mView ) * inverse( PushConstants.mProjection ) * vec4( uv, -1, 1 ) ) );
+    vec4 worldpos4 = ( ( inverse( PushConstants.mMVP ) * vec4( uv, -1, 1 ) ) );
     vec3 worldpos = worldpos4.xyz / worldpos4.w * near;
-    vec3 worlddir = normalize( ( -( PushConstants.mView * PushConstants.mProjection ) * vec4( -uv * ( far - near ), far + near, far - near ) ).xyz);
+    vec3 worlddir = normalize( ( -( PushConstants.mViewProjection ) * vec4( -uv * ( far - near ), far + near, far - near ) ).xyz);
 
     // Ray
     RayResult res = traceRay( worldpos, worlddir );
     vec3 lightDir = normalize( vec3( 0.7f, 1.0f, 0.6f ) );
     vec3 col = res.color;
-    col *= max( dot( res.normal, -lightDir ), .1f );
+    col *= max( dot( res.normal, -lightDir ), .3f );
     if( res.hit )
     {
         // Shadow mapping

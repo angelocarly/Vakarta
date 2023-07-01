@@ -122,13 +122,8 @@ Mttr::Vox::VoxelPresenter::Draw( const vkrt::RenderEnvironment & inRenderEnviron
 
         PushConstants thePushConstants
         {
-            std::uint32_t( mWidth ),
-            std::uint32_t( mHeight ),
-            0,
-            0,
-            mCamera->GetModel(),
-            mCamera->GetView(),
-            mCamera->GetProjection()
+            mCamera->GetMVP(),
+            mCamera->GetView() * mCamera->GetProjection()
         };
         theCommandBuffer.pushConstants
         (
