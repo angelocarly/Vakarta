@@ -27,6 +27,7 @@ namespace vkrt
             bool IsButtonClicked( int inGLFWButton );
             bool IsMouseSwallowed();
             glm::vec2 GetMouseDelta();
+            glm::vec2 GetMouseScrollDelta();
             glm::vec2 GetMousePos();
 
         private:

@@ -26,10 +26,10 @@ class vkrt::Camera::Impl
         glm::vec3 mPosition;
 
         // Perspective values
-        float mFov;
-        float mAspect;
-        float mZNear;
-        float mZFar;
+        const float mFov;
+        const float mAspect;
+        const float mZNear;
+        const float mZFar;
 
         // Individual quaternions specifying the rotation
         float mPitch = 0.0f;

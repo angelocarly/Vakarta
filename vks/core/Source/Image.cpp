@@ -10,10 +10,12 @@
 vks::Image::Image()
 {}
 
-vks::Image::Image( vk::Image inImage, vma::Allocation inAllocation )
+vks::Image::Image( vk::Image inImage, vma::Allocation inAllocation, std::size_t inWidth, std::size_t inHeight )
 :
     mImage( inImage ),
-    mAllocation( inAllocation )
+    mAllocation( inAllocation ),
+    mWidth( inWidth ),
+    mHeight( inHeight )
 {
 
 }

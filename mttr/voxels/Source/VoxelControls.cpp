@@ -31,6 +31,15 @@ Mttr::Vox::VoxelControls::DrawGui()
 {
     ImGuiIO &io = ImGui::GetIO();
 
+    if( mInputState->IsButtonClicked( GLFW_MOUSE_BUTTON_1 ) )
+    {
+        mInputState->SwallowMouse();
+    }
+    if( mInputState->IsKeyDown( GLFW_KEY_ESCAPE ) )
+    {
+        mInputState->ReleaseMouse();
+    }
+
     if( mInputState->IsMouseSwallowed() )
     {
 

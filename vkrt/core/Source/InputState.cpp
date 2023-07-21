@@ -20,6 +20,7 @@ class vkrt::InputState::Impl
         static void key_callback( GLFWwindow *window, int key, int scancode, int action, int mods );
         static void mouse_button_callback( GLFWwindow *window, int button, int action, int mods );
         static void mouse_cursor_callback( GLFWwindow *window, double xpos, double ypos );
+        static void mouse_scroll_callback( GLFWwindow *window, double xpos, double ypos );
 
     public:
         void Sync();
@@ -36,9 +37,10 @@ class vkrt::InputState::Impl
         static glm::vec2 mMousePosBuffer;
         glm::vec2 mMouseDelta;
         static glm::vec2 mMouseDeltaBuffer;
+        glm::vec2 mMouseScrollDelta;
+        static glm::vec2 mMouseScrollDeltaBuffer;
 
-        int mButtons[GLFW_MOUSE_BUTTON_LAST];
-        static int mButtonsBuffer[GLFW_MOUSE_BUTTON_LAST];
+        static int mButtons[GLFW_MOUSE_BUTTON_LAST];
         bool mMouseSwallowed;
 };
 
@@ -46,12 +48,14 @@ vkrt::InputState::Impl::Impl( vks::WindowPtr inWindow )
 :
     mWindow( inWindow )
 {
-    glfwSetKeyCallback( mWindow->GetGLFWWindow(), key_callback);
+    glfwSetKeyCallback( mWindow->GetGLFWWindow(), key_callback );
     glfwSetMouseButtonCallback(mWindow->GetGLFWWindow(), mouse_button_callback);
-    glfwSetCursorPosCallback(mWindow->GetGLFWWindow(), mouse_cursor_callback);
+    glfwSetCursorPosCallback(mWindow->GetGLFWWindow(), mouse_cursor_callback );
+    glfwSetScrollCallback( mWindow->GetGLFWWindow(), mouse_scroll_callback );
 
     mMousePos = glm::vec2();
     mMouseDelta = glm::vec2();
+    mMouseScrollDelta = glm::vec2();
 
 }
 
@@ -62,9 +66,10 @@ vkrt::InputState::Impl::~Impl()
 
 // Redefine callback variables for linker
 bool vkrt::InputState::Impl::mKeys[GLFW_KEY_LAST];
+int vkrt::InputState::Impl::mButtons[GLFW_MOUSE_BUTTON_LAST];
 glm::vec2 vkrt::InputState::Impl::mMousePosBuffer;
 glm::vec2 vkrt::InputState::Impl::mMouseDeltaBuffer;
-int vkrt::InputState::Impl::mButtonsBuffer[GLFW_MOUSE_BUTTON_LAST];
+glm::vec2 vkrt::InputState::Impl::mMouseScrollDeltaBuffer;
 
 void
 vkrt::InputState::Impl::key_callback( GLFWwindow *window, int key, int scancode, int action, int mods )
@@ -81,7 +86,7 @@ vkrt::InputState::Impl::mouse_button_callback( GLFWwindow *window, int button, i
     if( kEnableImGuiCallbacks )
         ImGui_ImplGlfw_MouseButtonCallback( window, button, action, mods );
 
-    if (button >= 0 && button < GLFW_MOUSE_BUTTON_LAST) mButtonsBuffer[button] = action;
+    if (button >= 0 && button < GLFW_MOUSE_BUTTON_LAST) mButtons[button] = action != GLFW_RELEASE;
 }
 
 void
@@ -99,18 +104,24 @@ vkrt::InputState::Impl::mouse_cursor_callback(GLFWwindow *window, double xpos, d
 }
 
 void
+vkrt::InputState::Impl::mouse_scroll_callback( GLFWwindow *window, double xoffset, double yoffset )
+{
+    if( kEnableImGuiCallbacks )
+        ImGui_ImplGlfw_ScrollCallback( window, xoffset, yoffset );
+
+    mMouseScrollDeltaBuffer.x = (float) xoffset;
+    mMouseScrollDeltaBuffer.y = (float) yoffset;
+}
+
+void
 vkrt::InputState::Impl::Sync()
 {
     mMousePos = mMousePosBuffer;
 
     mMouseDelta = mMouseDeltaBuffer;
     mMouseDeltaBuffer = glm::vec2();
-
-    for(int i = 0; i < GLFW_MOUSE_BUTTON_LAST; i++)
-    {
-        mButtons[i] = mButtonsBuffer[i];
-        mButtonsBuffer[i] = 0;
-    }
+    mMouseScrollDelta = mMouseScrollDeltaBuffer;
+    mMouseScrollDeltaBuffer = glm::vec2();
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -186,5 +197,11 @@ bool
 vkrt::InputState::IsMouseSwallowed()
 {
     return mImpl->mMouseSwallowed;
+}
+
+glm::vec2
+vkrt::InputState::GetMouseScrollDelta()
+{
+    return mImpl->mMouseScrollDelta;
 }
 

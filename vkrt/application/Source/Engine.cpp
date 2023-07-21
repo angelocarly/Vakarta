@@ -41,19 +41,6 @@ vkrt::Engine::UpdateSelf( float inFrameDuration )
     mWindow->Poll();
     mInputState->Sync();
 
-    // Don't capture mouse if ImGui wants it
-
-    ImGuiIO &io = ImGui::GetIO();
-    if( io.WantCaptureMouse ) return;
-
-    if( mInputState->IsButtonClicked( GLFW_MOUSE_BUTTON_1 ) )
-    {
-        mInputState->SwallowMouse();
-    }
-    if( mInputState->IsKeyDown( GLFW_KEY_ESCAPE ) )
-    {
-        mInputState->ReleaseMouse();
-    }
 }
 
 void

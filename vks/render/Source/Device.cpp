@@ -210,7 +210,7 @@ vks::Image
 vks::Device::CreateImage( vk::ImageCreateInfo inImageCreateInfo, vma::AllocationCreateInfo inAllocationCreateInfo )
 {
     auto theImageResult = mImpl->mAllocator.createImage( inImageCreateInfo, inAllocationCreateInfo );
-    return { theImageResult.first, theImageResult.second };
+    return { theImageResult.first, theImageResult.second, inImageCreateInfo.extent.width, inImageCreateInfo.extent.height };
 }
 
 vks::Image
@@ -240,7 +240,7 @@ vks::Device::CreateImage( vk::Format inFormat, std::size_t inWidth, std::size_t 
             vma::MemoryUsage::eAuto
         )
     );
-    return { theImageResult.first, theImageResult.second };
+    return { theImageResult.first, theImageResult.second, inWidth, inHeight };
 }
 
 void
