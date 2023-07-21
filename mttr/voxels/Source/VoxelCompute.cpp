@@ -17,9 +17,10 @@
 
 #include <chrono>
 
-Mttr::Vox::VoxelCompute::VoxelCompute( vks::DevicePtr inDevice, std::size_t inWorldSize )
+Mttr::Vox::VoxelCompute::VoxelCompute( vks::DevicePtr inDevice, std::size_t inWorldSize, std::shared_ptr< Mttr::Vox::VoxelControls > inControls )
 :
     mDevice( inDevice ),
+    mControls( inControls ),
     kWorldSize( inWorldSize )
 {
     InitializeDescriptorSetLayout();

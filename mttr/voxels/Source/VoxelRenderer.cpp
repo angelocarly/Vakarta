@@ -12,10 +12,11 @@
 
 static const std::size_t kWorldSize = 128;
 
-Mttr::Vox::VoxelRenderer::VoxelRenderer( vks::DevicePtr inDevice, std::size_t inWidth, std::size_t inHeight, vkrt::CameraPtr inCamera )
+Mttr::Vox::VoxelRenderer::VoxelRenderer( vks::DevicePtr inDevice, std::shared_ptr< VoxelControls > inVoxelControls, std::size_t inWidth, std::size_t inHeight, vkrt::CameraPtr inCamera )
 {
+    mVoxelControls = inVoxelControls;
     mVoxelPresenter = std::make_shared< Mttr::Vox::VoxelPresenter >( inDevice, inWidth, inHeight, inCamera, kWorldSize );
-    mVoxelCompute = std::make_shared< Mttr::Vox::VoxelCompute >( inDevice, kWorldSize );
+    mVoxelCompute = std::make_shared< Mttr::Vox::VoxelCompute >( inDevice, kWorldSize, mVoxelControls );
 }
 
 Mttr::Vox::VoxelRenderer::~VoxelRenderer()
@@ -32,7 +33,7 @@ Mttr::Vox::VoxelRenderer::Draw( const vkrt::RenderEnvironment & inRenderEnvironm
     auto theWorldBuffer = mVoxelPresenter->GetWorldBuffer();
     count++;
     totalcount++;
-    if( count == 1 )
+    if( mVoxelControls->ShouldCompute() )
     {
         mVoxelCompute->Compute( inRenderEnvironment.mCommandBuffer, theWorldBuffer );
         count = 0;

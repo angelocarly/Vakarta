@@ -74,12 +74,23 @@ Mttr::Vox::VoxelControls::DrawGui()
         }
     }
 
-    ImGui::Begin( "Camera controls" );
+    ImGui::Begin( "Simulation controls" );
     {
-        ImGui::SliderFloat3( "Camera Position", & mCamera->GetPosition().x, -1.0f, 1.0f );
-        ImGui::SliderFloat( "Camera Rotation", & mCamera->GetForward().x, -1.0f, 1.0f );
+        ImGui::Checkbox( "Compute", & mComputeEnabled );
+        ImGui::SliderInt( "Frames per compute", reinterpret_cast< int * >( & mFramesPerCompute ), 1, 100 );
+        mStepCompute = ImGui::Button( "Step simulation");
     }
     ImGui::End();
+
+    mShouldCompute = false;
+    mFrameCount++;
+    if( mFrameCount >= mFramesPerCompute )
+    {
+        mFrameCount = 0;
+        mShouldCompute = mComputeEnabled;
+    }
+    if( mStepCompute ) mShouldCompute = true;
+
 }
 
 glm::mat4

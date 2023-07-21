@@ -37,12 +37,20 @@ namespace Mttr::Vox
             glm::mat4 GetProjection() const;
             vkrt::CameraPtr GetCamera() const { return mCamera; }
 
+            bool ShouldCompute() const { return mShouldCompute; };
+
         public:
             void DrawGui() override;
 
         private:
             vkrt::CameraPtr mCamera;
             vkrt::InputStatePtr mInputState;
+
+            std::size_t mFrameCount = 0;
+            bool mStepCompute = false;
+            bool mShouldCompute = false;
+            bool mComputeEnabled = false;
+            std::uint32_t mFramesPerCompute = 20;
     };
 }
 

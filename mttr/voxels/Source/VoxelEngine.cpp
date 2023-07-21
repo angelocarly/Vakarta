@@ -30,7 +30,7 @@ Mttr::Vox::VoxelEngine::VoxelEngine( vks::WindowPtr inWindow, vks::VksSessionPtr
     mVoxelGui = std::make_shared< Mttr::Vox::VoxelControls >( GetInputState() );
     RegisterGuiDrawer( mVoxelGui );
 
-    mVoxelRenderer = std::make_shared< Mttr::Vox::VoxelRenderer >( inSession->GetDevice(), WIDTH, HEIGHT, mVoxelGui->GetCamera() );
+    mVoxelRenderer = std::make_shared< Mttr::Vox::VoxelRenderer >( inSession->GetDevice(), mVoxelGui, WIDTH, HEIGHT, mVoxelGui->GetCamera() );
     RegisterPresenter( mVoxelRenderer );
 }
 

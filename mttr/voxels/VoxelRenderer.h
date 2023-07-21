@@ -24,7 +24,7 @@ namespace Mttr::Vox
         private:
 
         public:
-            VoxelRenderer( vks::DevicePtr inDevice, std::size_t inWidth, std::size_t inHeight, vkrt::CameraPtr inCamera );
+            VoxelRenderer( vks::DevicePtr inDevice, std::shared_ptr< VoxelControls > inVoxelControls, std::size_t inWidth, std::size_t inHeight, vkrt::CameraPtr inCamera );
             ~VoxelRenderer();
 
             void Draw( vkrt::RenderEnvironment const & inRenderEnvironment );
@@ -34,6 +34,7 @@ namespace Mttr::Vox
         private:
             std::shared_ptr< Mttr::Vox::VoxelPresenter > mVoxelPresenter;
             std::shared_ptr< Mttr::Vox::VoxelCompute > mVoxelCompute;
+            std::shared_ptr< Mttr::Vox::VoxelControls > mVoxelControls;
 
     };
 }

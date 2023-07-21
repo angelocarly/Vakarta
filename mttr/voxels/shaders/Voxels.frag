@@ -29,7 +29,57 @@ struct RayResult
     vec3 position;
     vec3 normal;
     bool hit;
+    float dist;
 };
+
+float sdCapsule( vec3 p, vec3 a, vec3 b, float r )
+{
+    vec3 pa = p - a, ba = b - a;
+    float h = clamp( dot(pa,ba)/dot(ba,ba), 0.0, 1.0 );
+    return length( pa - ba*h ) - r;
+}
+
+float sdfOuterBox( vec3 p, float t )
+{
+    float r = 0.2f * t / WORLD_SIZE;
+    float w = WORLD_SIZE;
+    float d =   sdCapsule( p, vec3( 0, 0, 0 ), vec3( w, 0, 0 ), r );
+    d = min( d, sdCapsule( p, vec3( 0, 0, w ), vec3( w, 0, w ), r ) );
+    d = min( d, sdCapsule( p, vec3( 0, w, 0 ), vec3( w, w, 0 ), r ) );
+    d = min( d, sdCapsule( p, vec3( 0, w, w ), vec3( w, w, w ), r ) );
+
+    d = min( d, sdCapsule( p, vec3( 0, 0, 0 ), vec3( 0, w, 0 ), r ) );
+    d = min( d, sdCapsule( p, vec3( 0, 0, w ), vec3( 0, w, w ), r ) );
+    d = min( d, sdCapsule( p, vec3( w, 0, 0 ), vec3( w, w, 0 ), r ) );
+    d = min( d, sdCapsule( p, vec3( w, 0, w ), vec3( w, w, w ), r ) );
+
+    d = min( d, sdCapsule( p, vec3( 0, 0, 0 ), vec3( 0, 0, w ), r ) );
+    d = min( d, sdCapsule( p, vec3( 0, w, 0 ), vec3( 0, w, w ), r ) );
+    d = min( d, sdCapsule( p, vec3( w, 0, 0 ), vec3( w, 0, w ), r ) );
+    d = min( d, sdCapsule( p, vec3( w, w, 0 ), vec3( w, w, w ), r ) );
+    return d;
+}
+
+RayResult traceOuterBox( vec3 origin, vec3 direction )
+{
+    float t = 0.0f;
+    for( int i = 0; i < 500; i++ )
+    {
+        float d = sdfOuterBox( origin + direction * t, t );
+        t += d;
+
+        if( d < 0.0001f )
+        {
+            return RayResult( vec3( 1 ), origin + direction * t, vec3( 0 ), true, t );
+        }
+
+        if( t > 10000.0f )
+        {
+            break;
+        }
+    }
+    return RayResult( vec3( 0 ), vec3( 0 ), vec3( 0 ), false, 0 );
+}
 
 RayResult traceRay( vec3 origin, vec3 direction )
 {
@@ -90,7 +140,7 @@ RayResult traceRay( vec3 origin, vec3 direction )
     vec3 rayPos = origin + direction * startT * 0.999f;
     ivec3 pos = ivec3( floor( rayPos ) );
 
-    if( !intersect ) return RayResult( vec3( 0 ), vec3( 0 ), vec3( 0 ), false );
+    if( !intersect ) return RayResult( vec3( 0 ), vec3( 0 ), vec3( 0 ), false, 0 );
 
     // distance of the ray to the closest axis plane it'll intersect
     vec3 sidepos = vec3( -1.0f );
@@ -191,13 +241,13 @@ RayResult traceRay( vec3 origin, vec3 direction )
                     case 5: color = vec3(142, 202, 230) / 255; break;
                     default : color = vec3(1, 0, 0); break;
                 }
-                return RayResult( color, origin + direction * t, normal, true );
+                return RayResult( color, origin + direction * t, normal, true, t );
             }
         }
         else if( c > 1 ) break;
     }
 
-    return RayResult( vec3( 0 ), vec3( 0 ), vec3( 0 ), false );
+    return RayResult( vec3( 0 ), vec3( 0 ), vec3( 0 ), false, 0 );
 }
 
 void main()
@@ -212,20 +262,33 @@ void main()
     vec3 worlddir = normalize( ( -( PushConstants.mViewProjection ) * vec4( -uv * ( far - near ), far + near, far - near ) ).xyz);
 
     // Ray
+    RayResult box = traceOuterBox( worldpos, worlddir );
     RayResult res = traceRay( worldpos, worlddir );
-    vec3 lightDir = normalize( vec3( 0.7f, 1.0f, 0.6f ) );
-    vec3 col = res.color;
-    col *= max( dot( res.normal, -lightDir ), .3f );
-    if( res.hit )
-    {
-        // Shadow mapping
-        vec3 lightPos = res.position - lightDir * 0.001f;
-        RayResult lightRes = traceRay( lightPos, lightDir );
 
-        if( lightRes.hit )
+    vec3 col = vec3( 0 );
+    if( ( box.hit && !res.hit ) || ( box.hit && box.dist < res.dist ) )
+    {
+        // Outer box hit
+        col = box.color;
+    }
+    else if( ( res.hit && !box.hit ) || ( res.hit && res.dist < box.dist ) )
+    {
+        // World hit
+        vec3 lightDir = normalize( vec3( 0.7f, 1.0f, 0.6f ) );
+        col = res.color;
+        col *= max( dot( res.normal, -lightDir ), .3f );
+        if( res.hit )
         {
-            col *= 0.2f;
+            // Shadow mapping
+            vec3 lightPos = res.position - lightDir * 0.001f;
+            RayResult lightRes = traceRay( lightPos, lightDir );
+
+            if( lightRes.hit )
+            {
+                col *= 0.2f;
+            }
         }
     }
+
     outColor = vec4( col, 1.0f );
 }
