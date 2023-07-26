@@ -16,8 +16,8 @@ A generative art sandbox using the Vulkan API, and a home for my experimentation
   - Home of different implementations using the VKRT engine.
  
 ### Implementations
-VKRT currently contains one subproject.
-- Voxels - A voxel cellular automata
+- [Voxels](./mttr/voxels/README.md) - A voxel cellular automata
+- [SCG](./mttr/scg/README.md) - A sacred geometry editor
 
 ## Building
 VKRT requires the following packages to be available on your system:
