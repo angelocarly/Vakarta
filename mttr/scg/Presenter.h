@@ -27,17 +27,17 @@ namespace scg
             ~Presenter();
 
             void Draw( const vkrt::RenderEnvironment & inRenderEnvironment) override;
-            void SetImage( vks::Image & inImage );
-            glm::vec3 & GetColorTreshold() { return mColorTreshold; };
-            glm::vec3 & GetReplacementColor() { return mReplacementColor; };
-            glm::vec2 & GetPos() { return mPos; };
-            float & GetScale() { return mScale; };
+            glm::vec4 & GetColorTreshold() { return mPushConstants.mColorBackGround; };
+            glm::vec4 & GetReplacementColor() { return mPushConstants.mReplacementColor; };
+            glm::vec2 & GetPos() { return mPushConstants.mPos; };
+            float * GetSymBuffer() { return mSymBuffer; };
+            float & GetEdgeSize() { return mPushConstants.mEdgeSize; };
+            float & GetScale() { return mPushConstants.mScale; };
 
         private:
             void InitializeDescriptorSetLayout();
             void InitializeDisplayPipeline( vk::RenderPass inRenderPass );
             void InitializeBuffers();
-            void SetupImageViews( vks::Image & inImage );
 
         private:
             vks::DevicePtr mDevice;
@@ -47,27 +47,20 @@ namespace scg
             vk::DescriptorSetLayout mDescriptorSetLayout;
 
             vkrt::CameraPtr mCamera;
+            vks::Buffer mGeometryBuffer;
 
         private:
             struct PushConstants
             {
                 glm::vec2 mSize;
                 glm::vec2 mPos;
-                glm::vec4 mColorTreshold;
-                glm::vec4 mReplacementColor;
-                float mScale;
+                glm::vec4 mColorBackGround;
+                glm::vec4 mReplacementColor = glm::vec4( 1.0f );
+                float mScale = 1.0f;
+                float mEdgeSize = 0.01f;
             };
-
-            vk::ImageView mImageView;
-            vk::Sampler mSampler;
-            bool mCanRender = false;
-
-            glm::vec3 mColorTreshold;
-            glm::vec3 mReplacementColor;
-
-            glm::vec2 mPos;
-            glm::vec2 mSize;
-            float mScale = 1.0f;
+            PushConstants mPushConstants;
+            float * mSymBuffer;
     };
 }
 

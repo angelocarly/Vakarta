@@ -43,11 +43,12 @@ vec3 background( vec2 uv )
 void main()
 {
     float aspect = WIDTH / float( HEIGHT );
-    vec2 uv = inUV;
+
+    vec2 uv = inUV + vec2( -0.5f, -0.5f );
     uv *= PushConstants.mScale;
     uv += PushConstants.mPos / vec2( WIDTH, HEIGHT );
-    uv.x *= PushConstants.mSize.y / PushConstants.mSize.x;
     uv.x *= aspect;
+    uv.x *= PushConstants.mSize.y / PushConstants.mSize.x;
 
     if( uv.x < 0.0f || uv.x > 1.0f || uv.y < 0.0f || uv.y > 1.0f )
     {

@@ -12,7 +12,6 @@
 #include "vkrt/graphics/Presenter.h"
 
 #include "vks/core/Buffer.h"
-#include "vks/core/Image.h"
 #include "vks/render/Device.h"
 #include "vks/render/Pipeline.h"
 #include "vks/render/Utils.h"
@@ -35,16 +34,16 @@ scg::Presenter::Presenter( vks::DevicePtr inDevice, std::size_t inWidth, std::si
 
 scg::Presenter::~Presenter()
 {
-    mDevice->GetVkDevice().destroy( mImageView );
-    mDevice->GetVkDevice().destroy( mSampler );
+    mDevice->UnmapMemory( mGeometryBuffer );
     mDevice->GetVkDevice().destroy( mDescriptorSetLayout );
+    mDevice->DestroyBuffer( mGeometryBuffer );
 }
 
 void
 scg::Presenter::InitializeDescriptorSetLayout()
 {
     mDescriptorSetLayout = vks::DescriptorLayoutBuilder()
-        .AddLayoutBinding( 0, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment | vk::ShaderStageFlagBits::eCompute )
+        .AddLayoutBinding( 0, vk::DescriptorType::eStorageBuffer, vk::ShaderStageFlagBits::eFragment | vk::ShaderStageFlagBits::eCompute )
         .Build( mDevice, vk::DescriptorSetLayoutCreateFlagBits::ePushDescriptorKHR )
         .front();
 }
@@ -90,50 +89,47 @@ scg::Presenter::InitializeDisplayPipeline( vk::RenderPass const inRenderPass )
 void
 scg::Presenter::InitializeBuffers()
 {
+    auto theBufferSize = sizeof( float ) * 10;
+    mGeometryBuffer = mDevice->CreateBuffer
+    (
+        vk::BufferCreateInfo( vk::BufferCreateFlags(), theBufferSize, vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eTransferSrc ),
+        vma::AllocationCreateInfo( vma::AllocationCreateFlagBits::eHostAccessSequentialWrite, vma::MemoryUsage::eAuto )
+    );
+
+    mSymBuffer = ( float * ) mDevice->MapMemory( mGeometryBuffer );
 }
 
 void
 scg::Presenter::Draw( const vkrt::RenderEnvironment & inRenderEnvironment )
 {
-
-    if( !mCanRender ) return;
-
     auto theCommandBuffer = inRenderEnvironment.mCommandBuffer;
 
     BeginPresenterRenderPass( theCommandBuffer );
     {
         theCommandBuffer.bindPipeline( vk::PipelineBindPoint::eGraphics, mPipeline->GetVkPipeline() );
 
-        PushConstants thePushConstants
-        {
-            mSize,
-            mPos,
-            glm::vec4( mColorTreshold, 1.0f ),
-            glm::vec4( mReplacementColor, 1.0f ),
-            mScale
-        };
         theCommandBuffer.pushConstants
         (
             mPipeline->GetVkPipelineLayout(),
             vk::ShaderStageFlagBits::eFragment,
             0,
             sizeof( PushConstants ),
-            & thePushConstants
+            & mPushConstants
         );
 
-        auto theImageInfo = vk::DescriptorImageInfo
+        auto theBufferInfo = vk::DescriptorBufferInfo
         (
-            mSampler,
-            mImageView,
-            vk::ImageLayout::eShaderReadOnlyOptimal
+            mGeometryBuffer.GetVkBuffer(),
+            0,
+            VK_WHOLE_SIZE
         );
 
         auto theWriteDescriptorSet = vk::WriteDescriptorSet();
         theWriteDescriptorSet.setDstBinding( 0 );
         theWriteDescriptorSet.setDstArrayElement( 0 );
-        theWriteDescriptorSet.setDescriptorType( vk::DescriptorType::eCombinedImageSampler );
+        theWriteDescriptorSet.setDescriptorType( vk::DescriptorType::eStorageBuffer );
         theWriteDescriptorSet.setDescriptorCount( 1 );
-        theWriteDescriptorSet.setPImageInfo( & theImageInfo );
+        theWriteDescriptorSet.setPBufferInfo( & theBufferInfo );
 
         PFN_vkCmdPushDescriptorSetKHR pfnVkCmdPushDescriptorSetKhr = reinterpret_cast< PFN_vkCmdPushDescriptorSetKHR >( mDevice->GetVkDevice().getProcAddr( "vkCmdPushDescriptorSetKHR" ) );
         pfnVkCmdPushDescriptorSetKhr
@@ -150,74 +146,4 @@ scg::Presenter::Draw( const vkrt::RenderEnvironment & inRenderEnvironment )
         theCommandBuffer.draw( 3, 1, 0, 0 );
     }
     EndPresenterRenderPass( theCommandBuffer );
-}
-
-void
-scg::Presenter::SetupImageViews( vks::Image & inImage )
-{
-    if( mCanRender )
-    {
-        mDevice->GetVkDevice().destroy( mImageView );
-        mDevice->GetVkDevice().destroy( mSampler );
-    }
-
-    mCanRender = true;
-
-    mSize = glm::vec2( inImage.GetWidth(), inImage.GetHeight() );
-
-    auto theDevice = vks::VksSession::GetInstance()->GetDevice();
-
-    // Initialize data
-    auto imageViewCreateInfo = vk::ImageViewCreateInfo
-    (
-        vk::ImageViewCreateFlags(),
-        inImage.GetVkImage(),
-        vk::ImageViewType::e2D,
-        vk::Format::eR8G8B8A8Unorm,
-        vk::ComponentMapping
-        (
-            vk::ComponentSwizzle::eIdentity,
-            vk::ComponentSwizzle::eIdentity,
-            vk::ComponentSwizzle::eIdentity,
-            vk::ComponentSwizzle::eIdentity
-        ),
-        vk::ImageSubresourceRange
-        (
-            vk::ImageAspectFlagBits::eColor,
-            0,
-            1,
-            0,
-            1
-        )
-    );
-    mImageView = theDevice->GetVkDevice().createImageView( imageViewCreateInfo );
-
-    mSampler = theDevice->GetVkDevice().createSampler
-    (
-        vk::SamplerCreateInfo
-        (
-            vk::SamplerCreateFlags(),
-            vk::Filter::eNearest,
-            vk::Filter::eNearest,
-            vk::SamplerMipmapMode::eNearest,
-            vk::SamplerAddressMode::eRepeat,
-            vk::SamplerAddressMode::eRepeat,
-            vk::SamplerAddressMode::eRepeat,
-            0.0f,
-            VK_FALSE,
-            16.0f,
-            VK_FALSE,
-            vk::CompareOp::eAlways,
-            0.0f,
-            0.0f,
-            vk::BorderColor::eIntOpaqueBlack,
-            VK_FALSE
-        )
-    );
-}
-
-void
-scg::Presenter::SetImage( vks::Image & inImage )
-{
-    SetupImageViews( inImage );
 }

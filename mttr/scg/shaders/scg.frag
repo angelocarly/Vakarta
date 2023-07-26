@@ -9,12 +9,16 @@ layout(push_constant) uniform PushConstantsBlock
 {
     vec2 mSize;
     vec2 mPos;
-    vec4 mColorTreshold;
+    vec4 mColorBackground;
     vec4 mReplacementColor;
     float mScale;
+    float mEdgeSize;
 } PushConstants;
 
-layout(binding = 0) uniform sampler2D uTexture;
+layout(binding = 0) readonly buffer SymBuffer
+{
+    vec4 mSymBuffer[];
+} uSymBuffer;
 
 #define WIDTH 1600
 #define HEIGHT 900
@@ -48,31 +52,38 @@ void main()
     uv *= PushConstants.mScale;
     uv += PushConstants.mPos / vec2( WIDTH, HEIGHT );
     uv.x *= aspect;
+    vec2 p = uv;
     uv.x *= PushConstants.mSize.y / PushConstants.mSize.x;
 
-    if( uv.x < 0.0f || uv.x > 1.0f || uv.y < 0.0f || uv.y > 1.0f )
+
+    vec3 col = vec3( PushConstants.mColorBackground.rgb );
+
+    // inner circle
+    if( length( p ) < 0.5f + PushConstants.mEdgeSize / 2.0f && length( p ) > 0.5f - PushConstants.mEdgeSize / 2.0f )
     {
-        vec2 buv = inUV;
-        buv *= PushConstants.mScale;
-        buv += PushConstants.mPos / vec2( WIDTH, HEIGHT );
-        buv.x *= aspect;
-        outColor = vec4( background( buv ), 1.0f );
-        return;
+        col = PushConstants.mReplacementColor.rgb;
     }
 
-    vec3 col = texture( uTexture, uv ).rgb;
+    // outer circles
+    int count = int( uSymBuffer.mSymBuffer[0].x * 20 );
+    for( int i = 0; i < count; i++ )
+    {
+        float angle = float( i ) / float(count) * 6.28318530718f;
+        vec2 pos = vec2( cos( angle ), sin( angle ) ) * 0.5f;
+        if( abs( length( pos - p ) - .5 ) < PushConstants.mEdgeSize / 2.0f )
+        {
+            col = PushConstants.mReplacementColor.rgb * 0.5f;
+        }
 
-    if( col.r < PushConstants.mColorTreshold.r )
-    {
-        col.r *= PushConstants.mReplacementColor.r;
-    }
-    if( col.g < PushConstants.mColorTreshold.g )
-    {
-        col.g *= PushConstants.mReplacementColor.g;
-    }
-    if( col.b < PushConstants.mColorTreshold.b )
-    {
-        col.b *= PushConstants.mReplacementColor.b;
+        for( int j = 0; j < count; j++ )
+        {
+            float angle = float( j ) / float(count) * 6.28318530718f + angle;
+            vec2 ipos = pos + vec2( cos( angle ), sin( angle ) ) * 0.5f;
+            if( abs( length( ipos - p ) - .5 ) < PushConstants.mEdgeSize / 2.0f )
+            {
+                col = PushConstants.mReplacementColor.rgb * 0.5f;
+            }
+        }
     }
 
     outColor = vec4( col, 1.0f );

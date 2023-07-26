@@ -31,8 +31,10 @@ scg::ScgGUI::DrawGui()
             ImGuiFileDialog::Instance()->OpenDialog( "Id", "Choose File", ".png", "." );
         }
 
-        ImGui::ColorPicker3( "Color treshold", &mPresenter->GetColorTreshold()[ 0 ] );
+        ImGui::ColorPicker3( "Background", &mPresenter->GetColorTreshold()[ 0 ] );
         ImGui::ColorPicker3( "Color replacement", &mPresenter->GetReplacementColor()[ 0 ] );
+        ImGui::DragFloat( "Edge size", &mPresenter->GetEdgeSize(), 0.001f, 0.0f, 1.0f );
+        ImGui::DragFloat( "SymBuffer", mPresenter->GetSymBuffer(), 0.1f, -1, 10);
 
     }
     ImGui::End();
@@ -49,7 +51,7 @@ scg::ScgGUI::DrawGui()
             auto theImageResource = vks::AssetLoader::LoadImageResource( mFilePath );
             auto theDevice = vks::VksSession::GetInstance()->GetDevice();
             mImage = theDevice->AllocateImage( theImageResource, vk::ImageLayout::eShaderReadOnlyOptimal );
-            mPresenter->SetImage( mImage );
+            // Do something with the image
         }
 
         // close
