@@ -1,9 +1,9 @@
 /**
  * VoxelCompute.cpp
  *
- * @file	VoxelCompute.cpp
+ * @file	ParticleCompute.cpp
  * @author	Angelo Carly
- * @date	27/06/2023
+ * @date	29/07/2023
  *
  * Copyright (c) 2023 Hybrid Software Development. All rights reserved.
  */
@@ -14,10 +14,11 @@
 #include "vks/render/DescriptorLayoutBuilder.h"
 #include "vks/render/Device.h"
 #include "vks/render/Utils.h"
+#include "mttr/voxels/ParticleCompute.h"
 
 #include <chrono>
 
-Vox::VoxelCompute::VoxelCompute( vks::DevicePtr inDevice, std::size_t inWorldSize, std::shared_ptr< Vox::VoxelControls > inControls )
+Vox::ParticleCompute::ParticleCompute( vks::DevicePtr inDevice, std::size_t inWorldSize, std::shared_ptr< Vox::VoxelControls > inControls )
 :
     mDevice( inDevice ),
     mControls( inControls ),
@@ -33,14 +34,15 @@ Vox::VoxelCompute::VoxelCompute( vks::DevicePtr inDevice, std::size_t inWorldSiz
     );
 }
 
-Vox::VoxelCompute::~VoxelCompute()
+Vox::ParticleCompute::~ParticleCompute()
 {
-    mDevice->DestroyBuffer( mReadWorldBuffer );
+    mDevice->UnmapMemory( mParticleBuffer );
+    mDevice->DestroyBuffer( mParticleBuffer );
     mDevice->GetVkDevice().destroy( mDescriptorSetLayout );
 }
 
 void
-Vox::VoxelCompute::InitializeDescriptorSetLayout()
+Vox::ParticleCompute::InitializeDescriptorSetLayout()
 {
     mDescriptorSetLayout = vks::DescriptorLayoutBuilder()
         .AddLayoutBinding( 0, vk::DescriptorType::eStorageBuffer, vk::ShaderStageFlagBits::eFragment | vk::ShaderStageFlagBits::eCompute )
@@ -50,9 +52,9 @@ Vox::VoxelCompute::InitializeDescriptorSetLayout()
 }
 
 void
-Vox::VoxelCompute::InitializeComputePipeline()
+Vox::ParticleCompute::InitializeComputePipeline()
 {
-    auto theComputeShader = vks::Utils::CreateVkShaderModule( mDevice, "shaders/Voxels.comp.spv" );
+    auto theComputeShader = vks::Utils::CreateVkShaderModule( mDevice, "shaders/particles.comp.spv" );
 
     std::vector< vk::PushConstantRange > thePushConstants =
     {
@@ -63,7 +65,6 @@ Vox::VoxelCompute::InitializeComputePipeline()
             sizeof( PushConstants )
         )
     };
-
 
     vks::ComputePipeline::ComputePipelineCreateInfo theComputePipelineCreateInfo =
     {
@@ -77,29 +78,36 @@ Vox::VoxelCompute::InitializeComputePipeline()
 }
 
 void
-Vox::VoxelCompute::InitializeBuffers()
+Vox::ParticleCompute::InitializeBuffers()
 {
-    auto theBufferSize = kWorldSize * kWorldSize * kWorldSize * sizeof( glm::vec4 );
-    mReadWorldBuffer = mDevice->CreateBuffer
+    auto theBufferSize = kParticleCount * sizeof( glm::vec4 );
+    mParticleBuffer = mDevice->CreateBuffer
     (
         vk::BufferCreateInfo( vk::BufferCreateFlags(), theBufferSize, vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eTransferDst ),
         vma::AllocationCreateInfo( vma::AllocationCreateFlagBits::eHostAccessSequentialWrite, vma::MemoryUsage::eAuto )
     );
+
+    glm::vec4 * theData = ( glm::vec4 * ) mDevice->MapMemory(  mParticleBuffer );
+    for( std::size_t i = 0; i < kParticleCount; ++i )
+    {
+        auto theParticle = glm::vec4
+        (
+            rand() % kWorldSize,
+            rand() % kWorldSize,
+            rand() % kWorldSize,
+            1.0f
+        );
+        theData[ i ] = theParticle;
+
+    }
 }
 
 void
-Vox::VoxelCompute::Compute( vk::CommandBuffer const inCommandBuffer, vks::Buffer & inWorldBuffer )
+Vox::ParticleCompute::Compute( vk::CommandBuffer const inCommandBuffer, vks::Buffer & inWorldBuffer )
 {
     assert( inWorldBuffer.GetSize() == kWorldSize * kWorldSize * kWorldSize * sizeof( glm::vec4 ) );
 
     auto theCommandBuffer = inCommandBuffer;
-
-    theCommandBuffer.copyBuffer
-    (
-        inWorldBuffer.GetVkBuffer(),
-        mReadWorldBuffer.GetVkBuffer(),
-        vk::BufferCopy( 0, 0, inWorldBuffer.GetSize() )
-    );
 
     mComputePipeline->Bind( theCommandBuffer );
 
@@ -111,9 +119,9 @@ Vox::VoxelCompute::Compute( vk::CommandBuffer const inCommandBuffer, vks::Buffer
     );
     auto theReadBufferInfo = vk::DescriptorBufferInfo
     (
-        mReadWorldBuffer.GetVkBuffer(),
+        mParticleBuffer.GetVkBuffer(),
         0,
-        mReadWorldBuffer.GetSize()
+        mParticleBuffer.GetSize()
     );
 
     auto theWriteDescriptorSet = vk::WriteDescriptorSet();
@@ -133,21 +141,21 @@ Vox::VoxelCompute::Compute( vk::CommandBuffer const inCommandBuffer, vks::Buffer
     mComputePipeline->PushDescriptor( theCommandBuffer, theWriteDescriptorSet );
 
     auto theTime = std::chrono::duration_cast<std::chrono::microseconds>
-    (
-        std::chrono::system_clock::now().time_since_epoch()
-    );
+        (
+            std::chrono::system_clock::now().time_since_epoch()
+        );
     PushConstants thePushConstants
-    {
-        ( float ) ( mStartTime - theTime ).count() / 1000.0f
-    };
+        {
+            ( float ) ( mStartTime - theTime ).count() / 1000.0f
+        };
     theCommandBuffer.pushConstants
-    (
-        mComputePipeline->GetVkPipelineLayout(),
-        vk::ShaderStageFlagBits::eCompute,
-        0,
-        sizeof( PushConstants ),
-        & thePushConstants
-    );
+        (
+            mComputePipeline->GetVkPipelineLayout(),
+            vk::ShaderStageFlagBits::eCompute,
+            0,
+            sizeof( PushConstants ),
+            & thePushConstants
+        );
 
 
     int theGroupSize = 8;

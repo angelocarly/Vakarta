@@ -23,24 +23,24 @@
 #define HEIGHT 900
 #define TITLE "VKRT"
 
-Mttr::Vox::VoxelEngine::VoxelEngine( vks::WindowPtr inWindow, vks::VksSessionPtr inSession )
+Vox::VoxelEngine::VoxelEngine( vks::WindowPtr inWindow, vks::VksSessionPtr inSession )
 :
     vkrt::Engine( inWindow, inSession )
 {
-    mVoxelGui = std::make_shared< Mttr::Vox::VoxelControls >( GetInputState() );
+    mVoxelGui = std::make_shared< Vox::VoxelControls >( GetInputState() );
     RegisterGuiDrawer( mVoxelGui );
 
-    mVoxelRenderer = std::make_shared< Mttr::Vox::VoxelRenderer >( inSession->GetDevice(), mVoxelGui, WIDTH, HEIGHT, mVoxelGui->GetCamera() );
+    mVoxelRenderer = std::make_shared< Vox::VoxelRenderer >( inSession->GetDevice(), mVoxelGui, WIDTH, HEIGHT, mVoxelGui->GetCamera() );
     RegisterPresenter( mVoxelRenderer );
 }
 
-Mttr::Vox::VoxelEngine::~VoxelEngine()
+Vox::VoxelEngine::~VoxelEngine()
 {
 
 }
 
 void
-Mttr::Vox::VoxelEngine::Update( float inFrameDuration )
+Vox::VoxelEngine::Update( float inFrameDuration )
 {
 
 }
@@ -52,7 +52,7 @@ int main()
     auto theWindow = std::make_shared< vks::Window >( WIDTH, HEIGHT, TITLE );
     auto theVulkanSession = vks::VksSession::GetInstance();
 
-    std::shared_ptr< vkrt::Engine > engine = std::make_shared< Mttr::Vox::VoxelEngine >( theWindow, theVulkanSession );
+    std::shared_ptr< vkrt::Engine > engine = std::make_shared< Vox::VoxelEngine >( theWindow, theVulkanSession );
 
     engine->Run();
 

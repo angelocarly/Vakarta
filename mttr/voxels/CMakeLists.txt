@@ -2,6 +2,8 @@ project( Voxels VERSION 0.1.0)
 
 set(
     Voxels_HEADER_FILES
+        ParticleCompute.h
+        ParticlePresenter.h
         VoxelCompute.h
         VoxelControls.h
         VoxelEngine.h
@@ -11,6 +13,8 @@ set(
 
 set(
     Voxels_SOURCE_FILES
+        Source/ParticleCompute.cpp
+        Source/ParticlePresenter.cpp
         Source/VoxelCompute.cpp
         Source/VoxelControls.cpp
         Source/VoxelEngine.cpp
@@ -20,6 +24,7 @@ set(
 
 set(
     Voxels_GLSL_FILES
+        shaders/particles.comp
         shaders/Voxels.frag
         shaders/Voxels.comp
 )

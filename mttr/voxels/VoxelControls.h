@@ -20,7 +20,7 @@
 #include <glm/vec3.hpp>
 #include <glm/fwd.hpp>
 
-namespace Mttr::Vox
+namespace Vox
 {
     class VoxelControls
     :

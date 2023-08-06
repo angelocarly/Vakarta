@@ -1,15 +1,9 @@
-/**
- * VoxelCompute.h
- *
- * @file	VoxelCompute.h
- * @author	Angelo Carly
- * @date	27/06/2023
- *
- * Copyright (c) 2023 Hybrid Software Development. All rights reserved.
- */
+//
+// Created by magnias on 7/29/23.
+//
 
-#ifndef Mttr_VoxelCompute_h
-#define Mttr_VoxelCompute_h
+#ifndef Vox_ParticleCompute_h
+#define Vox_ParticleCompute_h
 
 #include "vks/core/Buffer.h"
 #include "vks/render/ForwardDecl.h"
@@ -24,11 +18,11 @@ namespace Vox
     /**
      * Cellular automata compute pipeline for voxels
      */
-    class VoxelCompute
+    class ParticleCompute
     {
         public:
-            VoxelCompute( vks::DevicePtr inDevice, std::size_t inWorldSize, std::shared_ptr< Vox::VoxelControls > inControls );
-            ~VoxelCompute();
+            ParticleCompute( vks::DevicePtr inDevice, std::size_t inWorldSize, std::shared_ptr< Vox::VoxelControls > inControls );
+            ~ParticleCompute();
 
             void Compute( vk::CommandBuffer const inCommandBuffer, vks::Buffer & inWorldBuffer );
 
@@ -47,7 +41,8 @@ namespace Vox
             std::size_t const kWorldSize;
             vk::RenderPass const kRenderPass;
 
-            vks::Buffer mReadWorldBuffer;
+            std::size_t const kParticleCount = 1000;
+            vks::Buffer mParticleBuffer;
 
             std::chrono::microseconds mStartTime;
             struct PushConstants

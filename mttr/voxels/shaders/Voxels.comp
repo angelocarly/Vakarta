@@ -7,12 +7,12 @@ layout ( local_size_x = WORKGROUP_SIZE, local_size_y = WORKGROUP_SIZE, local_siz
 #define WORLD_SIZE 128
 layout ( binding = 0 ) buffer InWorldDataBlock
 {
-    int mWorldData[ WORLD_SIZE * WORLD_SIZE * WORLD_SIZE ];
+    vec4 mWorldData[ WORLD_SIZE * WORLD_SIZE * WORLD_SIZE ];
 } inWorldData;
 
 layout ( binding = 1 ) buffer OutWorldDataBlock
 {
-    int mWorldData[ WORLD_SIZE * WORLD_SIZE * WORLD_SIZE ];
+    vec4 mWorldData[ WORLD_SIZE * WORLD_SIZE * WORLD_SIZE ];
 } outWorldData;
 
 layout(push_constant) uniform PushConstantsBlock
@@ -24,6 +24,69 @@ float random(vec3 st) {
     return fract(sin(dot(st.xyz,
     vec3(12.9898,78.233,39.847)))*
     43758.5453123 + PushConstants.mTime );
+}
+
+vec4 read( uint x, uint y, uint z )
+{
+    uint index = x * WORLD_SIZE * WORLD_SIZE + y * WORLD_SIZE + z;
+    return inWorldData.mWorldData[ index ];
+}
+
+void write( uint x, uint y, uint z, vec4 value )
+{
+    uint index = x * WORLD_SIZE * WORLD_SIZE + y * WORLD_SIZE + z;
+    outWorldData.mWorldData[ index ] = value;
+}
+
+float sdf( vec4 p )
+{
+    return length( p ) - 0.3f;
+}
+
+struct ray_result
+{
+    vec3 position;
+    float distance;
+    bool hit;
+};
+ray_result cast_ray( vec4 origin, vec4 direction )
+{
+    ray_result result;
+
+    float t = 0.0f;
+    for( int i = 0; i < 100; i++ )
+    {
+        float d = sdf( origin + direction * t );
+
+        t += d;
+
+        if( d < 0.0001f )
+        {
+            result.hit = true;
+            result.position = vec3( origin + direction * t );
+            result.distance = t;
+            return result;
+        }
+    }
+
+    result.hit = false;
+    return result;
+}
+
+void d4( uint x, uint y, uint z )
+{
+    float t = 0;
+    vec4 origin = vec4( x, y, z, 0 ) / float( WORLD_SIZE ) - vec4( .5f );
+    vec4 direction = vec4( 0, 0, 0, 1 );
+    ray_result result = cast_ray( origin, direction );
+    if( result.hit )
+    {
+        write( x, y, z, vec4( 1 ) );
+    }
+    else
+    {
+        write( x, y, z, vec4( 0 ) );
+    }
 }
 
 void main()
@@ -38,72 +101,6 @@ void main()
         return;
     }
 
-    uint index = x * WORLD_SIZE * WORLD_SIZE + y * WORLD_SIZE + z;
-
-    uint liveNeighbors = 0;
-    uint deadNeighbors = 0;
-    int youngestNeighbor = 0;
-    for( int x = -1; x <= 1; x++ )
-    {
-        for( int y = -1; y <= 1; y++ )
-        {
-            for( int z = -1; z <= 1; z++ )
-            {
-                if( x == 0 && y == 0 && z == 0 )
-                {
-                    continue;
-                }
-
-                ivec3 neighborpos = ivec3( x, y, z ) + ivec3( gl_GlobalInvocationID );
-                if( neighborpos.x < 0 ) neighborpos.x += WORLD_SIZE;
-                if( neighborpos.y < 0 ) neighborpos.y += WORLD_SIZE;
-                if( neighborpos.z < 0 ) neighborpos.z += WORLD_SIZE;
-                if( neighborpos.x >= WORLD_SIZE ) neighborpos.x -= WORLD_SIZE;
-                if( neighborpos.y >= WORLD_SIZE ) neighborpos.y -= WORLD_SIZE;
-                if( neighborpos.z >= WORLD_SIZE ) neighborpos.z -= WORLD_SIZE;
-
-                uint neighborIndex = neighborpos.x * WORLD_SIZE * WORLD_SIZE + neighborpos.y * WORLD_SIZE + neighborpos.z;
-                uint theNeighbor = inWorldData.mWorldData[ neighborIndex ];
-                if( theNeighbor > 4 )
-                {
-                    youngestNeighbor = max( youngestNeighbor, int( theNeighbor ) );
-                    liveNeighbors++;
-                }
-                else
-                {
-                    deadNeighbors++;
-                }
-            }
-        }
-    }
-
-    int theCell = inWorldData.mWorldData[ index ];
-
-    if( liveNeighbors == 1 && random( gl_GlobalInvocationID ) > .933f )
-    {
-        if( theCell == 0 )
-        {
-            outWorldData.mWorldData[ index ] = 5;
-        }
-        else
-        {
-            outWorldData.mWorldData[ index ] = 0;
-        }
-        return;
-    }
-    else
-    {
-        if( theCell > 0 ) outWorldData.mWorldData[ index ] = inWorldData.mWorldData[ index ] - 1;
-    }
-//    if( youngestNeighbor > 0 )
-//    {
-//        outWorldData.mWorldData[ index ] = youngestNeighbor - 1;
-//        return;
-//    }
-//    if( theCell > 0 )
-//    {
-//        if( theCell > 0 ) outWorldData.mWorldData[ index ] = inWorldData.mWorldData[ index ] - 1;
-//        return;
-//    }
-
+//    automata( x, y, z );
+    d4( x, y, z );
 }

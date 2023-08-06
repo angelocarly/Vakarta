@@ -18,7 +18,7 @@
 #include "VoxelPresenter.h"
 #include "VoxelRenderer.h"
 
-namespace Mttr::Vox
+namespace Vox
 {
     class VoxelEngine
     :
@@ -36,8 +36,8 @@ namespace Mttr::Vox
             vk::Sampler GetSampler() const { return mVoxelRenderer->GetSampler(); };
 
         private:
-            std::shared_ptr< Mttr::Vox::VoxelControls > mVoxelGui;
-            std::shared_ptr< Mttr::Vox::VoxelRenderer > mVoxelRenderer;
+            std::shared_ptr< Vox::VoxelControls > mVoxelGui;
+            std::shared_ptr< Vox::VoxelRenderer > mVoxelRenderer;
     };
 }
 

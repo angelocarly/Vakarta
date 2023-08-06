@@ -30,7 +30,7 @@ namespace scg
             glm::vec4 & GetColorTreshold() { return mPushConstants.mColorBackGround; };
             glm::vec4 & GetReplacementColor() { return mPushConstants.mReplacementColor; };
             glm::vec2 & GetPos() { return mPushConstants.mPos; };
-            float * GetSymBuffer() { return mSymBuffer; };
+            std::uint32_t * GetSymBuffer() { return mSymBuffer; };
             float & GetEdgeSize() { return mPushConstants.mEdgeSize; };
             float & GetScale() { return mPushConstants.mScale; };
 
@@ -57,10 +57,10 @@ namespace scg
                 glm::vec4 mColorBackGround;
                 glm::vec4 mReplacementColor = glm::vec4( 1.0f );
                 float mScale = 1.0f;
-                float mEdgeSize = 0.01f;
+                float mEdgeSize = 0.96f;
             };
             PushConstants mPushConstants;
-            float * mSymBuffer;
+            std::uint32_t * mSymBuffer;
     };
 }
 

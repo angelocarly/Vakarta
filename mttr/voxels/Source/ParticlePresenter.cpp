@@ -1,13 +1,13 @@
 /**
- * VoxelPresenter.cpp
+ * ParticlePresenter.cpp
  *
- * @file	VoxelPresenter.cpp
+ * @file	ParticlePresenter.cpp
  * @author	Angelo Carly
- * @date	24/06/2023
+ * @date	29/07/2023
  *
  */
 
-#include "mttr/voxels/VoxelPresenter.h"
+#include "mttr/voxels/ParticlePresenter.h"
 
 #include "vkrt/graphics/Presenter.h"
 
@@ -19,7 +19,7 @@
 
 #include <glm/vec3.hpp>
 
-Vox::VoxelPresenter::VoxelPresenter( vks::DevicePtr inDevice, std::size_t inWidth, std::size_t inHeight, vkrt::CameraPtr inCamera, std::size_t inWorldSize )
+Vox::ParticlePresenter::ParticlePresenter( vks::DevicePtr inDevice, std::size_t inWidth, std::size_t inHeight, vkrt::CameraPtr inCamera, std::size_t inWorldSize )
 :
     vkrt::Presenter( inDevice, inWidth, inHeight ),
     mDevice( inDevice ),
@@ -33,14 +33,14 @@ Vox::VoxelPresenter::VoxelPresenter( vks::DevicePtr inDevice, std::size_t inWidt
     InitializeBuffers();
 }
 
-Vox::VoxelPresenter::~VoxelPresenter()
+Vox::ParticlePresenter::~ParticlePresenter()
 {
     mDevice->DestroyBuffer( mWorldBuffer );
     mDevice->GetVkDevice().destroy( mDescriptorSetLayout );
 }
 
 void
-Vox::VoxelPresenter::InitializeDescriptorSetLayout()
+Vox::ParticlePresenter::InitializeDescriptorSetLayout()
 {
     mDescriptorSetLayout = vks::DescriptorLayoutBuilder()
         .AddLayoutBinding( 0, vk::DescriptorType::eStorageBuffer, vk::ShaderStageFlagBits::eFragment | vk::ShaderStageFlagBits::eCompute )
@@ -50,7 +50,7 @@ Vox::VoxelPresenter::InitializeDescriptorSetLayout()
 
 
 void
-Vox::VoxelPresenter::InitializeDisplayPipeline( vk::RenderPass const inRenderPass )
+Vox::ParticlePresenter::InitializeDisplayPipeline( vk::RenderPass const inRenderPass )
 {
     auto theVertexShader = vks::Utils::CreateVkShaderModule( mDevice, "shaders/ScreenRect.vert.spv" );
     auto theFragmentShader = vks::Utils::CreateVkShaderModule( mDevice, "shaders/Voxels.frag.spv" );
@@ -87,7 +87,7 @@ Vox::VoxelPresenter::InitializeDisplayPipeline( vk::RenderPass const inRenderPas
 }
 
 void
-Vox::VoxelPresenter::InitializeBuffers()
+Vox::ParticlePresenter::InitializeBuffers()
 {
     auto theBufferSize = kWorldSize * kWorldSize * kWorldSize * sizeof( glm::vec4 );
     mWorldBuffer = mDevice->CreateBuffer
@@ -111,7 +111,7 @@ Vox::VoxelPresenter::InitializeBuffers()
 }
 
 void
-Vox::VoxelPresenter::Draw( const vkrt::RenderEnvironment & inRenderEnvironment )
+Vox::ParticlePresenter::Draw( const vkrt::RenderEnvironment & inRenderEnvironment )
 {
     auto theCommandBuffer = inRenderEnvironment.mCommandBuffer;
 

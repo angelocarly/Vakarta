@@ -7,6 +7,7 @@
 #include "vks/assets/AssetLoader.h"
 #include "vks/render/Device.h"
 #include "vks/render/VksSession.h"
+#include "imgui_memory_editor.h"
 
 
 #include <ImGuiFileDialog.h>
@@ -23,6 +24,8 @@ scg::ScgGUI::ScgGUI( vkrt::InputStatePtr inInputState, std::shared_ptr< scg::Pre
 void
 scg::ScgGUI::DrawGui()
 {
+    mem_edit.DrawWindow( "Memory Editor", mPresenter->GetSymBuffer(), 100 );
+
     ImGui::Begin( "Image settings" );
     {
 
@@ -33,8 +36,7 @@ scg::ScgGUI::DrawGui()
 
         ImGui::ColorPicker3( "Background", &mPresenter->GetColorTreshold()[ 0 ] );
         ImGui::ColorPicker3( "Color replacement", &mPresenter->GetReplacementColor()[ 0 ] );
-        ImGui::DragFloat( "Edge size", &mPresenter->GetEdgeSize(), 0.001f, 0.0f, 1.0f );
-        ImGui::DragFloat( "SymBuffer", mPresenter->GetSymBuffer(), 0.1f, -1, 10);
+        ImGui::SliderFloat( "Edge size", &mPresenter->GetEdgeSize(), 0.001f, 10.0f );
 
     }
     ImGui::End();

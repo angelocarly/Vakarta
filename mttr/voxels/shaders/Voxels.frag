@@ -14,7 +14,7 @@ layout(push_constant) uniform PushConstantsBlock
 #define WORLD_SIZE 128
 layout( binding = 0 ) readonly buffer InWorldDataBlock
 {
-    int mWorldData[ WORLD_SIZE * WORLD_SIZE * WORLD_SIZE ];
+    vec4 mWorldData[ WORLD_SIZE * WORLD_SIZE * WORLD_SIZE ];
 } inWorldData;
 
 float random(vec2 st) {
@@ -87,17 +87,19 @@ RayResult traceRay( vec3 origin, vec3 direction )
     bool intersect = false;
     float startT = 1000000000000.0f;
 
+    // Do we start inside the world box?
     if( origin.x >= 0 && origin.y >= 0 && origin.z >= 0 && origin.x < WORLD_SIZE && origin.y < WORLD_SIZE && origin.z < WORLD_SIZE )
     {
         intersect = true;
         startT = 0.0f;
     }
+    // If not, try to calculate the distance to the world box
     else for( int i = 0; i < 3; i++ )
     {
-        // No intersections possible
-
         // Forward ray, check intersect at position 0
-        float next = 0.0f;
+        float next;
+        if( direction[ i ] > 0.0f ) next = 0.0f;
+        else next = WORLD_SIZE;
         float axisdist = next - origin[ i ];
         float raydist = axisdist / direction[ i ];
         vec3 p = origin + direction * raydist;
@@ -149,11 +151,11 @@ RayResult traceRay( vec3 origin, vec3 direction )
         vec3 next = rayPos;
         if( direction[i] > 0.0f )
         {
-            next[i] = floor( rayPos[i] ) + 1.0f;
+            next[i] = ceil( rayPos[i] );
         }
         else if( direction[i] < 0.0f )
         {
-            next[i] = ceil( rayPos[i] ) - 1.0f;
+            next[i] = floor( rayPos[i] );
         }
         float nextStep = abs( next[i] - rayPos[i] );
         sidepos[i] = nextStep / abs( direction[i] );
@@ -226,22 +228,10 @@ RayResult traceRay( vec3 origin, vec3 direction )
 
         if( pos.x >= 0 && pos.y >= 0 && pos.z >= 0 && pos.x < WORLD_SIZE && pos.y < WORLD_SIZE && pos.z < WORLD_SIZE )
         {
-            int theId = inWorldData.mWorldData[pos.x * WORLD_SIZE * WORLD_SIZE + pos.y * WORLD_SIZE + pos.z];
-            if (theId >= 6) continue;
-
-            if (theId > 0)
+            vec4 theCell = inWorldData.mWorldData[pos.x * WORLD_SIZE * WORLD_SIZE + pos.y * WORLD_SIZE + pos.z];
+            if( theCell.a > 0.0f )
             {
-                vec3 color = vec3(0);
-                switch (theId)
-                {
-                    case 1: color = vec3(251, 133, 0) / 255; break;
-                    case 2: color = vec3(255, 183, 3) / 255; break;
-                    case 3: color = vec3(2, 48, 71) / 255; break;
-                    case 4: color = vec3(33, 158, 188) / 255; break;
-                    case 5: color = vec3(142, 202, 230) / 255; break;
-                    default : color = vec3(1, 0, 0); break;
-                }
-                return RayResult( color, origin + direction * t, normal, true, t );
+                return RayResult( theCell.rgb, origin + direction * t, normal, true, t );
             }
         }
         else if( c > 1 ) break;

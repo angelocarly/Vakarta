@@ -89,14 +89,18 @@ scg::Presenter::InitializeDisplayPipeline( vk::RenderPass const inRenderPass )
 void
 scg::Presenter::InitializeBuffers()
 {
-    auto theBufferSize = sizeof( float ) * 10;
+    auto theBufferSize = sizeof( std::uint32_t ) * 100;
     mGeometryBuffer = mDevice->CreateBuffer
     (
         vk::BufferCreateInfo( vk::BufferCreateFlags(), theBufferSize, vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eTransferSrc ),
         vma::AllocationCreateInfo( vma::AllocationCreateFlagBits::eHostAccessSequentialWrite, vma::MemoryUsage::eAuto )
     );
 
-    mSymBuffer = ( float * ) mDevice->MapMemory( mGeometryBuffer );
+    mSymBuffer = ( std::uint32_t * ) mDevice->MapMemory( mGeometryBuffer );
+    for( int i = 0; i < 100; ++i )
+    {
+        mSymBuffer[i] = 0;
+    }
 }
 
 void

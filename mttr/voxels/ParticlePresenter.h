@@ -1,9 +1,9 @@
 /**
- * VoxelPresenter.h
+ * ParticlePresenter.h
  *
- * @file	VoxelPresenter.h
+ * @file	ParticlePresenter.h
  * @author	Angelo Carly
- * @date	24/06/2023
+ * @date	29/07/2023
  *
  */
 
@@ -19,13 +19,13 @@
 
 namespace Vox
 {
-    class VoxelPresenter
+    class ParticlePresenter
     :
         public vkrt::Presenter
     {
         public:
-            VoxelPresenter( vks::DevicePtr inDevice, std::size_t inWidth, std::size_t inHeight, vkrt::CameraPtr inCamera, std::size_t inWorldSize );
-            ~VoxelPresenter();
+            ParticlePresenter( vks::DevicePtr inDevice, std::size_t inWidth, std::size_t inHeight, vkrt::CameraPtr inCamera, std::size_t inWorldSize );
+            ~ParticlePresenter();
 
             void Draw( const vkrt::RenderEnvironment & inRenderEnvironment) override;
             vks::Buffer GetWorldBuffer() { return mWorldBuffer; };

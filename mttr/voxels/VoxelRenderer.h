@@ -14,8 +14,9 @@
 #include "vkrt/graphics/Presentable.h"
 #include "vkrt/graphics/RenderEnvironment.h"
 #include "VoxelPresenter.h"
+#include "mttr/voxels/ParticleCompute.h"
 
-namespace Mttr::Vox
+namespace Vox
 {
     class VoxelRenderer
     :
@@ -32,9 +33,10 @@ namespace Mttr::Vox
             vk::Sampler GetSampler() const { return mVoxelPresenter->GetSampler(); };
 
         private:
-            std::shared_ptr< Mttr::Vox::VoxelPresenter > mVoxelPresenter;
-            std::shared_ptr< Mttr::Vox::VoxelCompute > mVoxelCompute;
-            std::shared_ptr< Mttr::Vox::VoxelControls > mVoxelControls;
+            std::shared_ptr< Vox::VoxelPresenter > mVoxelPresenter;
+            std::shared_ptr< Vox::VoxelCompute > mVoxelCompute;
+            std::shared_ptr< Vox::ParticleCompute > mParticleCompute;
+            std::shared_ptr< Vox::VoxelControls > mVoxelControls;
 
     };
 }

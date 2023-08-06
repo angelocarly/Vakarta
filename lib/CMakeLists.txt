@@ -2,7 +2,7 @@ set( CMAKE_CXX_STANDARD 11 )
 
 ## IMGUI
 set( IMGUI_DIR ${CMAKE_CURRENT_SOURCE_DIR}/imgui )
-add_library( Imgui STATIC )
+add_library( Imgui STATIC imgui_memory_editor/imgui_memory_editor.h)
 set_target_properties( Imgui PROPERTIES POSITION_INDEPENDENT_CODE ON )
 
 target_sources(
@@ -57,6 +57,19 @@ target_include_directories(
         PUBLIC ${IMGUIFILEDIALOG_DIR}
 )
 
+# Hex editor
+set( IMGUIHEXEDITOR ${CMAKE_CURRENT_SOURCE_DIR}/imgui_memory_editor )
+add_library( ImguiHexEditor STATIC )
+target_link_libraries( ImguiHexEditor PUBLIC Imgui )
+target_sources(
+        ImguiHexEditor
+        PRIVATE
+        ${IMGUIHEXEDITOR}/imgui_memory_editor.h
+)
+target_include_directories(
+        ImguiHexEditor
+        PUBLIC ${IMGUIHEXEDITOR}
+)
 
 # Vulkan
 find_package( Vulkan REQUIRED )

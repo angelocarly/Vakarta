@@ -13,7 +13,7 @@
 
 #include "imgui.h"
 
-Mttr::Vox::VoxelControls::VoxelControls( vkrt::InputStatePtr inInputState )
+Vox::VoxelControls::VoxelControls( vkrt::InputStatePtr inInputState )
 :
     mInputState( inInputState ),
     mCamera( std::make_shared< vkrt::Camera >( 90.0f, 900.0f / 1600.0f, .01f, 1000.0f ) )
@@ -21,23 +21,26 @@ Mttr::Vox::VoxelControls::VoxelControls( vkrt::InputStatePtr inInputState )
     mCamera->SetPosition( glm::vec3( 0.0f, 0.0f, -5.0f ) );
 }
 
-Mttr::Vox::VoxelControls::~VoxelControls()
+Vox::VoxelControls::~VoxelControls()
 {
 
 }
 
 void
-Mttr::Vox::VoxelControls::DrawGui()
+Vox::VoxelControls::DrawGui()
 {
     ImGuiIO &io = ImGui::GetIO();
 
-    if( mInputState->IsButtonClicked( GLFW_MOUSE_BUTTON_1 ) )
+    if( !io.WantCaptureMouse )
     {
-        mInputState->SwallowMouse();
-    }
-    if( mInputState->IsKeyDown( GLFW_KEY_ESCAPE ) )
-    {
-        mInputState->ReleaseMouse();
+        if( mInputState->IsButtonClicked( GLFW_MOUSE_BUTTON_1 ) )
+        {
+            mInputState->SwallowMouse();
+        }
+        if( mInputState->IsKeyDown( GLFW_KEY_ESCAPE ) )
+        {
+            mInputState->ReleaseMouse();
+        }
     }
 
     if( mInputState->IsMouseSwallowed() )
@@ -103,19 +106,19 @@ Mttr::Vox::VoxelControls::DrawGui()
 }
 
 glm::mat4
-Mttr::Vox::VoxelControls::GetModel() const
+Vox::VoxelControls::GetModel() const
 {
     return mCamera->GetModel();
 }
 
 glm::mat4
-Mttr::Vox::VoxelControls::GetView() const
+Vox::VoxelControls::GetView() const
 {
     return mCamera->GetView();
 }
 
 glm::mat4
-Mttr::Vox::VoxelControls::GetProjection() const
+Vox::VoxelControls::GetProjection() const
 {
     return mCamera->GetProjection();
 }

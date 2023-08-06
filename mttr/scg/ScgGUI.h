@@ -8,6 +8,7 @@
 #include "vkrt/gui/GuiDrawer.h"
 #include "vks/core/Image.h"
 #include "Presenter.h"
+#include "imgui_memory_editor.h"
 
 #include <string>
 
@@ -31,6 +32,8 @@ namespace scg
             std::string mFilePath;
             std::string mFileName;
             vks::Image mImage;
+
+            MemoryEditor mem_edit;
 
     };
 }
