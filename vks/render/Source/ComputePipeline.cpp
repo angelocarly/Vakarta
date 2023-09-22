@@ -151,3 +151,49 @@ vks::ComputePipeline::PushDescriptor( vk::CommandBuffer inCommandBuffer, vk::Wri
         reinterpret_cast< const VkWriteDescriptorSet * >( & inWriteDescriptorSet )
     );
 }
+
+// =====================================================================================================================
+
+vks::ComputePipelineBuilder::ComputePipelineBuilder( vks::DevicePtr inDevice )
+:
+    mDevice( inDevice )
+{
+}
+
+vks::ComputePipelineBuilder::~ComputePipelineBuilder()
+{
+}
+
+vks::ComputePipelinePtr
+vks::ComputePipelineBuilder::Build()
+{
+    return std::make_shared< vks::ComputePipeline >( mDevice, mPipelineCreateInfo );
+}
+
+vks::ComputePipelineBuilder &
+vks::ComputePipelineBuilder::SetComputeShader( vk::ShaderModule inComputeShaderModule )
+{
+    mPipelineCreateInfo.mComputeShaderModule = inComputeShaderModule;
+    return *this;
+}
+
+vks::ComputePipelineBuilder &
+vks::ComputePipelineBuilder::SetDescriptorSetLayouts( std::vector< vk::DescriptorSetLayout > inDescriptorSetLayouts )
+{
+    mPipelineCreateInfo.mDescriptorSetLayouts = inDescriptorSetLayouts;
+    return *this;
+}
+
+vks::ComputePipelineBuilder &
+vks::ComputePipelineBuilder::SetPushConstants( std::vector< vk::PushConstantRange > inPushConstants )
+{
+    mPipelineCreateInfo.mPushConstants = inPushConstants;
+    return *this;
+}
+
+vks::ComputePipelineBuilder &
+vks::ComputePipelineBuilder::SetSpecializationInfo( vk::SpecializationInfo inSpecializationInfo )
+{
+    mPipelineCreateInfo.mSpecializationInfo = inSpecializationInfo;
+    return *this;
+}

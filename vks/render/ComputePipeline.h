@@ -20,6 +20,7 @@ namespace vks
                 vk::ShaderModule mComputeShaderModule;
                 std::vector< vk::DescriptorSetLayout > mDescriptorSetLayouts;
                 std::vector< vk::PushConstantRange > mPushConstants;
+                vk::SpecializationInfo mSpecializationInfo;
             };
 
         public:
@@ -38,6 +39,25 @@ namespace vks
         private:
             class Impl;
             std::unique_ptr< Impl > mImpl;
+    };
+
+    class ComputePipelineBuilder
+    {
+        public:
+            ComputePipelineBuilder( vks::DevicePtr inDevice );
+            ~ComputePipelineBuilder();
+            ComputePipelinePtr Build();
+
+        public:
+            ComputePipelineBuilder & SetComputeShader( vk::ShaderModule inComputeShaderModule );
+            ComputePipelineBuilder & SetDescriptorSetLayouts( std::vector< vk::DescriptorSetLayout > inDescriptorSetLayouts );
+            ComputePipelineBuilder & SetPushConstants( std::vector< vk::PushConstantRange > inPushConstants );
+            ComputePipelineBuilder & SetSpecializationInfo( vk::SpecializationInfo inSpecializationInfo );
+
+        private:
+            vks::DevicePtr mDevice;
+            ComputePipeline::ComputePipelineCreateInfo mPipelineCreateInfo;
+
     };
 }
 

@@ -47,6 +47,7 @@ Vox::ParticleCompute::InitializeDescriptorSetLayout()
     mDescriptorSetLayout = vks::DescriptorLayoutBuilder()
         .AddLayoutBinding( 0, vk::DescriptorType::eStorageBuffer, vk::ShaderStageFlagBits::eFragment | vk::ShaderStageFlagBits::eCompute )
         .AddLayoutBinding( 1, vk::DescriptorType::eStorageBuffer, vk::ShaderStageFlagBits::eFragment | vk::ShaderStageFlagBits::eCompute )
+        .AddLayoutBinding( 2, vk::DescriptorType::eStorageImage, vk::ShaderStageFlagBits::eCompute )
         .Build( mDevice, vk::DescriptorSetLayoutCreateFlagBits::ePushDescriptorKHR )
         .front();
 }
@@ -66,13 +67,40 @@ Vox::ParticleCompute::InitializeComputePipeline()
         )
     };
 
-    vks::ComputePipeline::ComputePipelineCreateInfo theComputePipelineCreateInfo =
+    std::array< vk::SpecializationMapEntry, 4 > theMapEntries =
     {
-        theComputeShader,
-        { mDescriptorSetLayout },
-        thePushConstants
+        vk::SpecializationMapEntry{ 0, 0, sizeof( int ) },
+        vk::SpecializationMapEntry{ 1, 0, sizeof( int ) },
+        vk::SpecializationMapEntry{ 2, 0, sizeof( int ) },
+        vk::SpecializationMapEntry{ 4, 0, sizeof( int ) }
     };
-    mComputePipeline = std::make_unique< vks::ComputePipeline >( mDevice, theComputePipelineCreateInfo );
+    struct SpecializationData
+    {
+        int mResolutionX;
+        int mResolutionY;
+        int mWorldSize;
+    };
+    SpecializationData theSpecializationData =
+    {
+        1024,
+        1024,
+        10
+    };
+
+    vk::SpecializationInfo theSpecializationInfo =
+    {
+        theMapEntries.size(),
+        theMapEntries.data(),
+        sizeof( int ) * 4,
+        & theSpecializationData
+    };
+
+    mComputePipeline = vks::ComputePipelineBuilder( mDevice )
+        .SetComputeShader( theComputeShader)
+        .SetPushConstants( thePushConstants )
+        .SetDescriptorSetLayouts( { mDescriptorSetLayout } )
+        .SetSpecializationInfo( theSpecializationInfo )
+        .Build();
 
     mDevice->GetVkDevice().destroy( theComputeShader );
 }
